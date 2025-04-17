@@ -1,5 +1,5 @@
 import { CharacterProvider } from '@/utils/CharacterContext';
-import { ThemeProvider } from '@/utils/ThemeContext';
+import { AppSettingProvider } from '@/utils/AppSettingContext';
 import { Stack } from 'expo-router';
 import { StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="default" translucent backgroundColor="transparent" />
-      <ThemeProvider>
+      <AppSettingProvider>
         <CharacterProvider>
           <Stack
             screenOptions={{
@@ -17,7 +17,7 @@ export default function RootLayout() {
             }}
           />
         </CharacterProvider>
-      </ThemeProvider>
+      </AppSettingProvider>
     </SafeAreaView>
   );
 }

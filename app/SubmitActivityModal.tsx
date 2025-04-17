@@ -13,6 +13,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useCharacter } from '@/utils/CharacterContext';
+import { useAppSetting } from '@/utils/AppSettingContext';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -36,6 +37,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const [activityName, setActivityName] = useState('');
   const [activityGold, setActivityGold] = useState('');
   const { characters, updateCharacter } = useCharacter();
+  const { activityHistory, updateActivityHistory } = useAppSetting();
   const character = characters.find((c) => c.id === id);
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
@@ -113,7 +115,20 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         WeeklyActivity: newActivity,
         WeeklyActivityTotalGold: updatedTotalGold,
       });
+
+      const MAX_HISTORY_LENGTH = 8; // 최대 히스토리 길이
+      let updatedHistory = [...activityHistory];
+      const activityHistoryIndex = activityHistory.findIndex(
+        (item) => item === activityName.trim()
+      );
+      if (activityHistoryIndex !== -1) {
+        updatedHistory.splice(activityHistoryIndex, 1); // 기존 히스토리 삭제
+      } else if (updatedHistory.length >= MAX_HISTORY_LENGTH) {
+        updatedHistory.pop(); // 가장 오래된 히스토리 삭제
+      }
+      updateActivityHistory([activityName.trim(), ...updatedHistory]); // 맨 앞으로 삽입
     }
+
     setIndexNull(); // 인덱스 초기화
     setActivityName('');
     setActivityGold('');
@@ -164,12 +179,19 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
             <Text style={styles.modalText}>
               {mode === 'edit' ? '📝 활동 수정' : '📝 활동 추가'}
             </Text>
-            <Pressable>
-              <Text>유각</Text>
-            </Pressable>
-            <Pressable>
-              <Text>카던</Text>
-            </Pressable>
+            {activityHistory.length > 0 && (
+              <View style={styles.activityHistoryContainer}>
+                {activityHistory.map((item, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.historyButton}
+                    onPress={() => setActivityName(item)}
+                  >
+                    <Text style={styles.historyButtonText}>{item}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             <TextInput
               placeholder="활동명 입력"
               style={styles.input}
@@ -267,6 +289,28 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  activityHistoryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    marginBottom: 12,
+    gap: 8, // React Native 0.71 이상
+  },
+
+  historyButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginRight: 4,
+    marginBottom: 4,
+  },
+
+  historyButtonText: {
+    color: 'white',
+    fontWeight: '500',
+    fontSize: 14,
   },
 });
 

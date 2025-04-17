@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList, StyleSheet, View, Dimensions } from 'react-native';
 import CharacterBar from './components/CharacterBar';
 import OverviewBar from '@/app/components/OverviewBar';
-import { useTheme } from '@/utils/ThemeContext';
+import { useAppSetting } from '@/utils/AppSettingContext';
 import { LOSTARK_API_TOKEN } from '@/config';
 import { useCharacter } from '@/utils/CharacterContext';
 
@@ -11,9 +11,9 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const OVERVIEW_HEIGHT = SCREEN_HEIGHT * (2 / 8);
 
 const MainPage: React.FC = () => {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme } = useAppSetting();
   const { characters } = useCharacter();
-  
+
   console.log(LOSTARK_API_TOKEN);
 
   return (
