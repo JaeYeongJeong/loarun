@@ -7,11 +7,9 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import { LOSTARK_API_TOKEN } from '@/config';
 import uuid from 'react-native-uuid';
 import { useCharacter } from '@/utils/CharacterContext';
-
-const LOSTARK_API_URL = 'https://developer-lostark.game.onstove.com';
+import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -60,33 +58,6 @@ const AddCharacterScreen: React.FC = () => {
     }
 
     setCharacterName(''); // 입력값 초기화
-  };
-
-  // ✅ 캐릭터 정보 가져오기 (비동기 요청)
-  const fetchCharacterInfo = async (characterName: string) => {
-    try {
-      const response = await fetch(
-        `${LOSTARK_API_URL}/armories/characters/${characterName}/profiles`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `bearer ${LOSTARK_API_TOKEN}`, // ✅ JWT 토큰 포함
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('캐릭터 정보:', data);
-      return data;
-    } catch (error) {
-      console.error('API 요청 실패:', error);
-      return null; // 오류 발생 시 null 반환
-    }
   };
 
   return (
