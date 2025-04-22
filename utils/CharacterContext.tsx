@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cropAndSavePortraitImage, deletePortraitImage } from './PortraitImage';
 
 type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -26,6 +27,7 @@ type Activity = {
 type Character = {
   id: string;
   CharacterImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
+  CharacterPortraitImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
   CharacterName: string;
   CharacterClassName: string;
   ItemAvgLevel: number;
@@ -74,18 +76,29 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       await AsyncStorage.setItem('characters', JSON.stringify(data));
     } catch (err) {
       console.error('캐릭터 저장 실패:', err);
+      throw err;
     }
   };
 
   // ✅ 캐릭터 추가
   const addCharacter = async (newCharacter: Character) => {
-    const updated = [...characters, newCharacter];
+    const portraitImage = (await cropAndSavePortraitImage(
+      newCharacter.CharacterImage || '', // 캐릭터 이미지
+      newCharacter.id // 캐릭터 이름
+    )) as string;
+
+    const updated = [
+      ...characters,
+      { ...newCharacter, CharacterPortraitImage: portraitImage },
+    ];
+
     await saveCharacters(updated);
   };
 
   // ✅ 캐릭터 삭제
   const removeCharacter = async (id: string) => {
     const updated = characters.filter((c) => c.id !== id);
+    await deletePortraitImage(id);
     await saveCharacters(updated);
   };
 

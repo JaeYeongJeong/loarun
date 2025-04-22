@@ -7,7 +7,6 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import uuid from 'react-native-uuid';
 import { useCharacter } from '@/utils/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 
@@ -27,8 +26,9 @@ const AddCharacterScreen: React.FC = () => {
     }
 
     addCharacter({
-      id: uuid.v4().toString(),
+      id: characterInfo.id,
       CharacterImage: characterInfo.CharacterImage || '',
+      CharacterPortraitImage: characterInfo.CharacterFaceImage || '',
       CharacterName: characterInfo.CharacterName,
       CharacterClassName: characterInfo.CharacterClassName,
       ItemAvgLevel: characterInfo.ItemAvgLevel,

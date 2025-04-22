@@ -1,6 +1,6 @@
 import { useCharacter } from '@/utils/CharacterContext';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.1;
@@ -21,8 +22,23 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   const router = useRouter();
   const { characters } = useCharacter();
   const character = characters.find((c) => c.id === id);
+  const [portraitUri, setPortraitUri] = useState<string | null>(null);
 
-  if (!character) return null;
+  if (!character) return; // 캐릭터가 없으면 아무것도 하지 않음
+
+  useEffect(() => {
+    const loadImage = async () => {
+      const uri = FileSystem.documentDirectory + `${id}_portrait.png`;
+      console.log('Loading image from:', uri);
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      if (fileInfo.exists) {
+        setPortraitUri(uri);
+      } else {
+        setPortraitUri(null);
+      }
+    };
+    loadImage();
+  }, []);
 
   const handlerCharacterActivity = () => {
     router.push({
@@ -59,16 +75,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
         >
           <Image
             source={{
-              uri:
-                character.CharacterImage || 'https://via.placeholder.com/150',
+              uri: portraitUri || character.CharacterImage,
             }}
-            style={{
-              height: CHARACTER_BAR_HEIGHT * 2,
-              transform: [
-                { scale: 1.5 }, // 이미지 확대
-                { translateY: -CHARACTER_BAR_HEIGHT * 0.1 }, // 위쪽으로 이동 (얼굴 중심)
-              ],
-            }}
+            style={{ width: 100, height: 100, borderRadius: 8 }}
             resizeMode="cover"
           />
         </View>
@@ -88,6 +97,22 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
         <Text style={styles.countText}>
           {clearedCount} / {totalCount}
         </Text>
+      </View>
+      <View style={{ padding: 10 }}>
+        <Text>자른 이미지 미리보기:</Text>
+        {portraitUri ? (
+          <Image
+            source={{ uri: portraitUri }}
+            style={{
+              width: 150,
+              height: 150,
+              borderRadius: 12,
+              borderWidth: 1,
+            }}
+          />
+        ) : (
+          <Text>이미지를 찾을 수 없습니다</Text>
+        )}
       </View>
     </Pressable>
   );

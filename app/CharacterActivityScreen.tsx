@@ -1,9 +1,18 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import ActivityModal from './SubmitActivityModal';
 import { useCharacter } from '@/utils/CharacterContext';
 import RaidModal from './SubmitRaidModal';
+import { Feather } from '@expo/vector-icons';
+import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 
 const CharacterActivity: React.FC = () => {
   const params = useLocalSearchParams();
@@ -14,8 +23,11 @@ const CharacterActivity: React.FC = () => {
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
   const { id } = params;
-  const { characters, updateCharacter } = useCharacter();
+  const { characters, updateCharacter, removeCharacter } = useCharacter();
   const character = characters.find((c) => c.id === id);
+  const router = useRouter();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshText, setRefreshText] = useState('갱신하기');
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
@@ -58,15 +70,69 @@ const CharacterActivity: React.FC = () => {
     });
   };
 
+  const handleRemoveCharacter = () => {
+    Alert.alert('캐릭터 삭제', '정말 삭제하시겠습니까?', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        onPress: () => {
+          removeCharacter(character.id);
+          router.replace('/MainPage'); // 홈으로 이동
+        },
+      },
+    ]);
+  };
+
+  const handleRefreshCharacter = async () => {
+    if (isRefreshing) return; // 이미 갱신 중이면 무시
+
+    setIsRefreshing(true);
+    setRefreshText('갱신완료');
+
+    const data = await fetchCharacterInfo(character.CharacterName);
+    if (data) {
+      updateCharacter(character.id, {
+        CharacterImage: data.CharacterImage,
+        CharacterClassName: data.CharacterClassName,
+        ItemAvgLevel: data.ItemAvgLevel,
+        ServerName: data.ServerName,
+      });
+    } else {
+      Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+    }
+
+    // 10초 후 다시 활성화
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setRefreshText('갱신하기');
+    }, 10000);
+  };
+
   return (
     <View style={styles.container}>
       {/* 캐릭터 카드 */}
       <View style={styles.characterCard}>
+        {/* 삭제 버튼 - 우측 상단 휴지통 아이콘 */}
+        <Pressable style={styles.deleteButton} onPress={handleRemoveCharacter}>
+          <Feather name="trash-2" size={20} color="white" />
+        </Pressable>
+
         <Text style={styles.characterName}>{character.CharacterName}</Text>
         <Text style={styles.characterInfo}>
           {character.CharacterClassName} @ {character.ServerName}
         </Text>
         <Text style={styles.characterInfo}>Lv. {character.ItemAvgLevel}</Text>
+
+        {/* 갱신 버튼 - 우측 하단 */}
+        <Pressable
+          style={styles.refreshButton}
+          onPress={handleRefreshCharacter}
+        >
+          <Text style={styles.refreshButtonText}>{refreshText}</Text>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -128,13 +194,6 @@ const CharacterActivity: React.FC = () => {
           ))}
         </View>
 
-        {/* 추가 버튼 */}
-        <View style={styles.addButtonContainer}>
-          <Pressable style={styles.addButton} onPress={toggleActivityModal}>
-            <Text style={styles.addButtonText}>＋ 추가</Text>
-          </Pressable>
-        </View>
-
         {/* 주간 활동 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -142,6 +201,12 @@ const CharacterActivity: React.FC = () => {
             <Text style={styles.totalGoldText}>
               {character.WeeklyActivityTotalGold || 0} G
             </Text>
+          </View>
+          {/* 추가 버튼 */}
+          <View style={styles.addButtonContainer}>
+            <Pressable style={styles.addButton} onPress={toggleActivityModal}>
+              <Text style={styles.addButtonText}>＋ 추가</Text>
+            </Pressable>
           </View>
           {Array.isArray(character.WeeklyActivity) &&
             character.WeeklyActivity.map((activity, index) => (
@@ -287,6 +352,33 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: '#333',
+    fontWeight: 'bold',
+  },
+
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#f44336',
+    padding: 8,
+    borderRadius: 20,
+    zIndex: 10,
+  },
+
+  refreshButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 25, // 타원형 느낌
+    alignItems: 'center',
+  },
+
+  refreshButtonText: {
+    fontSize: 12,
+    color: 'white',
     fontWeight: 'bold',
   },
 });
