@@ -19,10 +19,10 @@ const cropAndSavePortraitImage = async (characterImage: string, id: string) => {
     if (!width || !height) throw new Error('이미지 크기 확인 실패');
 
     // 중앙 기준 crop 영역 계산 (중간 40% 영역)
-    const cropWidth = width * 0.4;
-    const cropHeight = height * 0.4;
-    const originX = width * 0.3;
-    const originY = height * 0.15;
+    const cropWidth = 150;
+    const cropHeight = 150;
+    const originX = width * 0.4;
+    const originY = height * 0.1;
 
     const manipulated = await ImageManipulator.manipulateAsync(
       downloadRes.uri,

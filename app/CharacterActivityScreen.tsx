@@ -23,7 +23,8 @@ const CharacterActivity: React.FC = () => {
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
   const { id } = params;
-  const { characters, updateCharacter, removeCharacter } = useCharacter();
+  const { characters, updateCharacter, removeCharacter, refreshCharacter } =
+    useCharacter();
   const character = characters.find((c) => c.id === id);
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -94,7 +95,7 @@ const CharacterActivity: React.FC = () => {
 
     const data = await fetchCharacterInfo(character.CharacterName);
     if (data) {
-      updateCharacter(character.id, {
+      refreshCharacter(character.id, {
         CharacterImage: data.CharacterImage,
         CharacterClassName: data.CharacterClassName,
         ItemAvgLevel: data.ItemAvgLevel,

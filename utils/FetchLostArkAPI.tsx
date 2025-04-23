@@ -1,5 +1,4 @@
 import { LOSTARK_API_TOKEN } from '@/config';
-import uuid from 'react-native-uuid';
 
 const LOSTARK_API_URL = 'https://developer-lostark.game.onstove.com';
 
@@ -24,7 +23,7 @@ const fetchCharacterInfo = async (characterName: string) => {
 
     const newData = {
       ...data,
-      id: uuid.v4().toString(), // UUID 생성
+      
     };
 
     return newData;

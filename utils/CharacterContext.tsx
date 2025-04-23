@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cropAndSavePortraitImage, deletePortraitImage } from './PortraitImage';
+import uuid from 'react-native-uuid';
 
 type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -46,6 +47,7 @@ type CharacterContextType = {
   addCharacter: (newCharacter: Character) => void;
   removeCharacter: (id: string) => void;
   updateCharacter: (id: string, updatedData: Partial<Character>) => void;
+  refreshCharacter: (id: string, updatedData: Partial<Character>) => void;
 };
 
 // ✅ Context 생성
@@ -82,14 +84,15 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // ✅ 캐릭터 추가
   const addCharacter = async (newCharacter: Character) => {
+    const id = uuid.v4().toString(); // UUID 생성
     const portraitImage = (await cropAndSavePortraitImage(
       newCharacter.CharacterImage || '', // 캐릭터 이미지
-      newCharacter.id // 캐릭터 이름
+      id
     )) as string;
 
     const updated = [
       ...characters,
-      { ...newCharacter, CharacterPortraitImage: portraitImage },
+      { ...newCharacter, id, CharacterPortraitImage: portraitImage },
     ];
 
     await saveCharacters(updated);
@@ -113,6 +116,23 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
+  // ✅ 캐릭터 갱신 이미지 포함
+  const refreshCharacter = async (
+    id: string,
+    updatedData: Partial<Character>
+  ) => {
+    const portraitImage = (await cropAndSavePortraitImage(
+      updatedData.CharacterImage || '', // 캐릭터 이미지
+      id // 캐릭터 이름
+    )) as string;
+
+    const updated = characters.map((char) =>
+      char.id === id ? { ...char, CharacterPortraitImage: portraitImage } : char
+    );
+
+    await saveCharacters(updated);
+  };
+
   return (
     <CharacterContext.Provider
       value={{
@@ -120,6 +140,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         addCharacter,
         removeCharacter,
         updateCharacter,
+        refreshCharacter,
       }}
     >
       {children}
