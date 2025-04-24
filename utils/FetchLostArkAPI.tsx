@@ -23,7 +23,6 @@ const fetchCharacterInfo = async (characterName: string) => {
 
     const newData = {
       ...data,
-      
     };
 
     return newData;

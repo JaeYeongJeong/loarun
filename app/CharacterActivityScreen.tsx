@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import ActivityModal from './SubmitActivityModal';
 import { useCharacter } from '@/utils/CharacterContext';
@@ -120,7 +121,26 @@ const CharacterActivity: React.FC = () => {
         <Pressable style={styles.deleteButton} onPress={handleRemoveCharacter}>
           <Feather name="trash-2" size={20} color="white" />
         </Pressable>
-
+        <View style={{ padding: 10 }}>
+          {character.CharacterPortraitImage ? (
+            <Image
+              source={{
+                uri:
+                  character.CharacterPortraitImage +
+                  `?d=${character.lastUpdated}`,
+              }}
+              style={{
+                width: 150,
+                height: 150,
+                borderRadius: 12,
+                borderWidth: 1,
+              }}
+              resizeMode="contain"
+            />
+          ) : (
+            <Text>이미지를 찾을 수 없습니다</Text>
+          )}
+        </View>
         <Text style={styles.characterName}>{character.CharacterName}</Text>
         <Text style={styles.characterInfo}>
           {character.CharacterClassName} @ {character.ServerName}

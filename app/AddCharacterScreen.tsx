@@ -16,12 +16,21 @@ const AddCharacterScreen: React.FC = () => {
     string,
     any
   > | null>(null);
-  const { addCharacter } = useCharacter();
+  const { characters, addCharacter } = useCharacter();
 
   // ✅ 캐릭터 추가 핸들러
   const handlerAddCharacter = () => {
-    if (!characterInfo) {
+    if (!characterInfo || !characterInfo.CharacterName) {
       Alert.alert('오류', '캐릭터 정보가 없습니다.');
+      return;
+    }
+
+    if (
+      characters.some(
+        (character) => character.CharacterName === characterInfo.CharacterName
+      )
+    ) {
+      Alert.alert('오류', '이미 추가된 캐릭터입니다.');
       return;
     }
 
@@ -50,8 +59,8 @@ const AddCharacterScreen: React.FC = () => {
 
     // ✅ API 요청 후 결과 저장
     const data = await fetchCharacterInfo(characterName);
-
-    if (data) {
+    console.log('API 응답:', data); // ✅ API 응답 확인
+    if (data && data.CharacterName) {
       setCharacterInfo(data);
     } else {
       Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');

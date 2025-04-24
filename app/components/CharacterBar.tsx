@@ -29,7 +29,6 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   useEffect(() => {
     const loadImage = async () => {
       const uri = FileSystem.documentDirectory + `${id}_portrait.png`;
-      console.log('Loading image from:', uri);
       const fileInfo = await FileSystem.getInfoAsync(uri);
       if (fileInfo.exists) {
         setPortraitUri(uri);
@@ -75,9 +74,15 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
         >
           <Image
             source={{
-              uri: portraitUri || character.CharacterImage,
+              uri: portraitUri
+                ? `${portraitUri}?d=${character.lastUpdated}`
+                : character.CharacterImage,
             }}
-            style={{ width: 100, height: 100, borderRadius: 8 }}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: 8,
+            }}
             resizeMode="cover"
           />
         </View>
@@ -97,22 +102,6 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
         <Text style={styles.countText}>
           {clearedCount} / {totalCount}
         </Text>
-      </View>
-      <View style={{ padding: 10 }}>
-        <Text>자른 이미지 미리보기:</Text>
-        {portraitUri ? (
-          <Image
-            source={{ uri: portraitUri }}
-            style={{
-              width: 150,
-              height: 150,
-              borderRadius: 12,
-              borderWidth: 1,
-            }}
-          />
-        ) : (
-          <Text>이미지를 찾을 수 없습니다</Text>
-        )}
       </View>
     </Pressable>
   );

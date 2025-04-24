@@ -39,6 +39,7 @@ type Character = {
   WeeklyActivity?: Activity[];
   WeeklyRaidTotalGold?: number; // ✅ 주간 레이드 총 금액
   WeeklyActivityTotalGold?: number; // ✅ 주간 활동 총 금액
+  lastUpdated?: string; // ✅ 마지막 업데이트 날짜
 };
 
 // ✅ Context에서 제공할 기능 정의
@@ -87,12 +88,18 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     const id = uuid.v4().toString(); // UUID 생성
     const portraitImage = (await cropAndSavePortraitImage(
       newCharacter.CharacterImage || '', // 캐릭터 이미지
-      id
+      id,
+      newCharacter.CharacterClassName || '' // 캐릭터 클래스 이름
     )) as string;
 
     const updated = [
       ...characters,
-      { ...newCharacter, id, CharacterPortraitImage: portraitImage },
+      {
+        ...newCharacter,
+        id,
+        CharacterPortraitImage: portraitImage,
+        lastUpdated: new Date().toISOString(),
+      },
     ];
 
     await saveCharacters(updated);
@@ -123,11 +130,18 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   ) => {
     const portraitImage = (await cropAndSavePortraitImage(
       updatedData.CharacterImage || '', // 캐릭터 이미지
-      id // 캐릭터 이름
+      id,
+      updatedData.CharacterClassName || '' // 캐릭터 클래스 이름
     )) as string;
 
     const updated = characters.map((char) =>
-      char.id === id ? { ...char, CharacterPortraitImage: portraitImage } : char
+      char.id === id
+        ? {
+            ...char,
+            CharacterPortraitImage: portraitImage,
+            lastUpdated: new Date().toISOString(),
+          }
+        : char
     );
 
     await saveCharacters(updated);
