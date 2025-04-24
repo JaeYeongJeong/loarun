@@ -117,11 +117,8 @@ const CharacterActivity: React.FC = () => {
     <View style={styles.container}>
       {/* 캐릭터 카드 */}
       <View style={styles.characterCard}>
-        {/* 삭제 버튼 - 우측 상단 휴지통 아이콘 */}
-        <Pressable style={styles.deleteButton} onPress={handleRemoveCharacter}>
-          <Feather name="trash-2" size={20} color="white" />
-        </Pressable>
-        <View style={{ padding: 10 }}>
+        {/* 왼쪽: 캐릭터 이미지 */}
+        <View style={styles.portraitContainer}>
           {character.CharacterPortraitImage ? (
             <Image
               source={{
@@ -129,31 +126,41 @@ const CharacterActivity: React.FC = () => {
                   character.CharacterPortraitImage +
                   `?d=${character.lastUpdated}`,
               }}
-              style={{
-                width: 150,
-                height: 150,
-                borderRadius: 12,
-                borderWidth: 1,
-              }}
-              resizeMode="contain"
+              style={styles.portraitImage}
+              resizeMode="cover"
             />
           ) : (
             <Text>이미지를 찾을 수 없습니다</Text>
           )}
         </View>
-        <Text style={styles.characterName}>{character.CharacterName}</Text>
-        <Text style={styles.characterInfo}>
-          {character.CharacterClassName} @ {character.ServerName}
-        </Text>
-        <Text style={styles.characterInfo}>Lv. {character.ItemAvgLevel}</Text>
 
-        {/* 갱신 버튼 - 우측 하단 */}
-        <Pressable
-          style={styles.refreshButton}
-          onPress={handleRefreshCharacter}
-        >
-          <Text style={styles.refreshButtonText}>{refreshText}</Text>
-        </Pressable>
+        {/* 오른쪽: 캐릭터 정보 */}
+        <View style={styles.characterInfoContainer}>
+          <View style={styles.nameRow}>
+            <Text style={styles.characterName}>{character.CharacterName}</Text>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={handleRemoveCharacter}
+            >
+              <Feather name="trash-2" size={16} color="white" />
+            </Pressable>
+          </View>
+
+          <Text style={styles.characterInfo}>
+            {character.CharacterClassName} @ {character.ServerName}
+          </Text>
+          <Text style={styles.characterInfo}>Lv. {character.ItemAvgLevel}</Text>
+
+          <View style={styles.refreshButtonWrapper}>
+            <Pressable
+              style={styles.refreshButton}
+              onPress={handleRefreshCharacter}
+              disabled={isRefreshing}
+            >
+              <Text style={styles.refreshButtonText}>{refreshText}</Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
 
       <ScrollView
@@ -277,10 +284,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   characterCard: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 16,
     borderRadius: 10,
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -288,16 +295,71 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 16,
   },
+
+  portraitContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  portraitImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+  },
+
+  characterInfoContainer: {
+    flex: 1,
+    paddingLeft: 16,
+    justifyContent: 'space-between',
+  },
+
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
   characterName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
-  characterInfo: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 5,
+
+  deleteButton: {
+    backgroundColor: '#f44336',
+    padding: 6,
+    borderRadius: 16,
   },
+
+  characterInfo: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+
+  refreshButtonWrapper: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
+
+  refreshButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+
+  refreshButtonText: {
+    fontSize: 12,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+
   scrollView: {
     flex: 1,
   },
@@ -373,33 +435,6 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: '#333',
-    fontWeight: 'bold',
-  },
-
-  deleteButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: '#f44336',
-    padding: 8,
-    borderRadius: 20,
-    zIndex: 10,
-  },
-
-  refreshButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 25, // 타원형 느낌
-    alignItems: 'center',
-  },
-
-  refreshButtonText: {
-    fontSize: 12,
-    color: 'white',
     fontWeight: 'bold',
   },
 });
