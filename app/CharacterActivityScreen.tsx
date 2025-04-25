@@ -177,37 +177,13 @@ const CharacterActivity: React.FC = () => {
             </Text>
           </View>
           {[0, 1, 2].map((index) => (
-            <View key={index}>
-              <Text>{character.SelectedRaids?.[index]?.name || ''}</Text>
-              <Text>{character.SelectedRaids?.[index]?.totalGold || ''}</Text>
-              <View style={styles.raidRow}>
-                {character.SelectedRaids?.[index]?.name ? (
-                  character.SelectedRaids?.[index]?.stages.map(
-                    (stage, stageIndex) => (
-                      <Pressable
-                        style={[
-                          styles.raidButton,
-                          stage.cleared ? { backgroundColor: '#ff7675' } : {},
-                        ]}
-                        key={stageIndex}
-                        onPress={() => handleSelectStage(index, stageIndex)}
-                      >
-                        <Text style={styles.raidButtonText}>
-                          {stage.difficulty}
-                        </Text>
-                        <Text style={styles.raidButtonText}>
-                          {stage.stage} 관문
-                        </Text>
-                      </Pressable>
-                    )
-                  )
-                ) : (
-                  <Pressable style={styles.raidButton}>
-                    <Text style={styles.raidButtonText}>
-                      {`레이드 ${index + 1}`}
-                    </Text>
-                  </Pressable>
-                )}
+            <View key={index} style={{ marginBottom: 4 }}>
+              {/* 🟢 레이드 제목 + 수정 버튼 한 줄 정렬 */}
+              <View style={styles.raidTitleRow}>
+                <Text style={styles.raidTitleText}>
+                  {character.SelectedRaids?.[index]?.name ||
+                    `레이드 ${index + 1}`}
+                </Text>
                 <Pressable
                   style={styles.editButton}
                   onPress={() => {
@@ -217,6 +193,46 @@ const CharacterActivity: React.FC = () => {
                 >
                   <Text style={styles.editButtonText}>수정</Text>
                 </Pressable>
+              </View>
+              <View style={styles.raidRow}>
+                {character.SelectedRaids?.[index]?.name ? (
+                  character.SelectedRaids?.[index]?.stages.map(
+                    (stage, stageIndex) => (
+                      <Pressable
+                        style={[
+                          styles.raidButton,
+                          stage.cleared ? { backgroundColor: '#4CAF50' } : {},
+                        ]}
+                        key={stageIndex}
+                        onPress={() => handleSelectStage(index, stageIndex)}
+                      >
+                        <Text
+                          style={[
+                            styles.raidButtonText,
+                            stage.cleared ? { color: 'white' } : {},
+                          ]}
+                        >
+                          {stage.difficulty}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.raidButtonText,
+                            stage.cleared ? { color: 'white' } : {},
+                          ]}
+                        >
+                          {stage.stage} 관문
+                        </Text>
+                      </Pressable>
+                    )
+                  )
+                ) : (
+                  <Pressable style={styles.raidButton}>
+                    <Text style={styles.raidButtonText}>{`레이드`}</Text>
+                    <Text style={styles.raidButtonText}>{`(${
+                      index + 1
+                    })`}</Text>
+                  </Pressable>
+                )}
               </View>
             </View>
           ))}
@@ -283,6 +299,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     padding: 16,
   },
+
+  scrollView: {
+    flex: 1,
+  },
+
+  // ✅ 캐릭터 카드
   characterCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -350,7 +372,7 @@ const styles = StyleSheet.create({
   refreshButton: {
     backgroundColor: '#4CAF50',
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 20,
   },
 
@@ -360,9 +382,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  scrollView: {
-    flex: 1,
-  },
+  // ✅ 공통 섹션
   section: {
     backgroundColor: '#fff',
     padding: 16,
@@ -374,67 +394,93 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#444',
-  },
-  raidButton: {
-    flex: 1,
-    backgroundColor: '#4CAF50',
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-    marginVertical: 4,
-  },
-  raidButtonText: {
-    fontSize: 10,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  addButtonContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  addButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 50,
-  },
-  addButtonText: {
-    fontSize: 16,
-    color: 'white',
-    fontWeight: 'bold',
-  },
+
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
   },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#444',
+  },
+
   totalGoldText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },
+
+  // ✅ 주간 레이드
+  raidTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingLeft: 8,
+    marginTop: 6,
+  },
+
+  raidTitleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
   raidRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: 6,
+    marginTop: 8,
+    marginBottom: 8,
+    borderRadius: 8,
+    backgroundColor: '#e0e0e0e0',
   },
+
   editButton: {
-    marginLeft: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 5,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#e0e0e0e0',
+    paddingHorizontal: 16,
+    paddingVertical: 5,
+    borderRadius: 20,
   },
+
   editButtonText: {
+    fontSize: 10,
     color: '#333',
+    fontWeight: 'bold',
+  },
+
+  raidButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  raidButtonText: {
+    fontSize: 10,
+    color: '#333',
+    fontWeight: 'bold',
+  },
+
+  // ✅ 주간 활동
+  addButtonContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  addButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 50,
+  },
+
+  addButtonText: {
+    fontSize: 16,
+    color: 'white',
     fontWeight: 'bold',
   },
 });
