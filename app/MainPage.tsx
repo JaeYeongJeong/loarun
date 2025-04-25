@@ -11,16 +11,14 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const OVERVIEW_HEIGHT = SCREEN_HEIGHT * (2 / 8);
 
 const MainPage: React.FC = () => {
-  const { isDarkMode, toggleTheme } = useAppSetting();
+  const { theme, updateTheme } = useAppSetting();
   const { characters } = useCharacter();
-
-  console.log(LOSTARK_API_TOKEN);
 
   return (
     <View
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? 'grey' : 'lightblue' },
+        { backgroundColor: theme === 'dark' ? 'grey' : 'lightblue' },
       ]}
     >
       <FlatList
