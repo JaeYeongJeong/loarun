@@ -10,6 +10,7 @@ type RaidStage = {
   stage: number; // 관문 번호 (1, 2, 3...)
   gold: number; // 해당 관문에서 획득하는 골드
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
+  lastClearedStage?: number; // 마지막 클리어 관문 번호 (1, 2, 3...)
 };
 
 type Raid = {

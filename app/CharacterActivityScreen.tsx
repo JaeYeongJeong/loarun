@@ -43,6 +43,7 @@ const CharacterActivity: React.FC = () => {
     const updatedStages = selectedRaid.stages.map((stage, i) => ({
       ...stage,
       cleared: isSameAsLastCleared ? false : i <= stageIndex,
+      lastClearedStage: isSameAsLastCleared ? 0 : stageIndex,
     }));
 
     const updatedRaids = [...(character.SelectedRaids || [])];
@@ -153,11 +154,21 @@ const CharacterActivity: React.FC = () => {
 
           <View style={styles.refreshButtonWrapper}>
             <Pressable
-              style={styles.refreshButton}
+              style={[
+                styles.refreshButton,
+                isRefreshing ? { backgroundColor: '#e0e0e0e0' } : {},
+              ]}
               onPress={handleRefreshCharacter}
               disabled={isRefreshing}
             >
-              <Text style={styles.refreshButtonText}>{refreshText}</Text>
+              <Text
+                style={[
+                  styles.refreshButtonText,
+                  isRefreshing ? { color: '#333' } : {},
+                ]}
+              >
+                {refreshText}
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -202,6 +213,18 @@ const CharacterActivity: React.FC = () => {
                         style={[
                           styles.raidButton,
                           stage.cleared ? { backgroundColor: '#4CAF50' } : {},
+                          stageIndex === 0
+                            ? {
+                                borderTopLeftRadius: 8,
+                                borderBottomLeftRadius: 8,
+                              }
+                            : {},
+                          stage.lastClearedStage === stageIndex
+                            ? {
+                                borderTopRightRadius: 8,
+                                borderBottomRightRadius: 8,
+                              }
+                            : {},
                         ]}
                         key={stageIndex}
                         onPress={() => handleSelectStage(index, stageIndex)}
@@ -210,6 +233,12 @@ const CharacterActivity: React.FC = () => {
                           style={[
                             styles.raidButtonText,
                             stage.cleared ? { color: 'white' } : {},
+                            stage.difficulty === '노말'
+                              ? { color: '#3498db' }
+                              : {},
+                            stage.difficulty === '하드'
+                              ? { color: '#e74c3c' }
+                              : {},
                           ]}
                         >
                           {stage.difficulty}
@@ -455,7 +484,6 @@ const styles = StyleSheet.create({
   raidButton: {
     flex: 1,
     paddingVertical: 8,
-    borderRadius: 8,
     alignItems: 'center',
   },
 
