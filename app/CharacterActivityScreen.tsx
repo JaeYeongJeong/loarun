@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -33,6 +33,28 @@ const CharacterActivity: React.FC = () => {
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
+  useEffect(() => {
+    const updatedRaids = [...(character.SelectedRaids || [])];
+
+    const updatedClearedRaidTotalGold =
+      updatedRaids.reduce((total, raid) => {
+        return (
+          total +
+          raid.stages.reduce((stageSum, stage) => {
+            return stage.cleared ? stageSum + stage.gold : stageSum;
+          }, 0)
+        );
+      }, 0) || 0;
+
+    const updatedSelectedRaidTotalGold =
+      updatedRaids.reduce((sum, raid) => sum + raid.totalGold, 0) || 0;
+
+    updateCharacter(character.id, {
+      SelectedRaidTotalGold: updatedSelectedRaidTotalGold,
+      ClearedRaidTotalGold: updatedClearedRaidTotalGold,
+    });
+  }, [character.SelectedRaids]);
+
   const handleSelectStage = (index: number, stageIndex: number) => {
     const selectedRaid = character.SelectedRaids?.[index];
     if (!selectedRaid) return;
@@ -53,23 +75,8 @@ const CharacterActivity: React.FC = () => {
       cleared: updatedStages.every((s) => s.cleared),
     };
 
-    const updatedClearedRaidTotalGold =
-      updatedRaids.reduce((total, raid) => {
-        return (
-          total +
-          raid.stages.reduce((stageSum, stage) => {
-            return stage.cleared ? stageSum + stage.gold : stageSum;
-          }, 0)
-        );
-      }, 0) || 0;
-
-    const updatedSelectedRaidTotalGold =
-      updatedRaids.reduce((sum, raid) => sum + raid.totalGold, 0) || 0;
-
     updateCharacter(character.id, {
       SelectedRaids: updatedRaids,
-      SelectedRaidTotalGold: updatedSelectedRaidTotalGold,
-      ClearedRaidTotalGold: updatedClearedRaidTotalGold,
     });
   };
 
