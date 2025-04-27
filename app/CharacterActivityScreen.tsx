@@ -10,10 +10,11 @@ import {
   Image,
 } from 'react-native';
 import ActivityModal from './SubmitActivityModal';
-import { useCharacter } from '@/utils/CharacterContext';
+import { useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
+import { useTheme } from '@react-navigation/native';
 
 const CharacterActivity: React.FC = () => {
   const params = useLocalSearchParams();
@@ -30,7 +31,7 @@ const CharacterActivity: React.FC = () => {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshText, setRefreshText] = useState('갱신하기');
-
+  const { colors } = useTheme();
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
   useEffect(() => {
@@ -191,7 +192,7 @@ const CharacterActivity: React.FC = () => {
             <Text style={styles.sectionTitle}>🛡️ 주간 레이드</Text>
             <Text style={styles.totalGoldText}>
               {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
-              {character.SelectedRaidTotalGold?.toLocaleString() || 0} G
+              {character.SelectedRaidTotalGold?.toLocaleString() || 0}
             </Text>
           </View>
           {[0, 1, 2].map((index) => (
@@ -279,7 +280,7 @@ const CharacterActivity: React.FC = () => {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>🎮 추가 수입</Text>
             <Text style={styles.totalGoldText}>
-              {character.WeeklyActivityTotalGold || 0} G
+              {character.WeeklyActivityTotalGold || 0}
             </Text>
           </View>
           {/* 추가 버튼 */}
@@ -292,14 +293,16 @@ const CharacterActivity: React.FC = () => {
             character.WeeklyActivity.map((activity, index) => (
               <Pressable
                 key={index}
-                style={styles.raidButton}
+                style={styles.activityItem}
                 onPress={() => {
                   setActivityIndex(index);
                   toggleActivityModal();
                 }}
               >
-                <Text style={styles.raidButtonText}>{activity.name}</Text>
-                <Text style={styles.raidButtonText}>{activity.gold} G</Text>
+                <View style={styles.activityItemRow}>
+                  <Text style={styles.activityNameText}>{activity.name}</Text>
+                  <Text style={styles.activityGoldText}>{activity.gold}</Text>
+                </View>
               </Pressable>
             ))}
         </View>
@@ -516,6 +519,31 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 16,
     color: 'white',
+    fontWeight: 'bold',
+  },
+  activityItem: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+
+  activityItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  activityNameText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: 'bold',
+  },
+
+  activityGoldText: {
+    fontSize: 12,
+    color: '#333',
     fontWeight: 'bold',
   },
 });

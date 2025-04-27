@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useCharacter } from '@/utils/CharacterContext';
+import { useCharacter } from '@/context/CharacterContext';
 import { RAID_LIST } from '@/utils/raidData';
 
 type Difficulty = '싱글' | '노말' | '하드';

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { cropAndSavePortraitImage, deletePortraitImage } from './PortraitImage';
+import {
+  cropAndSavePortraitImage,
+  deletePortraitImage,
+} from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
 
 type RaidDifficulty = '싱글' | '노말' | '하드';

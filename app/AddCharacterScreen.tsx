@@ -7,7 +7,7 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import { useCharacter } from '@/utils/CharacterContext';
+import { useCharacter } from '@/context/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 
 const AddCharacterScreen: React.FC = () => {

@@ -2,16 +2,15 @@ import React from 'react';
 import { FlatList, StyleSheet, View, Dimensions } from 'react-native';
 import CharacterBar from './components/CharacterBar';
 import OverviewBar from '@/app/components/OverviewBar';
-import { useAppSetting } from '@/utils/AppSettingContext';
-import { LOSTARK_API_TOKEN } from '@/config';
-import { useCharacter } from '@/utils/CharacterContext';
+import { useCharacter } from '@/context/CharacterContext';
+import { useTheme } from '@/context/ThemeContext';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const OVERVIEW_HEIGHT = SCREEN_HEIGHT * (2 / 8);
 
 const MainPage: React.FC = () => {
-  const { theme, updateTheme } = useAppSetting();
+  const { theme, changeTheme: updateTheme } = useTheme();
   const { characters } = useCharacter();
 
   return (

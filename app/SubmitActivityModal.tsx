@@ -12,8 +12,8 @@ import {
   Alert,
   Pressable,
 } from 'react-native';
-import { useCharacter } from '@/utils/CharacterContext';
-import { useAppSetting } from '@/utils/AppSettingContext';
+import { useCharacter } from '@/context/CharacterContext';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 type ActivityModalProps = {
   isVisible: boolean;
