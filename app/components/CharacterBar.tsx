@@ -1,4 +1,4 @@
-import { useCharacter } from '@/utils/CharacterContext';
+import { useCharacter } from '@/context/CharacterContext';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {

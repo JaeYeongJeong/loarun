@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { RAID_LIST } from '@/utils/raidData';
+import { useTheme } from '@/context/ThemeContext';
 
 type Difficulty = '싱글' | '노말' | '하드';
 
@@ -58,6 +59,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
   const [selectedStages, setSelectedStages] = React.useState<SelectedStage[]>(
     []
   );
+  const { colors } = useTheme();
 
   if (!character) return null; // 캐릭터가 없으면 모달을 렌더링하지 않음
 
@@ -205,25 +207,58 @@ const RaidModal: React.FC<RaidModalProps> = ({
           style={{ flex: 1, width: '100%' }}
         >
           <Animated.View
-            style={[styles.container, { transform: [{ translateY }] }]}
+            style={[
+              styles.container,
+              { backgroundColor: colors.background },
+              { transform: [{ translateY }] },
+            ]}
           >
             <ScrollView>
               {RAID_LIST.map((raid, raidIdx) => (
-                <View key={raidIdx} style={styles.raidBlock}>
-                  <Text style={styles.raidName}>{raid.name}</Text>
+                <View
+                  key={raidIdx}
+                  style={[
+                    styles.raidBlock,
+                    { backgroundColor: colors.cardBackground },
+                  ]}
+                >
+                  <Text style={[styles.raidName, { color: colors.black }]}>
+                    {raid.name}
+                  </Text>
                   {raid.difficulty.map((difficultyObj, stageIdx) => (
                     <View key={stageIdx} style={styles.difficultyBlock}>
                       {/* 🔽 헤더 한 줄 정렬 */}
                       <View style={styles.difficultyHeader}>
-                        <Text style={styles.difficultyText}>
+                        <Text
+                          style={[
+                            styles.difficultyText,
+                            { color: colors.black },
+                            difficultyObj.difficulty === '노말'
+                              ? { color: colors.info }
+                              : {},
+                            difficultyObj.difficulty === '하드'
+                              ? { color: colors.danger }
+                              : {},
+                          ]}
+                        >
                           {difficultyObj.difficulty}
                         </Text>
-                        <Text style={styles.totalGoldText}>
-                          {difficultyObj.totalGold} G
+                        <Text
+                          style={[
+                            styles.totalGoldText,
+                            { color: colors.grayDark },
+                          ]}
+                        >
+                          {difficultyObj.totalGold}
                         </Text>
                       </View>
 
-                      <View style={styles.stageContainer}>
+                      <View
+                        style={[
+                          styles.stageContainer,
+                          { backgroundColor: colors.grayLight },
+                        ]}
+                      >
                         {difficultyObj.stages.map((stage) => (
                           <TouchableOpacity
                             key={stage.stage}
@@ -233,7 +268,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 raid.name,
                                 difficultyObj.difficulty,
                                 stage.stage
-                              ) && { backgroundColor: '#4CAF50' },
+                              ) && { backgroundColor: colors.primary },
                             ]}
                             onPress={() => {
                               handleSelectStages(
@@ -247,6 +282,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             <Text
                               style={[
                                 styles.stageLabelText,
+                                { color: colors.grayDark },
                                 isSelected(
                                   raid.name,
                                   difficultyObj.difficulty,
@@ -259,6 +295,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             <Text
                               style={[
                                 styles.stageGold,
+                                { color: colors.grayDark },
                                 isSelected(
                                   raid.name,
                                   difficultyObj.difficulty,
@@ -266,7 +303,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 ) && { color: 'white' },
                               ]}
                             >
-                              {stage.gold}G
+                              {stage.gold}
                             </Text>
                           </TouchableOpacity>
                         ))}
@@ -279,15 +316,25 @@ const RaidModal: React.FC<RaidModalProps> = ({
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 onPress={handleCloseModal}
-                style={styles.cancelButton}
+                style={[
+                  styles.cancelButton,
+                  { backgroundColor: colors.danger },
+                ]}
               >
-                <Text style={styles.cancelButtonText}>닫기</Text>
+                <Text style={[styles.cancelButtonText, { color: 'white' }]}>
+                  닫기
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleSubmit}
-                style={styles.confirmButton}
+                style={[
+                  styles.confirmButton,
+                  { backgroundColor: colors.primary },
+                ]}
               >
-                <Text style={styles.confirmButtonText}>확인</Text>
+                <Text style={[styles.confirmButtonText, { color: 'white' }]}>
+                  확인
+                </Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -304,7 +351,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   container: {
-    backgroundColor: '#f8f9fa', // ✨ 통일
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -312,7 +358,6 @@ const styles = StyleSheet.create({
   },
   raidBlock: {
     marginBottom: 24,
-    backgroundColor: '#ffffff', // ✨ 통일
     borderRadius: 10,
     padding: 16,
     shadowColor: '#000',
@@ -324,13 +369,11 @@ const styles = StyleSheet.create({
   raidName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333', // ✨ 통일
     marginBottom: 8,
   },
   stageContainer: {
     flexDirection: 'row',
     borderRadius: 8,
-    backgroundColor: '#f1f3f5', // ✨ 통일 (section 내부 밝은 회색)
     alignItems: 'center',
     justifyContent: 'space-evenly',
     flexWrap: 'wrap',
@@ -342,73 +385,59 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   difficultyBlock: {
-    backgroundColor: '#ffffff', // ✨ 통일
-    borderRadius: 8,
-    padding: 12,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
   },
   difficultyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
+    paddingHorizontal: 4,
   },
   difficultyText: {
     fontSize: 16,
-    color: '#333', // ✨ 통일
     fontWeight: '600',
   },
   totalGoldText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#E67E22', // ✨ 골드는 오렌지
   },
   stageLabelText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#555', // ✨ 통일
     marginBottom: 4,
   },
   stageGold: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#555', // ✨
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+    paddingHorizontal: 16,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#e0e0e0', // ✨ 통일
     paddingVertical: 12,
     marginRight: 8,
-    borderRadius: 8,
+    borderRadius: 20,
     alignItems: 'center',
   },
   confirmButton: {
     flex: 1,
-    backgroundColor: '#4CAF50', // ✨ 통일
     paddingVertical: 12,
     marginLeft: 8,
-    borderRadius: 8,
+    borderRadius: 20,
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
   },
   confirmButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
   },
 });
 

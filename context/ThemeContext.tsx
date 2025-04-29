@@ -38,7 +38,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     loadTheme();
   }, []);
 
-  const updateTheme = async (theme: Theme) => {
+  const changeTheme = async (theme: Theme) => {
     setTheme(theme);
     try {
       await AsyncStorage.setItem('theme', theme);
@@ -52,7 +52,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         theme,
         colors: theme === 'light' ? lightColors : darkColors,
-        changeTheme: updateTheme,
+        changeTheme,
       }}
     >
       {children}

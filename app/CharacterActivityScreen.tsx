@@ -8,13 +8,14 @@ import {
   ScrollView,
   Alert,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import ActivityModal from './SubmitActivityModal';
 import { useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from '@/context/ThemeContext';
 
 const CharacterActivity: React.FC = () => {
   const params = useLocalSearchParams();
@@ -123,12 +124,17 @@ const CharacterActivity: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* 캐릭터 카드 */}
-      <View style={styles.characterCard}>
+      <View
+        style={[
+          styles.characterCard,
+          { backgroundColor: colors.cardBackground },
+        ]}
+      >
         {/* 왼쪽: 캐릭터 이미지 */}
         <View style={styles.portraitContainer}>
-          {character.CharacterPortraitImage ? (
+          {
             <Image
               source={{
                 uri:
@@ -138,33 +144,36 @@ const CharacterActivity: React.FC = () => {
               style={styles.portraitImage}
               resizeMode="cover"
             />
-          ) : (
-            <Text>이미지를 찾을 수 없습니다</Text>
-          )}
+          }
         </View>
 
         {/* 오른쪽: 캐릭터 정보 */}
         <View style={styles.characterInfoContainer}>
           <View style={styles.nameRow}>
-            <Text style={styles.characterName}>{character.CharacterName}</Text>
-            <Pressable
-              style={styles.deleteButton}
+            <Text style={[styles.characterName, { color: colors.black }]}>
+              {character.CharacterName}
+            </Text>
+            <TouchableOpacity
+              style={[styles.deleteButton, { backgroundColor: colors.danger }]}
               onPress={handleRemoveCharacter}
             >
               <Feather name="trash-2" size={16} color="white" />
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.characterInfo}>
+          <Text style={[styles.characterInfo, { color: colors.grayDark }]}>
             {character.CharacterClassName} @ {character.ServerName}
           </Text>
-          <Text style={styles.characterInfo}>Lv. {character.ItemAvgLevel}</Text>
+          <Text style={(styles.characterInfo, { color: colors.grayDark })}>
+            Lv. {character.ItemAvgLevel}
+          </Text>
 
           <View style={styles.refreshButtonWrapper}>
-            <Pressable
+            <TouchableOpacity
               style={[
                 styles.refreshButton,
-                isRefreshing ? { backgroundColor: '#e0e0e0e0' } : {},
+                { backgroundColor: colors.grayLight },
+                isRefreshing ? { backgroundColor: colors.grayLight } : {},
               ]}
               onPress={handleRefreshCharacter}
               disabled={isRefreshing}
@@ -172,12 +181,13 @@ const CharacterActivity: React.FC = () => {
               <Text
                 style={[
                   styles.refreshButtonText,
-                  isRefreshing ? { color: '#333' } : {},
+                  { color: colors.black },
+                  isRefreshing ? { color: colors.black } : {},
                 ]}
               >
                 {refreshText}
               </Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -187,10 +197,14 @@ const CharacterActivity: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {/* 주간 레이드 */}
-        <View style={styles.section}>
+        <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🛡️ 주간 레이드</Text>
-            <Text style={styles.totalGoldText}>
+            <Text style={[styles.sectionTitle, { color: colors.black }]}>
+              🛡️ 주간 레이드
+            </Text>
+            <Text style={[styles.totalGoldText, { color: colors.black }]}>
               {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
               {character.SelectedRaidTotalGold?.toLocaleString() || 0}
             </Text>
@@ -199,38 +213,49 @@ const CharacterActivity: React.FC = () => {
             <View key={index} style={{ marginBottom: 4 }}>
               {/* 🟢 레이드 제목 + 수정 버튼 한 줄 정렬 */}
               <View style={styles.raidTitleRow}>
-                <Text style={styles.raidTitleText}>
+                <Text style={[styles.raidTitleText, { color: colors.black }]}>
                   {character.SelectedRaids?.[index]?.name ||
                     `레이드 ${index + 1}`}
                 </Text>
-                <Pressable
-                  style={styles.editButton}
+                <TouchableOpacity
+                  style={[
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
+                  ]}
                   onPress={() => {
                     toggleRaidModal();
                     setRaidIndex(index);
                   }}
                 >
-                  <Text style={styles.editButtonText}>수정</Text>
-                </Pressable>
+                  <Text
+                    style={[styles.editButtonText, { color: colors.black }]}
+                  >
+                    수정
+                  </Text>
+                </TouchableOpacity>
               </View>
-              <View style={styles.raidRow}>
+              <View
+                style={[styles.raidRow, { backgroundColor: colors.grayLight }]}
+              >
                 {character.SelectedRaids?.[index]?.name ? (
                   character.SelectedRaids?.[index]?.stages.map(
                     (stage, stageIndex) => (
                       <Pressable
                         style={[
                           styles.raidButton,
-                          stage.cleared ? { backgroundColor: '#4CAF50' } : {},
+                          stage.cleared
+                            ? { backgroundColor: colors.primary }
+                            : {},
                           stageIndex === 0
                             ? {
-                                borderTopLeftRadius: 8,
-                                borderBottomLeftRadius: 8,
+                                borderTopLeftRadius: 12,
+                                borderBottomLeftRadius: 12,
                               }
                             : {},
                           stage.lastClearedStage === stageIndex
                             ? {
-                                borderTopRightRadius: 8,
-                                borderBottomRightRadius: 8,
+                                borderTopRightRadius: 12,
+                                borderBottomRightRadius: 12,
                               }
                             : {},
                         ]}
@@ -240,12 +265,12 @@ const CharacterActivity: React.FC = () => {
                         <Text
                           style={[
                             styles.raidButtonText,
-                            stage.cleared ? { color: 'white' } : {},
+                            stage.cleared ? { color: colors.white } : {},
                             stage.difficulty === '노말'
-                              ? { color: '#3498db' }
+                              ? { color: colors.info }
                               : {},
                             stage.difficulty === '하드'
-                              ? { color: '#e74c3c' }
+                              ? { color: colors.danger }
                               : {},
                           ]}
                         >
@@ -254,6 +279,7 @@ const CharacterActivity: React.FC = () => {
                         <Text
                           style={[
                             styles.raidButtonText,
+                            { color: colors.black },
                             stage.cleared ? { color: 'white' } : {},
                           ]}
                         >
@@ -264,10 +290,12 @@ const CharacterActivity: React.FC = () => {
                   )
                 ) : (
                   <Pressable style={styles.raidButton}>
-                    <Text style={styles.raidButtonText}>{`레이드`}</Text>
-                    <Text style={styles.raidButtonText}>{`(${
-                      index + 1
-                    })`}</Text>
+                    <Text
+                      style={[styles.raidButtonText, { color: colors.black }]}
+                    >{`레이드`}</Text>
+                    <Text
+                      style={[styles.raidButtonText, { color: colors.black }]}
+                    >{`(${index + 1})`}</Text>
                   </Pressable>
                 )}
               </View>
@@ -276,34 +304,54 @@ const CharacterActivity: React.FC = () => {
         </View>
 
         {/* 주간 활동 */}
-        <View style={styles.section}>
+        <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🎮 추가 수입</Text>
-            <Text style={styles.totalGoldText}>
+            <Text style={[styles.sectionTitle, { color: colors.black }]}>
+              🎮 추가 수입
+            </Text>
+            <Text style={[styles.totalGoldText, { color: colors.black }]}>
               {character.WeeklyActivityTotalGold || 0}
             </Text>
           </View>
           {/* 추가 버튼 */}
           <View style={styles.addButtonContainer}>
-            <Pressable style={styles.addButton} onPress={toggleActivityModal}>
-              <Text style={styles.addButtonText}>＋ 추가</Text>
-            </Pressable>
+            <TouchableOpacity
+              style={[styles.addButton, { backgroundColor: colors.secondary }]}
+              onPress={toggleActivityModal}
+            >
+              <Text style={[styles.addButtonText, { color: 'white' }]}>
+                ＋ 추가
+              </Text>
+            </TouchableOpacity>
           </View>
           {Array.isArray(character.WeeklyActivity) &&
             character.WeeklyActivity.map((activity, index) => (
-              <Pressable
+              <TouchableOpacity
                 key={index}
-                style={styles.activityItem}
+                style={[
+                  styles.activityItem,
+                  { backgroundColor: colors.grayLight },
+                ]}
                 onPress={() => {
                   setActivityIndex(index);
                   toggleActivityModal();
                 }}
               >
                 <View style={styles.activityItemRow}>
-                  <Text style={styles.activityNameText}>{activity.name}</Text>
-                  <Text style={styles.activityGoldText}>{activity.gold}</Text>
+                  <Text
+                    style={[styles.activityNameText, { color: colors.black }]}
+                  >
+                    {activity.name}
+                  </Text>
+                  <Text
+                    style={[styles.activityGoldText, { color: colors.black }]}
+                  >
+                    {activity.gold}
+                  </Text>
                 </View>
-              </Pressable>
+              </TouchableOpacity>
             ))}
         </View>
       </ScrollView>
@@ -335,7 +383,6 @@ const CharacterActivity: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
     padding: 16,
   },
 
@@ -346,7 +393,6 @@ const styles = StyleSheet.create({
   // ✅ 캐릭터 카드
   characterCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 10,
     shadowColor: '#000',
@@ -388,18 +434,15 @@ const styles = StyleSheet.create({
   characterName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
   },
 
   deleteButton: {
-    backgroundColor: '#f44336',
     padding: 6,
     borderRadius: 16,
   },
 
   characterInfo: {
     fontSize: 14,
-    color: '#666',
     marginTop: 4,
   },
 
@@ -409,7 +452,6 @@ const styles = StyleSheet.create({
   },
 
   refreshButton: {
-    backgroundColor: '#4CAF50',
     paddingHorizontal: 16,
     paddingVertical: 5,
     borderRadius: 20,
@@ -417,13 +459,11 @@ const styles = StyleSheet.create({
 
   refreshButtonText: {
     fontSize: 12,
-    color: 'white',
     fontWeight: 'bold',
   },
 
   // ✅ 공통 섹션
   section: {
-    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 10,
     shadowColor: '#000',
@@ -444,13 +484,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#444',
   },
 
   totalGoldText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
   },
 
   // ✅ 주간 레이드
@@ -465,7 +503,6 @@ const styles = StyleSheet.create({
   raidTitleText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
   },
 
   raidRow: {
@@ -474,12 +511,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 8,
     marginBottom: 8,
-    borderRadius: 8,
-    backgroundColor: '#e0e0e0e0',
+    borderRadius: 12,
   },
 
   editButton: {
-    backgroundColor: '#e0e0e0e0',
     paddingHorizontal: 16,
     paddingVertical: 5,
     borderRadius: 20,
@@ -487,7 +522,6 @@ const styles = StyleSheet.create({
 
   editButtonText: {
     fontSize: 10,
-    color: '#333',
     fontWeight: 'bold',
   },
 
@@ -499,7 +533,6 @@ const styles = StyleSheet.create({
 
   raidButtonText: {
     fontSize: 10,
-    color: '#333',
     fontWeight: 'bold',
   },
 
@@ -510,22 +543,19 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    backgroundColor: '#007BFF',
     paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingHorizontal: 36,
     borderRadius: 50,
   },
 
   addButtonText: {
-    fontSize: 16,
-    color: 'white',
+    fontSize: 14,
     fontWeight: 'bold',
   },
   activityItem: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 8,
+    borderRadius: 12,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 18,
     marginBottom: 8,
   },
 
@@ -537,13 +567,11 @@ const styles = StyleSheet.create({
 
   activityNameText: {
     fontSize: 14,
-    color: '#333',
     fontWeight: 'bold',
   },
 
   activityGoldText: {
     fontSize: 12,
-    color: '#333',
     fontWeight: 'bold',
   },
 });

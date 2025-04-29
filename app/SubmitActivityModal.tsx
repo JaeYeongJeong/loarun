@@ -10,10 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Pressable,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useAppSetting } from '@/context/AppSettingContext';
+import { useTheme } from '@/context/ThemeContext';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -39,6 +40,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const { characters, updateCharacter } = useCharacter();
   const { activityHistory, updateActivityHistory } = useAppSetting();
   const character = characters.find((c) => c.id === id);
+  const { colors } = useTheme();
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
@@ -168,65 +170,115 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       visible={isVisible}
       onRequestClose={handleCloseModal}
     >
-      <View style={styles.modalOverlay}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ width: '100%' }}
-        >
-          <Animated.View
-            style={[styles.modalContainer, { transform: [{ translateY }] }]}
+      <TouchableWithoutFeedback onPress={handleCloseModal}>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={{ width: '100%' }}
           >
-            <Text style={styles.modalText}>
-              {mode === 'edit' ? '📝 활동 수정' : '📝 활동 추가'}
-            </Text>
-            {activityHistory.length > 0 && (
-              <View style={styles.activityHistoryContainer}>
-                {activityHistory.map((item, index) => (
-                  <Pressable
-                    key={index}
-                    style={styles.historyButton}
-                    onPress={() => setActivityName(item)}
-                  >
-                    <Text style={styles.historyButtonText}>{item}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-            <TextInput
-              placeholder="활동명 입력"
-              style={styles.input}
-              placeholderTextColor="#aaa"
-              value={activityName}
-              onChangeText={setActivityName}
-            />
-            <TextInput
-              placeholder="획득 골드"
-              style={styles.input}
-              keyboardType="numeric"
-              placeholderTextColor="#aaa"
-              value={activityGold}
-              onChangeText={setActivityGold}
-            />
-
-            <View style={styles.buttonGroup}>
-              {mode === 'edit' && (
-                <TouchableOpacity
-                  onPress={handleDelete}
-                  style={styles.deleteButton}
-                >
-                  <Text style={styles.deleteButtonText}>삭제</Text>
-                </TouchableOpacity>
+            <Animated.View
+              style={[
+                styles.modalContainer,
+                { backgroundColor: colors.cardBackground },
+                { transform: [{ translateY }] },
+              ]}
+            >
+              <Text style={[styles.modalText, { color: colors.black }]}>
+                {mode === 'edit' ? '📝 활동 수정' : '📝 활동 추가'}
+              </Text>
+              {activityHistory.length > 0 && (
+                <View style={styles.activityHistoryContainer}>
+                  {activityHistory.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.historyButton,
+                        { backgroundColor: colors.primary },
+                      ]}
+                      onPress={() => setActivityName(item)}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={[styles.historyButtonText, { color: 'white' }]}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               )}
-              <TouchableOpacity
-                onPress={handleSubmit}
-                style={styles.confirmButton}
-              >
-                <Text style={styles.confirmButtonText}>확인</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
+              <TextInput
+                placeholder="활동명 입력"
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.grayLight },
+                  { color: colors.grayDark },
+                ]}
+                placeholderTextColor={colors.grayDark}
+                value={activityName}
+                onChangeText={setActivityName}
+              />
+              <TextInput
+                placeholder="획득 골드"
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.grayLight },
+                  { color: colors.grayDark },
+                ]}
+                keyboardType="numeric"
+                placeholderTextColor={colors.grayDark}
+                value={activityGold}
+                onChangeText={setActivityGold}
+              />
+
+              <View style={styles.buttonGroup}>
+                {mode === 'edit' ? (
+                  <TouchableOpacity
+                    onPress={handleDelete}
+                    style={[
+                      styles.deleteButton,
+                      { backgroundColor: colors.danger },
+                    ]}
+                  >
+                    <Text style={[styles.deleteButtonText, { color: 'white' }]}>
+                      삭제
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleCloseModal}
+                    style={[
+                      styles.deleteButton,
+                      { backgroundColor: colors.grayLight },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.deleteButtonText,
+                        { color: colors.grayDark },
+                      ]}
+                    >
+                      취소
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  style={[
+                    styles.confirmButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                >
+                  <Text style={[styles.confirmButtonText, { color: 'white' }]}>
+                    확인
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -239,8 +291,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '100%',
-    backgroundColor: 'white',
-    padding: 20,
+    padding: 24,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     alignItems: 'center',
@@ -252,11 +303,11 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    borderRadius: 12,
+    lineHeight: 20,
   },
   buttonGroup: {
     flexDirection: 'row',
@@ -266,27 +317,23 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 1,
-    backgroundColor: '#4CAF50',
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 20,
     marginLeft: 8,
     alignItems: 'center',
   },
   confirmButtonText: {
-    color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: '#f44336',
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 20,
     marginRight: 8,
     alignItems: 'center',
   },
   deleteButtonText: {
-    color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -295,20 +342,19 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     width: '100%',
     marginBottom: 12,
-    gap: 8, // React Native 0.71 이상
+    marginTop: 8,
   },
 
   historyButton: {
-    backgroundColor: '#4CAF50',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     marginRight: 4,
     marginBottom: 4,
+    maxWidth: 140, // 혹은 원하는 길이
   },
 
   historyButtonText: {
-    color: 'white',
     fontWeight: '500',
     fontSize: 14,
   },

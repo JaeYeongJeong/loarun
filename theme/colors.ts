@@ -15,7 +15,7 @@ type ColorTheme = {
 const lightColors: ColorTheme = {
   background: '#f8f9fa',
   cardBackground: '#ffffff',
-  grayLight: '#e0e0e0',
+  grayLight: '#f1f3f5',
   grayDark: '#666666',
   black: '#333333',
   white: '#ffffff',

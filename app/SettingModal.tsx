@@ -1,3 +1,4 @@
+import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   Pressable,
   Animated,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 type SettingModalProps = {
@@ -21,7 +23,7 @@ const SettingModal: React.FC<SettingModalProps> = ({
 }) => {
   const router = useRouter();
   const translateY = useRef(new Animated.Value(0)).current;
-
+  const { theme, changeTheme } = useTheme();
   // ✅ 모달이 열릴 때 애니메이션 실행
   useEffect(() => {
     if (isVisible) {
@@ -60,27 +62,37 @@ const SettingModal: React.FC<SettingModalProps> = ({
       toggleModal();
     });
   };
+
+  const handleChangeTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    changeTheme(newTheme);
+  };
   return (
     <Modal animationType="none" transparent={true} visible={isVisible}>
-      <View style={styles.modalOverlay}>
-        <Animated.View
-          style={[styles.modalContainer, { transform: [{ translateY }] }]}
-        >
-          <Text style={styles.modalText}>설정 페이지</Text>
-
-          {/* ✅ 모달 닫고 페이지 이동 */}
-          <Pressable onPress={handleAddCharacter}>
-            <Text style={styles.modalText}>다른 캐릭터 추가</Text>
-          </Pressable>
-
-          <TouchableOpacity
-            onPress={handleCloseModal}
-            style={styles.closeButton}
+      <TouchableWithoutFeedback onPress={handleCloseModal}>
+        <View style={styles.modalOverlay}>
+          <Animated.View
+            style={[styles.modalContainer, { transform: [{ translateY }] }]}
           >
-            <Text style={styles.closeButtonText}>닫기</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
+            <Text style={styles.modalText}>설정 페이지</Text>
+
+            {/* ✅ 모달 닫고 페이지 이동 */}
+            <Pressable onPress={handleAddCharacter}>
+              <Text style={styles.modalText}>다른 캐릭터 추가</Text>
+            </Pressable>
+            <Pressable onPress={handleChangeTheme}>
+              <Text style={styles.modalText}>테마 변경</Text>
+            </Pressable>
+
+            <TouchableOpacity
+              onPress={handleCloseModal}
+              style={styles.closeButton}
+            >
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
