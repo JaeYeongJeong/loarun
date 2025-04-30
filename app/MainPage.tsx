@@ -4,6 +4,7 @@ import CharacterBar from './components/CharacterBar';
 import OverviewBar from '@/app/components/OverviewBar';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -12,11 +13,13 @@ const OVERVIEW_HEIGHT = SCREEN_HEIGHT * (2 / 8);
 const MainPage: React.FC = () => {
   const { theme, changeTheme: updateTheme } = useTheme();
   const { characters } = useCharacter();
+  const insets = useSafeAreaInsets();
 
   return (
     <View
       style={[
         styles.container,
+        { paddingTop: insets.top }, // ✅ 상단 여백 추가
         { backgroundColor: theme === 'dark' ? 'grey' : 'lightblue' },
       ]}
     >

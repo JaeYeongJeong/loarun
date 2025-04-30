@@ -16,6 +16,7 @@ import RaidModal from './SubmitRaidModal';
 import { Feather } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CharacterActivity: React.FC = () => {
   const params = useLocalSearchParams();
@@ -33,6 +34,8 @@ const CharacterActivity: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshText, setRefreshText] = useState('갱신하기');
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets(); // ✅ 상단 여백 추가
+
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
   useEffect(() => {
@@ -124,7 +127,13 @@ const CharacterActivity: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top },
+        { backgroundColor: colors.background },
+      ]}
+    >
       {/* 캐릭터 카드 */}
       <View
         style={[

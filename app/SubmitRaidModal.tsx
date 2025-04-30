@@ -7,12 +7,11 @@ import {
   Animated,
   TouchableOpacity,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { RAID_LIST } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Difficulty = '싱글' | '노말' | '하드';
 
@@ -60,6 +59,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
     []
   );
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   if (!character) return null; // 캐릭터가 없으면 모달을 렌더링하지 않음
 
@@ -201,144 +201,144 @@ const RaidModal: React.FC<RaidModalProps> = ({
       visible={isVisible}
       onRequestClose={handleCloseModal}
     >
-      <View style={styles.overlay}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1, width: '100%' }}
+      <View style={[styles.overlay, { paddingTop: insets.top }]}>
+        <Animated.View
+          style={[
+            styles.container,
+            { backgroundColor: colors.background },
+            { transform: [{ translateY }] },
+          ]}
         >
-          <Animated.View
-            style={[
-              styles.container,
-              { backgroundColor: colors.background },
-              { transform: [{ translateY }] },
-            ]}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
           >
-            <ScrollView>
-              {RAID_LIST.map((raid, raidIdx) => (
-                <View
-                  key={raidIdx}
-                  style={[
-                    styles.raidBlock,
-                    { backgroundColor: colors.cardBackground },
-                  ]}
-                >
-                  <Text style={[styles.raidName, { color: colors.black }]}>
-                    {raid.name}
-                  </Text>
-                  {raid.difficulty.map((difficultyObj, stageIdx) => (
-                    <View key={stageIdx} style={styles.difficultyBlock}>
-                      {/* 🔽 헤더 한 줄 정렬 */}
-                      <View style={styles.difficultyHeader}>
-                        <Text
-                          style={[
-                            styles.difficultyText,
-                            { color: colors.black },
-                            difficultyObj.difficulty === '노말'
-                              ? { color: colors.info }
-                              : {},
-                            difficultyObj.difficulty === '하드'
-                              ? { color: colors.danger }
-                              : {},
-                          ]}
-                        >
-                          {difficultyObj.difficulty}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.totalGoldText,
-                            { color: colors.grayDark },
-                          ]}
-                        >
-                          {difficultyObj.totalGold}
-                        </Text>
-                      </View>
-
-                      <View
+            {RAID_LIST.map((raid, raidIdx) => (
+              <View
+                key={raidIdx}
+                style={[
+                  styles.raidBlock,
+                  { backgroundColor: colors.cardBackground },
+                ]}
+              >
+                <Text style={[styles.raidName, { color: colors.black }]}>
+                  {raid.name}
+                </Text>
+                {raid.difficulty.map((difficultyObj, stageIdx) => (
+                  <View key={stageIdx} style={styles.difficultyBlock}>
+                    {/* 🔽 헤더 한 줄 정렬 */}
+                    <View style={styles.difficultyHeader}>
+                      <Text
                         style={[
-                          styles.stageContainer,
-                          { backgroundColor: colors.grayLight },
+                          styles.difficultyText,
+                          { color: colors.black },
+                          difficultyObj.difficulty === '노말'
+                            ? { color: colors.info }
+                            : {},
+                          difficultyObj.difficulty === '하드'
+                            ? { color: colors.danger }
+                            : {},
                         ]}
                       >
-                        {difficultyObj.stages.map((stage) => (
-                          <TouchableOpacity
-                            key={stage.stage}
+                        {difficultyObj.difficulty}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.totalGoldText,
+                          { color: colors.grayDark },
+                        ]}
+                      >
+                        {difficultyObj.totalGold}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={[
+                        styles.stageContainer,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                    >
+                      {difficultyObj.stages.map((stage) => (
+                        <TouchableOpacity
+                          key={stage.stage}
+                          style={[
+                            styles.stageBox,
+                            isSelected(
+                              raid.name,
+                              difficultyObj.difficulty,
+                              stage.stage
+                            ) && { backgroundColor: colors.primary },
+                          ]}
+                          onPress={() => {
+                            handleSelectStages(
+                              raid.name,
+                              difficultyObj.difficulty,
+                              stage.stage,
+                              stage.gold
+                            );
+                          }}
+                        >
+                          <Text
                             style={[
-                              styles.stageBox,
+                              styles.stageLabelText,
+                              { color: colors.grayDark },
                               isSelected(
                                 raid.name,
                                 difficultyObj.difficulty,
                                 stage.stage
-                              ) && { backgroundColor: colors.primary },
+                              ) && { color: 'white' },
                             ]}
-                            onPress={() => {
-                              handleSelectStages(
+                          >
+                            {stage.stage}관문
+                          </Text>
+                          <Text
+                            style={[
+                              styles.stageGold,
+                              { color: colors.grayDark },
+                              isSelected(
                                 raid.name,
                                 difficultyObj.difficulty,
-                                stage.stage,
-                                stage.gold
-                              );
-                            }}
+                                stage.stage
+                              ) && { color: 'white' },
+                            ]}
                           >
-                            <Text
-                              style={[
-                                styles.stageLabelText,
-                                { color: colors.grayDark },
-                                isSelected(
-                                  raid.name,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                ) && { color: 'white' },
-                              ]}
-                            >
-                              {stage.stage}관문
-                            </Text>
-                            <Text
-                              style={[
-                                styles.stageGold,
-                                { color: colors.grayDark },
-                                isSelected(
-                                  raid.name,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                ) && { color: 'white' },
-                              ]}
-                            >
-                              {stage.gold}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
+                            {stage.gold}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
                     </View>
-                  ))}
-                </View>
-              ))}
-            </ScrollView>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                onPress={handleCloseModal}
-                style={[
-                  styles.cancelButton,
-                  { backgroundColor: colors.danger },
-                ]}
-              >
-                <Text style={[styles.cancelButtonText, { color: 'white' }]}>
-                  닫기
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSubmit}
-                style={[
-                  styles.confirmButton,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
-                <Text style={[styles.confirmButtonText, { color: 'white' }]}>
-                  확인
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </KeyboardAvoidingView>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+          <View
+            style={[
+              styles.fixedButtonWrapper,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <TouchableOpacity
+              onPress={handleCloseModal}
+              style={[styles.cancelButton, { backgroundColor: colors.danger }]}
+            >
+              <Text style={[styles.cancelButtonText, { color: 'white' }]}>
+                닫기
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              style={[
+                styles.confirmButton,
+                { backgroundColor: colors.primary },
+              ]}
+            >
+              <Text style={[styles.confirmButtonText, { color: 'white' }]}>
+                확인
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -351,10 +351,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   container: {
+    flex: 1,
     padding: 16,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '90%',
   },
   raidBlock: {
     marginBottom: 24,
@@ -411,11 +411,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-  buttonRow: {
+  fixedButtonWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
     paddingHorizontal: 16,
+    paddingVertical: 12,
+    // borderTopWidth: 1,
+    // borderColor: '#ddd',
+    backgroundColor: '#fff', // 다크모드 시 colors.cardBackground로 교체 가능
   },
   cancelButton: {
     flex: 1,
