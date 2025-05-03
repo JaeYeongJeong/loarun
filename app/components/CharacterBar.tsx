@@ -10,10 +10,11 @@ import {
   Dimensions,
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
+import { useTheme } from '@/context/ThemeContext';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.1;
-
+const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
+const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
 type CharacterBarProps = {
   id: string;
 };
@@ -23,6 +24,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   const { characters } = useCharacter();
   const character = characters.find((c) => c.id === id);
   const [portraitUri, setPortraitUri] = useState<string | null>(null);
+  const { colors } = useTheme(); // 테마 색상 가져오기
 
   if (!character) return; // 캐릭터가 없으면 아무것도 하지 않음
 
@@ -60,16 +62,19 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
     (character.WeeklyRaidTotalGold || 0);
 
   return (
-    <Pressable onPress={handlerCharacterActivity} style={styles.container}>
+    <Pressable
+      onPress={handlerCharacterActivity}
+      style={[styles.container, { backgroundColor: colors.cardBackground }]}
+    >
       {/* 왼쪽: 이미지 + 텍스트 */}
       <View style={styles.innerContainer}>
         <View
           style={{
-            width: CHARACTER_BAR_HEIGHT * 0.6,
-            height: CHARACTER_BAR_HEIGHT * 0.6,
+            width: CHARACTER_BAR_HEIGHT,
+            height: CHARACTER_BAR_HEIGHT,
+            borderTopLeftRadius: CHARACTER_BAR_BORDER_RADIUS,
+            borderBottomLeftRadius: CHARACTER_BAR_BORDER_RADIUS,
             overflow: 'hidden',
-            borderRadius: CHARACTER_BAR_HEIGHT * 0.1, // 원형 마스크
-            backgroundColor: '#ccc',
           }}
         >
           <Image
@@ -81,26 +86,29 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             style={{
               width: '100%',
               height: '100%',
-              borderRadius: 8,
             }}
             resizeMode="cover"
           />
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.nameText}>{character.CharacterName}</Text>
-          <Text style={styles.infoText}>
+          <Text style={[styles.nameText, { color: colors.black }]}>
+            {character.CharacterName}
+          </Text>
+          <Text style={[styles.infoText, { color: colors.grayDark }]}>
             {character.CharacterClassName} @ {character.ServerName}
           </Text>
-          <Text style={styles.levelText}>Lv. {character.ItemAvgLevel}</Text>
+          <Text style={[styles.levelText, { color: colors.grayDark }]}>
+            Lv. {character.ItemAvgLevel}
+          </Text>
         </View>
       </View>
 
       {/* 오른쪽: 총 골드 + 클리어 정보 */}
       <View style={styles.rightContainer}>
         <Text style={styles.goldText}>{totalGold.toLocaleString()} G</Text>
-        <Text style={styles.countText}>
-          {clearedCount} / {totalCount}
+        <Text style={[styles.countText, { color: colors.grayDark }]}>
+          주간 {clearedCount} / {totalCount}
         </Text>
       </View>
     </Pressable>
@@ -109,15 +117,18 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     height: CHARACTER_BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f9f9f9',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    paddingHorizontal: 16,
+    borderRadius: CHARACTER_BAR_BORDER_RADIUS,
+    marginBottom: 8,
+    marginHorizontal: 8,
+    paddingRight: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   innerContainer: {
     flexDirection: 'row',
@@ -127,9 +138,10 @@ const styles = StyleSheet.create({
 
   textContainer: {
     justifyContent: 'center',
+    paddingLeft: 12,
   },
   nameText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -139,8 +151,7 @@ const styles = StyleSheet.create({
   },
   levelText: {
     fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: 'bold',
+    color: '#666',
   },
   rightContainer: {
     alignItems: 'flex-end',
@@ -148,13 +159,12 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
   },
   goldText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
     color: '#E67E22',
   },
   countText: {
     fontSize: 14,
-    color: '#555',
+    color: '#666',
   },
 });
 

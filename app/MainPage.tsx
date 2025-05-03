@@ -11,7 +11,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const OVERVIEW_HEIGHT = SCREEN_HEIGHT * (2 / 8);
 
 const MainPage: React.FC = () => {
-  const { theme, changeTheme: updateTheme } = useTheme();
+  const { colors } = useTheme();
   const { characters } = useCharacter();
   const insets = useSafeAreaInsets();
 
@@ -20,7 +20,7 @@ const MainPage: React.FC = () => {
       style={[
         styles.container,
         { paddingTop: insets.top }, // ✅ 상단 여백 추가
-        { backgroundColor: theme === 'dark' ? 'grey' : 'lightblue' },
+        { backgroundColor: colors.background }, // ✅ 배경색 설정
       ]}
     >
       <FlatList
