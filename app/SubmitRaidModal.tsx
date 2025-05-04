@@ -320,9 +320,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
           >
             <TouchableOpacity
               onPress={handleCloseModal}
-              style={[styles.cancelButton, { backgroundColor: colors.danger }]}
+              style={[
+                styles.cancelButton,
+                { backgroundColor: colors.cardBackground },
+              ]}
             >
-              <Text style={[styles.cancelButtonText, { color: 'white' }]}>
+              <Text
+                style={[styles.cancelButtonText, { color: colors.grayDark }]}
+              >
                 닫기
               </Text>
             </TouchableOpacity>
@@ -367,13 +372,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   raidName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 8,
   },
   stageContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'space-evenly',
     flexWrap: 'wrap',
@@ -382,7 +387,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 4,
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 10,
   },
   difficultyBlock: {
     marginBottom: 12,
@@ -395,30 +400,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   difficultyText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   totalGoldText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 13,
+    fontWeight: '500',
   },
   stageLabelText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
     marginBottom: 4,
   },
   stageGold: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   fixedButtonWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    // borderTopWidth: 1,
-    // borderColor: '#ddd',
-    backgroundColor: '#fff', // 다크모드 시 colors.cardBackground로 교체 가능
   },
   cancelButton: {
     flex: 1,
@@ -426,6 +428,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 20,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   confirmButton: {
     flex: 1,
@@ -433,14 +440,19 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     borderRadius: 20,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   confirmButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 

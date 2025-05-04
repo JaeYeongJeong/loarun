@@ -60,7 +60,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
   const totalGold =
     (character.ClearedRaidTotalGold || 0) +
-    (character.WeeklyRaidTotalGold || 0);
+    (character.WeeklyActivityTotalGold || 0);
 
   return (
     <TouchableOpacity
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#333',
     paddingBottom: 4,
   },
@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
   },
   goldText: {
     fontSize: 14,
+    fontWeight: '500',
     color: '#E67E22',
   },
   countText: {

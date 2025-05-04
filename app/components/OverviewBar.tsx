@@ -29,7 +29,7 @@ function OverviewBar() {
         ]}
       >
         <View style={styles.leftBlock}>
-          <Text style={[styles.label, { color: colors.black }]}>이번주</Text>
+          <Text style={[styles.label, { color: colors.black }]}>이번 주</Text>
           <Text style={[styles.label, { color: colors.black }]}>
             나의 로아런
           </Text>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: '600',
     paddingBottom: 8,
     paddingLeft: 8,
   },

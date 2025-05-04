@@ -70,6 +70,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
+      setIndexNull(); // 인덱스 초기화
       setIsVisibleFalse(); // 닫기 완료 후 상태 변경
     });
   };
@@ -132,8 +133,6 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     }
 
     setIndexNull(); // 인덱스 초기화
-    setActivityName('');
-    setActivityGold('');
     handleCloseModal();
   };
 
@@ -184,7 +183,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
               ]}
             >
               <Text style={[styles.modalText, { color: colors.black }]}>
-                {mode === 'edit' ? '📝 활동 수정' : '📝 활동 추가'}
+                {mode === 'edit' ? '활동 수정' : '활동 추가'}
               </Text>
               {activityHistory.length > 0 && (
                 <View style={styles.activityHistoryContainer}>
@@ -238,10 +237,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                     onPress={handleDelete}
                     style={[
                       styles.deleteButton,
-                      { backgroundColor: colors.danger },
+                      { backgroundColor: colors.grayLight },
                     ]}
                   >
-                    <Text style={[styles.deleteButtonText, { color: 'white' }]}>
+                    <Text
+                      style={[
+                        styles.deleteButtonText,
+                        { color: colors.danger },
+                      ]}
+                    >
                       삭제
                     </Text>
                   </TouchableOpacity>
@@ -298,7 +302,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginBottom: 20,
   },
   input: {
@@ -323,7 +327,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmButtonText: {
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   deleteButton: {
@@ -334,7 +338,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButtonText: {
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   activityHistoryContainer: {

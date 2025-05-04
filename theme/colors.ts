@@ -22,7 +22,7 @@ const lightColors: ColorTheme = {
   primary: '#4CAF50', // 메인 버튼색 (초록)
   secondary: '#007BFF', // 추가버튼 색상 (파랑)
   danger: '#f44336', // 삭제 버튼 색상 (빨강)
-  info: '#3498db', // 난이도 노말 색상 (파랑)
+  info: '#1E88E5', // 난이도 노말 색상 (파랑)
   warning: '#e74c3c', // 난이도 하드 색상 (빨강)
 };
 
@@ -33,7 +33,7 @@ const darkColors: ColorTheme = {
   grayDark: '#aaaaaa', // 텍스트용 밝은 회색
   black: '#ffffff', // 다크에서는 흰색이 메인 텍스트가 됨
   white: '#000000', // 반대 (필요한 경우)
-  primary: '#4CAF50', // 메인 버튼 초록은 유지 (잘 보임)
+  primary: '#2ecc71', // 메인 버튼 초록은 유지 (잘 보임)
   secondary: '#339CFF', // 추가버튼 색상 (파랑 약간 밝게)
   danger: '#FF6B6B', // 삭제 버튼 빨강을 다크에 맞게 톤 업
   info: '#5DADE2', // 난이도 노말 색 (밝은 블루)

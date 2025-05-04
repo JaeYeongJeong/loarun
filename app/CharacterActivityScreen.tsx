@@ -211,7 +211,7 @@ const CharacterActivity: React.FC = () => {
         >
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.black }]}>
-              🛡️ 주간 레이드
+              주간 레이드
             </Text>
             <Text style={[styles.totalGoldText, { color: colors.black }]}>
               {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
@@ -274,9 +274,13 @@ const CharacterActivity: React.FC = () => {
                         <Text
                           style={[
                             styles.raidButtonText,
-                            stage.cleared ? { color: colors.white } : {},
+                            stage.cleared
+                              ? { color: 'white' }
+                              : { color: colors.black },
                             stage.difficulty === '노말'
-                              ? { color: colors.info }
+                              ? {
+                                  color: colors.info,
+                                }
                               : {},
                             stage.difficulty === '하드'
                               ? { color: colors.danger }
@@ -318,7 +322,7 @@ const CharacterActivity: React.FC = () => {
         >
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.black }]}>
-              🎮 추가 수입
+              추가 수입
             </Text>
             <Text style={[styles.totalGoldText, { color: colors.black }]}>
               {character.WeeklyActivityTotalGold || 0}
@@ -441,8 +445,8 @@ const styles = StyleSheet.create({
   },
 
   characterName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '600',
   },
 
   deleteButton: {
@@ -468,7 +472,7 @@ const styles = StyleSheet.create({
 
   refreshButtonText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   // ✅ 공통 섹션
@@ -497,7 +501,7 @@ const styles = StyleSheet.create({
 
   totalGoldText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   // ✅ 주간 레이드
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
 
   editButtonText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   raidButton: {
@@ -542,7 +546,7 @@ const styles = StyleSheet.create({
 
   raidButtonText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   // ✅ 주간 활동
@@ -559,7 +563,7 @@ const styles = StyleSheet.create({
 
   addButtonText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   activityItem: {
     borderRadius: 12,
@@ -576,12 +580,12 @@ const styles = StyleSheet.create({
 
   activityNameText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   activityGoldText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 });
 
