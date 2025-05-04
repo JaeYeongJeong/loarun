@@ -336,7 +336,14 @@ const CharacterActivity: React.FC = () => {
             <Text style={[styles.sectionTitle, { color: colors.black }]}>
               추가 수입
             </Text>
-            <Text style={[styles.totalGoldText, { color: colors.black }]}>
+            <Text
+              style={[
+                styles.totalGoldText,
+                (character.WeeklyActivityTotalGold || 0) >= 0
+                  ? { color: colors.black }
+                  : { color: colors.warning },
+              ]}
+            >
               {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
             </Text>
           </View>
@@ -371,7 +378,12 @@ const CharacterActivity: React.FC = () => {
                     {activity.name}
                   </Text>
                   <Text
-                    style={[styles.activityGoldText, { color: colors.black }]}
+                    style={[
+                      styles.activityGoldText,
+                      activity.gold >= 0
+                        ? { color: colors.black }
+                        : { color: colors.warning },
+                    ]}
                   >
                     {activity.gold}
                   </Text>
