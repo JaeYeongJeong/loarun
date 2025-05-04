@@ -106,7 +106,14 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
       {/* 오른쪽: 총 골드 + 클리어 정보 */}
       <View style={styles.rightContainer}>
-        <Text style={[styles.goldText, { color: colors.primary }]}>
+        <Text
+          style={[
+            styles.goldText,
+            totalGold >= 0
+              ? { color: colors.primary }
+              : { color: colors.warning },
+          ]}
+        >
           {totalGold.toLocaleString()}
         </Text>
         <Text style={[styles.countText, { color: colors.grayDark }]}>

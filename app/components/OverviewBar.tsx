@@ -33,7 +33,14 @@ function OverviewBar() {
           <Text style={[styles.label, { color: colors.black }]}>
             나의 로아런
           </Text>
-          <Text style={[styles.goldText, { color: colors.primary }]}>
+          <Text
+            style={[
+              styles.goldText,
+              totalGold >= 0
+                ? { color: colors.primary }
+                : { color: colors.warning },
+            ]}
+          >
             {totalGold.toLocaleString()}
           </Text>
         </View>

@@ -228,7 +228,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   { backgroundColor: colors.grayLight },
                   { color: colors.grayDark },
                 ]}
-                keyboardType="numeric"
+                keyboardType="numbers-and-punctuation"
                 placeholderTextColor={colors.grayDark}
                 value={activityGold}
                 onChangeText={setActivityGold}

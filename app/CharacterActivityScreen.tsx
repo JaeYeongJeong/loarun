@@ -337,7 +337,7 @@ const CharacterActivity: React.FC = () => {
               추가 수입
             </Text>
             <Text style={[styles.totalGoldText, { color: colors.black }]}>
-              {character.WeeklyActivityTotalGold || 0}
+              {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
             </Text>
           </View>
           {/* 추가 버튼 */}
@@ -444,7 +444,6 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#ccc',
     justifyContent: 'center',
     alignItems: 'center',
   },
