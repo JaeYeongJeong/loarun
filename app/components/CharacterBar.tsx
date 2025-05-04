@@ -6,7 +6,6 @@ import {
   Text,
   View,
   Image,
-  Pressable,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
@@ -107,7 +106,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
       {/* 오른쪽: 총 골드 + 클리어 정보 */}
       <View style={styles.rightContainer}>
-        <Text style={styles.goldText}>{totalGold.toLocaleString()} G</Text>
+        <Text style={[styles.goldText, { color: colors.primary }]}>
+          {totalGold.toLocaleString()}
+        </Text>
         <Text style={[styles.countText, { color: colors.grayDark }]}>
           주간 {clearedCount} / {totalCount}
         </Text>
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
   goldText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#E67E22',
+    paddingBottom: 2,
   },
   countText: {
     fontSize: 14,

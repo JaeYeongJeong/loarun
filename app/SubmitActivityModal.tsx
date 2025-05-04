@@ -199,7 +199,10 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                       <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
-                        style={[styles.historyButtonText, { color: 'white' }]}
+                        style={[
+                          styles.historyButtonText,
+                          { color: colors.white },
+                        ]}
                       >
                         {item}
                       </Text>
@@ -274,7 +277,9 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                     { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Text style={[styles.confirmButtonText, { color: 'white' }]}>
+                  <Text
+                    style={[styles.confirmButtonText, { color: colors.white }]}
+                  >
                     확인
                   </Text>
                 </TouchableOpacity>

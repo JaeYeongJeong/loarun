@@ -10,6 +10,7 @@ type ColorTheme = {
   danger: string; // 삭제 버튼 색상 (빨강)
   info: string; // 난이도 노말 색상 (파랑)
   warning: string; // 난이도 하드 색상 (빨강)
+  gold: string; // 골드 색상 (노랑)
 };
 
 const lightColors: ColorTheme = {
@@ -24,6 +25,7 @@ const lightColors: ColorTheme = {
   danger: '#f44336', // 삭제 버튼 색상 (빨강)
   info: '#1E88E5', // 난이도 노말 색상 (파랑)
   warning: '#e74c3c', // 난이도 하드 색상 (빨강)
+  gold: '#E67E22',
 };
 
 const darkColors: ColorTheme = {
@@ -38,6 +40,7 @@ const darkColors: ColorTheme = {
   danger: '#FF6B6B', // 삭제 버튼 빨강을 다크에 맞게 톤 업
   info: '#5DADE2', // 난이도 노말 색 (밝은 블루)
   warning: '#EC7063', // 난이도 하드 색 (살짝 더 밝은 레드)
+  gold: '#E67E22',
 };
 
 export { lightColors, darkColors };

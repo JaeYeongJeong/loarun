@@ -338,7 +338,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 { backgroundColor: colors.primary },
               ]}
             >
-              <Text style={[styles.confirmButtonText, { color: 'white' }]}>
+              <Text style={[styles.confirmButtonText, { color: colors.white }]}>
                 확인
               </Text>
             </TouchableOpacity>

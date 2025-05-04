@@ -47,7 +47,7 @@ function OverviewBar() {
       >
         <View style={styles.rightBlock}>
           <Pressable onPress={toggleModal} style={styles.iconButton}>
-            <Feather name="settings" size={20} color={colors.black} />
+            <Feather name="settings" size={24} color={colors.black} />
           </Pressable>
         </View>
       </View>

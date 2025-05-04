@@ -6,9 +6,16 @@ import {
   View,
   Pressable,
   Alert,
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
+import { useTheme } from '@/context/ThemeContext';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -17,6 +24,8 @@ const AddCharacterScreen: React.FC = () => {
     any
   > | null>(null);
   const { characters, addCharacter } = useCharacter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   // ✅ 캐릭터 추가 핸들러
   const handlerAddCharacter = () => {
@@ -70,38 +79,90 @@ const AddCharacterScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>새 캐릭터 추가</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.cardBackground,
+            paddingTop: insets.top,
+          },
+        ]}
+      >
+        {/* 상단: 액션바 */}
+        <View style={styles.actionBar}>
+          <TouchableOpacity onPress={router.back}>
+            <Feather name="chevron-left" size={24} color={colors.grayDark} />
+          </TouchableOpacity>
+        </View>
 
-      {/* ✅ 입력 필드 */}
-      <TextInput
-        style={styles.input}
-        placeholder="캐릭터 이름"
-        value={characterName}
-        onChangeText={(text) => setCharacterName(text)}
-      />
-
-      {/* ✅ 검색 버튼 */}
-      <Pressable style={styles.button} onPress={handlerSearchCharacter}>
-        <Text style={styles.buttonText}>검색</Text>
-      </Pressable>
-
-      {/* ✅ 캐릭터 정보 표시 */}
-      {characterInfo && (
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>{characterInfo.ItemAvgLevel}</Text>
-          <Text style={styles.infoText}>{characterInfo.CharacterName}</Text>
-          <Text style={styles.infoText}>
-            {characterInfo.CharacterClassName} @ {characterInfo.ServerName}
+        <View style={styles.contentWrapper}>
+          {/* 왼쪽 정렬된 타이틀 */}
+          <Text style={[styles.title, { color: colors.black }]}>
+            캐릭터 추가
           </Text>
 
-          {/* ✅ 추가 버튼 */}
-          <Pressable style={styles.button} onPress={handlerAddCharacter}>
-            <Text style={styles.buttonText}>추가</Text>
+          {/* 입력 필드 */}
+          <TextInput
+            style={[
+              styles.input,
+              { backgroundColor: colors.grayLight, color: colors.black },
+            ]}
+            placeholder=" 캐릭터 이름"
+            placeholderTextColor={colors.grayDark}
+            value={characterName}
+            onChangeText={(text) => setCharacterName(text)}
+          />
+
+          {/* 검색 버튼 */}
+          <Pressable
+            style={[styles.button, { backgroundColor: colors.primary }]}
+            onPress={handlerSearchCharacter}
+          >
+            <Text style={[styles.buttonText, { color: colors.white }]}>
+              검색
+            </Text>
           </Pressable>
+
+          {/* 캐릭터 정보 표시 */}
+          {characterInfo && (
+            <View
+              style={[
+                styles.infoContainer,
+                { backgroundColor: colors.grayLight },
+              ]}
+            >
+              <View style={styles.infoRow}>
+                {/* 왼쪽: 캐릭터 정보 */}
+                <View style={styles.infoTexts}>
+                  <Text style={[styles.nameText, { color: colors.black }]}>
+                    {characterInfo.CharacterName}
+                  </Text>
+                  <Text style={[styles.infoText, { color: colors.grayDark }]}>
+                    {characterInfo.ItemAvgLevel}
+                  </Text>
+                  <Text style={[styles.infoText, { color: colors.grayDark }]}>
+                    {characterInfo.CharacterClassName} @{' '}
+                    {characterInfo.ServerName}
+                  </Text>
+                </View>
+
+                {/* 오른쪽: 체크 아이콘 버튼 */}
+                <Pressable
+                  style={[
+                    styles.iconButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={handlerAddCharacter}
+                >
+                  <FontAwesome name="check" size={20} color="white" />
+                </Pressable>
+              </View>
+            </View>
+          )}
         </View>
-      )}
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -110,47 +171,85 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'green',
     padding: 16,
+  },
+  // ✅ 상단 액션바
+  actionBar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginTop: 8,
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    paddingBottom: 32,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'white',
+    fontWeight: '600',
+    marginBottom: 12,
+    alignSelf: 'flex-start', // 왼쪽 정렬
+    paddingLeft: '13%',
   },
   input: {
     width: '80%',
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    backgroundColor: 'white',
-    marginBottom: 20,
+    borderRadius: 15,
+    marginBottom: 10,
+    paddingLeft: 16,
   },
   button: {
-    backgroundColor: 'blue',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
-    marginVertical: 10, // ✅ 버튼 간격 추가
+    borderRadius: 20,
+    alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   infoContainer: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: 'white',
-    borderRadius: 5,
+    marginVertical: 10,
+    padding: 16,
+    borderRadius: 20,
+    width: '80%',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  infoText: {
+  infoTexts: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  nameText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
+    fontWeight: '600',
+    paddingBottom: 2,
+  },
+
+  infoText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  addButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginLeft: 10,
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 6,
+    borderRadius: 50,
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

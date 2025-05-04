@@ -40,7 +40,6 @@ const CharacterActivity: React.FC = () => {
 
   useEffect(() => {
     const updatedRaids = [...(character.SelectedRaids || [])];
-
     const updatedClearedRaidTotalGold =
       updatedRaids.reduce((total, raid) => {
         return (
@@ -95,7 +94,7 @@ const CharacterActivity: React.FC = () => {
         text: '삭제',
         onPress: () => {
           removeCharacter(character.id);
-          router.replace('/MainPage'); // 홈으로 이동
+          router.back();
         },
       },
     ]);
@@ -130,10 +129,29 @@ const CharacterActivity: React.FC = () => {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top },
-        { backgroundColor: colors.background },
+        {
+          paddingTop: insets.top,
+          backgroundColor: colors.background,
+        },
       ]}
     >
+      {/* 상단: 액션바 */}
+      <View style={styles.actionBar}>
+        <TouchableOpacity onPress={router.back}>
+          <Feather name="chevron-left" size={24} color={colors.grayDark} />
+        </TouchableOpacity>
+        <View style={styles.actionWrapper}>
+          <TouchableOpacity>
+            <Feather name="bookmark" size={24} color={colors.grayDark} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleRemoveCharacter}>
+            <Feather name="trash-2" size={24} color={colors.grayDark} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Feather name="more-horizontal" size={24} color={colors.grayDark} />
+          </TouchableOpacity>
+        </View>
+      </View>
       {/* 캐릭터 카드 */}
       <View
         style={[
@@ -162,12 +180,6 @@ const CharacterActivity: React.FC = () => {
             <Text style={[styles.characterName, { color: colors.black }]}>
               {character.CharacterName}
             </Text>
-            <TouchableOpacity
-              style={[styles.deleteButton, { backgroundColor: colors.danger }]}
-              onPress={handleRemoveCharacter}
-            >
-              <Feather name="trash-2" size={16} color="white" />
-            </TouchableOpacity>
           </View>
 
           <Text style={[styles.characterInfo, { color: colors.grayDark }]}>
@@ -273,9 +285,9 @@ const CharacterActivity: React.FC = () => {
                       >
                         <Text
                           style={[
-                            styles.raidButtonText,
+                            styles.difficultyText,
                             stage.cleared
-                              ? { color: 'white' }
+                              ? { color: colors.white }
                               : { color: colors.black },
                             stage.difficulty === '노말'
                               ? {
@@ -293,7 +305,7 @@ const CharacterActivity: React.FC = () => {
                           style={[
                             styles.raidButtonText,
                             { color: colors.black },
-                            stage.cleared ? { color: 'white' } : {},
+                            stage.cleared ? { color: colors.white } : {},
                           ]}
                         >
                           {stage.stage} 관문
@@ -398,11 +410,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-
   scrollView: {
     flex: 1,
   },
-
+  // ✅ 상단 액션바
+  actionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  actionWrapper: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingRight: 6,
+  },
   // ✅ 캐릭터 카드
   characterCard: {
     flexDirection: 'row',
@@ -447,11 +470,7 @@ const styles = StyleSheet.create({
   characterName: {
     fontSize: 18,
     fontWeight: '600',
-  },
-
-  deleteButton: {
-    padding: 6,
-    borderRadius: 16,
+    paddingTop: 4,
   },
 
   characterInfo: {
@@ -544,6 +563,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  difficultyText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
   raidButtonText: {
     fontSize: 10,
     fontWeight: '600',

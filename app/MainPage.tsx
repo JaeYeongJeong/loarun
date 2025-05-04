@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
   Dimensions,
-  Pressable,
   TouchableOpacity,
 } from 'react-native';
 import CharacterBar from './components/CharacterBar';
