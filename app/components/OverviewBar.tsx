@@ -21,25 +21,34 @@ function OverviewBar() {
   };
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: colors.cardBackground }]}
-    >
-      <View>
-        <Pressable onPress={toggleModal} style={styles.iconButton}>
-          <Feather name="settings" size={20} color={colors.black} />
-        </Pressable>
-      </View>
-      <View>
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.blockContainer,
+          { backgroundColor: colors.cardBackground },
+        ]}
+      >
         <View style={styles.leftBlock}>
           <Text style={[styles.label, { color: colors.black }]}>이번주</Text>
           <Text style={[styles.label, { color: colors.black }]}>
-            나의 로아러닝
+            나의 로아런
           </Text>
-        </View>
-        <View style={styles.rightBlock}>
           <Text style={[styles.goldText, { color: colors.primary }]}>
             {totalGold.toLocaleString()}
           </Text>
+        </View>
+      </View>
+
+      <View
+        style={[
+          styles.blockContainer,
+          { backgroundColor: colors.cardBackground },
+        ]}
+      >
+        <View style={styles.rightBlock}>
+          <Pressable onPress={toggleModal} style={styles.iconButton}>
+            <Feather name="settings" size={20} color={colors.black} />
+          </Pressable>
         </View>
       </View>
 
@@ -50,35 +59,42 @@ function OverviewBar() {
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    padding: 12,
+    gap: 12,
+  },
+  blockContainer: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 20,
-    marginHorizontal: 8,
-    paddingHorizontal: 32,
     borderRadius: 20,
+    backgroundColor: 'grey',
+    padding: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    elevation: 3,
+    aspectRatio: 1, // 정사각형 비율
   },
   leftBlock: {
-    flexDirection: 'column',
-  },
-  label: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    flex: 1,
+    justifyContent: 'center',
   },
   rightBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  label: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    paddingBottom: 8,
+    paddingLeft: 8,
   },
   goldText: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginRight: 10,
+    paddingTop: 12,
+    paddingRight: 8,
+    textAlign: 'right',
   },
   iconButton: {
     padding: 6,

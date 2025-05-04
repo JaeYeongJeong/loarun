@@ -8,6 +8,7 @@ import {
   Image,
   Pressable,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/context/ThemeContext';
@@ -62,7 +63,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
     (character.WeeklyRaidTotalGold || 0);
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={handlerCharacterActivity}
       style={[styles.container, { backgroundColor: colors.cardBackground }]}
     >
@@ -111,7 +112,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           주간 {clearedCount} / {totalCount}
         </Text>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
@@ -122,8 +123,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: CHARACTER_BAR_BORDER_RADIUS,
-    marginBottom: 8,
-    marginHorizontal: 8,
+    marginBottom: 6,
+    marginHorizontal: 12,
     paddingRight: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -144,14 +145,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    paddingBottom: 4,
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
   },
   levelText: {
     fontSize: 14,
-    color: '#666',
   },
   rightContainer: {
     alignItems: 'flex-end',
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 14,
-    color: '#666',
   },
 });
 
