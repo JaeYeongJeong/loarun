@@ -49,9 +49,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   };
 
   const clearedCount =
-    character.SelectedRaids?.filter((raid) =>
-      raid.stages.some((stage) => stage.cleared)
-    ).length || 0;
+    character.SelectedRaids?.filter((raid) => raid.cleared).length || 0;
 
   const totalCount =
     character.SelectedRaids?.filter((raid) => raid.stages.length > 0).length ||
@@ -117,7 +115,8 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           {totalGold.toLocaleString()}
         </Text>
         <Text style={[styles.countText, { color: colors.grayDark }]}>
-          주간 {clearedCount} / {totalCount}
+          주간 {totalCount > 0 ? clearedCount : '-'} /{' '}
+          {totalCount > 0 ? totalCount : '-'}
         </Text>
       </View>
     </TouchableOpacity>
