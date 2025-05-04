@@ -119,17 +119,19 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         WeeklyActivityTotalGold: updatedTotalGold,
       });
 
-      const MAX_HISTORY_LENGTH = 8; // 최대 히스토리 길이
-      let updatedHistory = [...activityHistory];
-      const activityHistoryIndex = activityHistory.findIndex(
-        (item) => item === activityName.trim()
-      );
-      if (activityHistoryIndex !== -1) {
-        updatedHistory.splice(activityHistoryIndex, 1); // 기존 히스토리 삭제
-      } else if (updatedHistory.length >= MAX_HISTORY_LENGTH) {
-        updatedHistory.pop(); // 가장 오래된 히스토리 삭제
+      if (activityName.trim() !== '') {
+        const MAX_HISTORY_LENGTH = 8; // 최대 히스토리 길이
+        let updatedHistory = [...activityHistory];
+        const activityHistoryIndex = activityHistory.findIndex(
+          (item) => item === activityName.trim()
+        );
+        if (activityHistoryIndex !== -1) {
+          updatedHistory.splice(activityHistoryIndex, 1); // 기존 히스토리 삭제
+        } else if (updatedHistory.length >= MAX_HISTORY_LENGTH) {
+          updatedHistory.pop(); // 가장 오래된 히스토리 삭제
+        }
+        updateActivityHistory([activityName.trim(), ...updatedHistory]); // 맨 앞으로 삽입
       }
-      updateActivityHistory([activityName.trim(), ...updatedHistory]); // 맨 앞으로 삽입
     }
 
     setIndexNull(); // 인덱스 초기화
