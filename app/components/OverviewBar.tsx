@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
+import CircularProgress from '../CircularProgress';
 
 function OverviewBar() {
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -54,8 +55,9 @@ function OverviewBar() {
       >
         <View style={styles.rightBlock}>
           <Pressable onPress={toggleModal} style={styles.iconButton}>
-            <Feather name="settings" size={24} color={colors.black} />
+            <Feather name="settings" size={24} color={colors.iconColor} />
           </Pressable>
+          <CircularProgress percentage={75} />
         </View>
       </View>
 

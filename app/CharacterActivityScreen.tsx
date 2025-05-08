@@ -138,17 +138,21 @@ const CharacterActivity: React.FC = () => {
       {/* 상단: 액션바 */}
       <View style={styles.actionBar}>
         <TouchableOpacity onPress={router.back}>
-          <Feather name="chevron-left" size={24} color={colors.grayDark} />
+          <Feather name="chevron-left" size={24} color={colors.iconColor} />
         </TouchableOpacity>
         <View style={styles.actionWrapper}>
           <TouchableOpacity>
-            <Feather name="bookmark" size={24} color={colors.grayDark} />
+            <Feather name="bookmark" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleRemoveCharacter}>
-            <Feather name="trash-2" size={24} color={colors.grayDark} />
+            <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Feather name="more-horizontal" size={24} color={colors.grayDark} />
+            <Feather
+              name="more-horizontal"
+              size={24}
+              color={colors.iconColor}
+            />
           </TouchableOpacity>
         </View>
       </View>

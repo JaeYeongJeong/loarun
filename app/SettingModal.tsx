@@ -6,11 +6,11 @@ import {
   Modal,
   Text,
   View,
-  TouchableOpacity,
   Pressable,
   Animated,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SettingModalProps = {
   isVisible: boolean;
@@ -22,45 +22,53 @@ const SettingModal: React.FC<SettingModalProps> = ({
   toggleModal,
 }) => {
   const router = useRouter();
-  const translateY = useRef(new Animated.Value(0)).current;
-  const { theme, changeTheme } = useTheme();
+  const { colors, theme, changeTheme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const scale = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
   // ✅ 모달이 열릴 때 애니메이션 실행
   useEffect(() => {
     if (isVisible) {
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      scale.setValue(0);
+      opacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(scale, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      Animated.timing(translateY, {
-        toValue: 500, // ✅ 아래로 사라지는 애니메이션
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.timing(scale, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [isVisible]);
 
-  // ✅ 모달 닫고 페이지 이동 (약간의 딜레이 추가)
+  if (!isVisible) return null;
+
   const handleAddCharacter = () => {
-    Animated.timing(translateY, {
-      toValue: 500, // ✅ 아래로 사라지는 애니메이션
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      toggleModal();
-      router.push('/AddCharacterScreen');
-    });
+    toggleModal();
+    router.push('/AddCharacterScreen');
   };
 
   const handleCloseModal = () => {
-    Animated.timing(translateY, {
-      toValue: 500, // ✅ 아래로 사라지는 애니메이션
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      toggleModal();
-    });
+    toggleModal();
   };
 
   const handleChangeTheme = () => {
@@ -70,27 +78,36 @@ const SettingModal: React.FC<SettingModalProps> = ({
   return (
     <Modal animationType="none" transparent={true} visible={isVisible}>
       <TouchableWithoutFeedback onPress={handleCloseModal}>
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[styles.modalContainer, { transform: [{ translateY }] }]}
-          >
-            <Text style={styles.modalText}>설정 페이지</Text>
-
-            {/* ✅ 모달 닫고 페이지 이동 */}
-            <Pressable onPress={handleAddCharacter}>
-              <Text style={styles.modalText}>다른 캐릭터 추가</Text>
-            </Pressable>
-            <Pressable onPress={handleChangeTheme}>
-              <Text style={styles.modalText}>테마 변경</Text>
-            </Pressable>
-
-            <TouchableOpacity
-              onPress={handleCloseModal}
-              style={styles.closeButton}
+        <View style={[styles.modalOverlay]}>
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <Animated.View
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: colors.modalBackground,
+                  marginTop: insets.top + 60, // ✅ 상단 여백 추가
+                  transform: [
+                    { translateX: 90 }, // 180 / 2
+                    { scale },
+                    { translateX: -90 },
+                  ],
+                  opacity,
+                },
+              ]}
             >
-              <Text style={styles.closeButtonText}>닫기</Text>
-            </TouchableOpacity>
-          </Animated.View>
+              {/* ✅ 모달 닫고 페이지 이동 */}
+              <Pressable onPress={handleAddCharacter}>
+                <Text style={[styles.modalText, { color: colors.black }]}>
+                  다른 캐릭터 추가
+                </Text>
+              </Pressable>
+              <Pressable onPress={handleChangeTheme}>
+                <Text style={[styles.modalText, { color: colors.black }]}>
+                  테마 변경
+                </Text>
+              </Pressable>
+            </Animated.View>
+          </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
@@ -100,30 +117,20 @@ const SettingModal: React.FC<SettingModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'flex-end',
+    backgroundColor: 'transparent',
   },
   modalContainer: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: 'white',
+    padding: 16,
+    gap: 8,
+    minWidth: 180,
+    marginRight: 16,
+    alignItems: 'flex-end',
     borderRadius: 10,
-    alignItems: 'center',
   },
   modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  closeButton: {
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

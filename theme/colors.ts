@@ -1,10 +1,12 @@
 type ColorTheme = {
   background: string; // 배경색
   cardBackground: string; // 카드 배경색
+  modalBackground: string; // 모달 배경색
   grayLight: string; // 회색 밝은 색상
   grayDark: string; // 회색 어두운 색상
   black: string; // 검정색
   white: string; // 흰색
+  iconColor: string; // 아이콘 색상
   primary: string; // 메인 버튼색 (초록)
   secondary: string; // 추가버튼 색상 (파랑)
   danger: string; // 삭제 버튼 색상 (빨강)
@@ -16,10 +18,12 @@ type ColorTheme = {
 const lightColors: ColorTheme = {
   background: '#f8f9fa',
   cardBackground: '#ffffff',
+  modalBackground: '#e9ecef',
   grayLight: '#f1f3f5',
   grayDark: '#666666',
-  black: '#333333',
-  white: '#ffffff',
+  black: '#212529',
+  white: '#f8f9fa',
+  iconColor: '#212529',
   primary: '#4CAF50', // 메인 버튼색 (초록)
   secondary: '#007BFF', // 추가버튼 색상 (파랑)
   danger: '#f44336', // 삭제 버튼 색상 (빨강)
@@ -31,10 +35,12 @@ const lightColors: ColorTheme = {
 const darkColors: ColorTheme = {
   background: '#121212', // 다크 배경
   cardBackground: '#1e1e1e', // 카드용 약간 밝은 회색
+  modalBackground: '#2a2a2a',
   grayLight: '#2c2c2c', // 버튼 배경 같은 곳에
   grayDark: '#aaaaaa', // 텍스트용 밝은 회색
-  black: '#ffffff', // 다크에서는 흰색이 메인 텍스트가 됨
-  white: '#000000', // 반대 (필요한 경우)
+  black: '#f8f9fa', // 다크에서는 흰색이 메인 텍스트가 됨
+  white: '#212529', // 반대 (필요한 경우)
+  iconColor: '#dee2e6', // 아이콘 색상 (다크에서는 흰색)
   primary: '#2ecc71', // 메인 버튼 초록은 유지 (잘 보임)
   secondary: '#339CFF', // 추가버튼 색상 (파랑 약간 밝게)
   danger: '#FF6B6B', // 삭제 버튼 빨강을 다크에 맞게 톤 업

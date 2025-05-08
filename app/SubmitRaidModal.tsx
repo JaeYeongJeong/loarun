@@ -133,7 +133,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
           filtered.push({ raidName, difficulty, stage: i, gold });
         }
       }
-      console.log(selectedStages);
       return filtered.sort((a, b) => a.stage - b.stage); // stage 순서 유지
     });
   };
