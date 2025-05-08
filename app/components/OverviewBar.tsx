@@ -11,10 +11,23 @@ function OverviewBar() {
   const { characters } = useCharacter();
   const { colors } = useTheme();
 
-  const totalGold = characters.reduce(
-    (acc, c) =>
-      acc + (c.ClearedRaidTotalGold || 0) + (c.WeeklyActivityTotalGold || 0),
-    0
+  const { totalGold, totalRaids, totalClearedRaids } = characters.reduce(
+    (acc, c) => {
+      const clearedGold = c.ClearedRaidTotalGold || 0;
+      const weeklyGold = c.WeeklyActivityTotalGold || 0;
+      const raids = c.SelectedRaids || [];
+
+      acc.totalGold += clearedGold + weeklyGold;
+      acc.totalRaids += raids.length;
+      acc.totalClearedRaids += raids.filter((r) => r.cleared).length;
+
+      return acc;
+    },
+    {
+      totalGold: 0,
+      totalRaids: 0,
+      totalClearedRaids: 0,
+    }
   );
 
   const toggleModal = () => {
@@ -54,13 +67,25 @@ function OverviewBar() {
         ]}
       >
         <View style={styles.rightBlock}>
-          <Pressable onPress={toggleModal} style={styles.iconButton}>
-            <Feather name="settings" size={24} color={colors.iconColor} />
-          </Pressable>
-          <CircularProgress percentage={75} />
+          <View
+            style={{
+              width: '100%',
+              alignItems: 'flex-end',
+            }}
+          >
+            <Pressable onPress={toggleModal} style={styles.iconButton}>
+              <Feather name="settings" size={24} color={colors.iconColor} />
+            </Pressable>
+          </View>
+          <View style={{ width: '100%', height: '100%', alignItems: 'center' }}>
+            <CircularProgress
+              processed={totalClearedRaids}
+              total={totalRaids}
+              size={100}
+            />
+          </View>
         </View>
       </View>
-
       <SettingModal isVisible={modalVisible} toggleModal={toggleModal} />
     </View>
   );
@@ -90,7 +115,7 @@ const styles = StyleSheet.create({
   },
   rightBlock: {
     flex: 1,
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   label: {
     fontSize: 22,

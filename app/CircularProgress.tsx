@@ -1,58 +1,104 @@
+import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
-import { Svg, Circle, Text } from 'react-native-svg';
+import { Svg, Circle } from 'react-native-svg';
+import { View, Text, StyleSheet } from 'react-native';
 
 type CircularProgressProps = {
-  percentage: number; // 0 ~ 100
+  processed?: number;
+  total?: number;
   size?: number;
   strokeWidth?: number;
-  color?: string;
-  bgColor?: string;
 };
 
 const CircularProgress: React.FC<CircularProgressProps> = ({
-  percentage,
-  size = 120,
-  strokeWidth = 10,
-  color = '#4CAF50',
-  bgColor = '#e9ecef',
+  processed = 0,
+  total = 0,
+  size = 100,
+  strokeWidth = 13,
 }) => {
+  const percentage = total > 0 ? (processed / total) * 100 : 0;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - percentage / 100);
+  const { colors } = useTheme();
 
   return (
-    <Svg width={size} height={size} className="circular-progress">
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={bgColor}
-        strokeWidth={strokeWidth}
-      />
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-      />
-      <Text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        fill="#212529"
-        fontSize={size / 5}
-        fontWeight="bold"
-      >
-        {percentage}%
-      </Text>
-    </Svg>
+    <View style={[styles.wrapper, { width: size, height: size }]}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={colors.grayLight}
+          strokeWidth={strokeWidth}
+        />
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+        />
+      </Svg>
+
+      {/* 커스텀 분수 텍스트 */}
+      <View style={styles.fractionWrapper}>
+        <View style={[styles.fractionItem, styles.numerator]}>
+          <Text style={[styles.text, { color: colors.black }]}>
+            {processed}
+          </Text>
+        </View>
+        <View style={[styles.fractionItem, styles.slash]}>
+          <Text style={[styles.text, { color: colors.black }]}>/</Text>
+        </View>
+        <View style={[styles.fractionItem, styles.denominator]}>
+          <Text style={[styles.text, { color: colors.black }]}>{total}</Text>
+        </View>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  wrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  fractionWrapper: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 60,
+    height: 40,
+    marginLeft: -30,
+    marginTop: -20,
+  },
+  fractionItem: {
+    position: 'absolute',
+  },
+  numerator: {
+    top: 0,
+    left: 5,
+  },
+  slash: {
+    top: 10,
+    left: 25,
+    transform: [{ rotate: '25deg' }, { scaleX: 1.2 }],
+  },
+  denominator: {
+    bottom: 0,
+    right: 7,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default CircularProgress;
