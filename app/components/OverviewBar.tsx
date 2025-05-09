@@ -88,10 +88,29 @@ function OverviewBar() {
           {/* 중앙 정렬 정보 텍스트 */}
           <View style={styles.infoWrapper}>
             <View style={styles.infoItem}>
-              <Text style={[styles.titleText, { color: colors.black }]}>
+              <Text
+                style={[
+                  styles.titleText,
+                  {
+                    color: colors.black,
+                  },
+                ]}
+              >
                 주간 레이드
               </Text>
-              <Text style={[styles.valueText, { color: colors.black }]}>
+              <Text
+                style={[
+                  styles.valueText,
+                  {
+                    color:
+                      totalClearedRaidsGold === totalRaidsGold
+                        ? colors.primary
+                        : colors.black,
+                    fontWeight:
+                      totalClearedRaidsGold === totalRaidsGold ? 'bold' : '600',
+                  },
+                ]}
+              >
                 {totalClearedRaidsGold.toLocaleString()}{' '}
                 <Text
                   style={{
