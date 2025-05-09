@@ -23,6 +23,7 @@ const AddCharacterScreen: React.FC = () => {
     string,
     any
   > | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { characters, addCharacter } = useCharacter();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -64,18 +65,23 @@ const AddCharacterScreen: React.FC = () => {
       return;
     }
 
-    setCharacterInfo(null); // ✅ 새로운 검색 전 기존 정보 초기화
+    setCharacterInfo(null);
+    setIsLoading(true); // 로딩 시작
 
-    // ✅ API 요청 후 결과 저장
-    const data = await fetchCharacterInfo(characterName);
-    console.log('API 응답:', data); // ✅ API 응답 확인
-    if (data && data.CharacterName) {
-      setCharacterInfo(data);
-    } else {
-      Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+    try {
+      const data = await fetchCharacterInfo(characterName);
+      console.log('API 응답:', data);
+      if (data && data.CharacterName) {
+        setCharacterInfo(data);
+      } else {
+        Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+      }
+    } catch (err) {
+      Alert.alert('오류', '검색 중 문제가 발생했습니다.');
     }
 
-    setCharacterName(''); // 입력값 초기화
+    setIsLoading(false); // 로딩 종료
+    setCharacterName('');
   };
 
   return (
@@ -116,12 +122,20 @@ const AddCharacterScreen: React.FC = () => {
 
           {/* 검색 버튼 */}
           <Pressable
-            style={[styles.button, { backgroundColor: colors.primary }]}
+            style={[
+              styles.button,
+              { backgroundColor: isLoading ? colors.grayDark : colors.primary },
+            ]}
             onPress={handlerSearchCharacter}
+            disabled={isLoading} // 로딩 중 비활성화
           >
-            <Text style={[styles.buttonText, { color: colors.white }]}>
-              검색
-            </Text>
+            {isLoading ? (
+              <Feather name="more-horizontal" size={16} color={colors.white} />
+            ) : (
+              <Text style={[styles.buttonText, { color: colors.white }]}>
+                검색
+              </Text>
+            )}
           </Pressable>
 
           {/* 캐릭터 정보 표시 */}
