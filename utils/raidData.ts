@@ -294,3 +294,25 @@ export const RAID_LIST: Raid[] = [
     ],
   },
 ];
+
+export function getAvailableRaidsByItemLevel(
+  itemLevelInput: number | string
+): Raid[] {
+  const itemLevel =
+    typeof itemLevelInput === 'string'
+      ? parseFloat(itemLevelInput.replace(/,/g, ''))
+      : itemLevelInput;
+
+  return RAID_LIST.map((raid) => {
+    const availableDifficulties = raid.difficulty.filter(
+      (diff) => diff.requiredItemLevel <= itemLevel
+    );
+
+    if (availableDifficulties.length === 0) return null;
+
+    return {
+      ...raid,
+      difficulty: availableDifficulties,
+    };
+  }).filter((raid): raid is Raid => raid !== null);
+}

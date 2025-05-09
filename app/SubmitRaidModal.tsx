@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
-import { RAID_LIST } from '@/utils/raidData';
+import { getAvailableRaidsByItemLevel } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -62,6 +62,8 @@ const RaidModal: React.FC<RaidModalProps> = ({
   const insets = useSafeAreaInsets();
 
   if (!character) return null; // 캐릭터가 없으면 모달을 렌더링하지 않음
+
+  const raidList = getAvailableRaidsByItemLevel(character.ItemAvgLevel);
 
   const translateY = useRef(new Animated.Value(500)).current;
 
@@ -212,7 +214,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
           >
-            {RAID_LIST.map((raid, raidIdx) => (
+            {raidList.map((raid, raidIdx) => (
               <View
                 key={raidIdx}
                 style={[
@@ -285,7 +287,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 raid.name,
                                 difficultyObj.difficulty,
                                 stage.stage
-                              ) && { color: 'white' },
+                              ) && { color: colors.white },
                             ]}
                           >
                             {stage.stage}관문
@@ -298,7 +300,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 raid.name,
                                 difficultyObj.difficulty,
                                 stage.stage
-                              ) && { color: 'white' },
+                              ) && { color: colors.white },
                             ]}
                           >
                             {stage.gold}
