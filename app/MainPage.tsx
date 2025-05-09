@@ -13,6 +13,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { normalize } from '@/utils/nomalize';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -72,9 +73,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: CHARACTER_BAR_BORDER_RADIUS,
-    marginBottom: 6,
-    marginHorizontal: 12,
-    borderWidth: 3,
+    marginBottom: normalize(6),
+    marginHorizontal: normalize(12),
+    borderWidth: normalize(3),
   },
 });
 

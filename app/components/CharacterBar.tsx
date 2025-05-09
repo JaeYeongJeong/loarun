@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/context/ThemeContext';
+import { normalize } from '@/utils/nomalize';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
@@ -130,13 +131,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: CHARACTER_BAR_BORDER_RADIUS,
-    marginBottom: 6,
-    marginHorizontal: 12,
-    paddingRight: 16,
+    marginBottom: normalize(6),
+    marginHorizontal: normalize(12),
+    paddingRight: normalize(16),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    elevation: 3,
   },
   innerContainer: {
     flexDirection: 'row',
@@ -146,32 +148,32 @@ const styles = StyleSheet.create({
 
   textContainer: {
     justifyContent: 'center',
-    paddingLeft: 12,
+    paddingLeft: normalize(12),
   },
   nameText: {
-    fontSize: 16,
+    fontSize: SCREEN_HEIGHT / 56,
     fontWeight: '600',
     color: '#333',
-    paddingBottom: 4,
+    paddingBottom: normalize(2),
   },
   infoText: {
-    fontSize: 14,
+    fontSize: SCREEN_HEIGHT / 62,
   },
   levelText: {
-    fontSize: 14,
+    fontSize: SCREEN_HEIGHT / 62,
   },
   rightContainer: {
     alignItems: 'flex-end',
     justifyContent: 'center',
-    paddingLeft: 12,
+    paddingLeft: normalize(12),
   },
   goldText: {
-    fontSize: 14,
-    fontWeight: '500',
-    paddingBottom: 2,
+    fontSize: SCREEN_HEIGHT / 62,
+    fontWeight: '600',
+    paddingBottom: normalize(2),
   },
   countText: {
-    fontSize: 14,
+    fontSize: SCREEN_HEIGHT / 62,
   },
 });
 
