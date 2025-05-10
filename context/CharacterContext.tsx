@@ -35,7 +35,7 @@ type Character = {
   CharacterPortraitImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
   CharacterName: string;
   CharacterClassName: string;
-  ItemAvgLevel: number;
+  ItemAvgLevel: string;
   ServerName: string;
   SelectedRaids?: Raid[]; // ✅ 선택한 레이드 목록
   SelectedRaidTotalGold?: number; // ✅ 선택한 레이드 총 금액
@@ -44,7 +44,10 @@ type Character = {
   WeeklyRaidTotalGold?: number; // ✅ 주간 레이드 총 금액
   WeeklyActivityTotalGold?: number; // ✅ 주간 활동 총 금액
   lastUpdated?: string; // ✅ 마지막 업데이트 날짜
+  addedAt?: string; //추가된 날짜
 };
+
+type SortOrder = 'addedAt' | 'level' | 'server';
 
 // ✅ Context에서 제공할 기능 정의
 type CharacterContextType = {
@@ -53,6 +56,7 @@ type CharacterContextType = {
   removeCharacter: (id: string) => void;
   updateCharacter: (id: string, updatedData: Partial<Character>) => void;
   refreshCharacter: (id: string, updatedData: Partial<Character>) => void;
+  sortCharacter: (order: SortOrder) => void;
 };
 
 // ✅ Context 생성
@@ -103,6 +107,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         id,
         CharacterPortraitImage: portraitImage,
         lastUpdated: new Date().toISOString(),
+        addedAt: new Date().toISOString(),
       },
     ];
 
@@ -151,6 +156,58 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
+  const sortCharacter = async (order: SortOrder) => {
+    let sortedList: Character[] = [];
+
+    if (order === 'addedAt') {
+      // 추가된 순 (오름차순)
+      sortedList = [...characters].sort(
+        (a, b) =>
+          new Date(a.addedAt || 0).getTime() -
+          new Date(b.addedAt || 0).getTime()
+      );
+    } else if (order === 'level') {
+      // 레벨 높은 순 (문자열 → 숫자 변환)
+      sortedList = [...characters].sort(
+        (a, b) =>
+          parseFloat(b.ItemAvgLevel.replace(/,/g, '')) -
+          parseFloat(a.ItemAvgLevel.replace(/,/g, ''))
+      );
+    } else if (order === 'server') {
+      // 서버별 최고 레벨 기준 정렬
+
+      const serverMap: Record<string, Character[]> = {};
+      for (const char of characters) {
+        const server = char.ServerName || 'unknown';
+        if (!serverMap[server]) serverMap[server] = [];
+        serverMap[server].push(char);
+      }
+
+      const serverSorted = Object.entries(serverMap).sort(
+        ([, listA], [, listB]) => {
+          const maxLevelA = Math.max(
+            ...listA.map((c) => parseFloat(c.ItemAvgLevel.replace(/,/g, '')))
+          );
+          const maxLevelB = Math.max(
+            ...listB.map((c) => parseFloat(c.ItemAvgLevel.replace(/,/g, '')))
+          );
+          return maxLevelB - maxLevelA;
+        }
+      );
+
+      sortedList = serverSorted.flatMap(([, list]) =>
+        list.sort(
+          (a, b) =>
+            parseFloat(b.ItemAvgLevel.replace(/,/g, '')) -
+            parseFloat(a.ItemAvgLevel.replace(/,/g, ''))
+        )
+      );
+    }
+
+    console.log(order, sortedList);
+    await saveCharacters(sortedList);
+  };
+
   return (
     <CharacterContext.Provider
       value={{
@@ -159,6 +216,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         removeCharacter,
         updateCharacter,
         refreshCharacter,
+        sortCharacter,
       }}
     >
       {children}

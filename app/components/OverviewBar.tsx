@@ -143,7 +143,8 @@ function OverviewBar() {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    padding: normalize(12),
+    paddingHorizontal: normalize(12),
+    paddingVertical: normalize(6),
     gap: normalize(12),
   },
   blockContainer: {

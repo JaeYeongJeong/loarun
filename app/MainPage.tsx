@@ -5,6 +5,7 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
+  Text,
 } from 'react-native';
 import CharacterBar from './components/CharacterBar';
 import OverviewBar from '@/app/components/OverviewBar';
@@ -14,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
+import SortModal from './SortModal';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -21,10 +23,15 @@ const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
 
 const MainPage: React.FC = () => {
+  const [SortModalVisible, setSortModalVisible] = React.useState(false);
   const { colors } = useTheme();
   const { characters } = useCharacter();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const toggleSortModal = () => {
+    setSortModalVisible((prev) => !prev);
+  };
+
   return (
     <View
       style={[
@@ -41,6 +48,32 @@ const MainPage: React.FC = () => {
         ListHeaderComponent={
           <View style={styles.overviewContainer}>
             <OverviewBar />
+            <TouchableOpacity onPress={toggleSortModal}>
+              <View
+                style={{
+                  marginBottom: normalize(6),
+                  paddingHorizontal: normalize(12),
+                  alignItems: 'flex-start',
+                }}
+              >
+                <View
+                  style={{
+                    paddingHorizontal: normalize(10),
+                    paddingVertical: normalize(4),
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: normalize(12),
+                      fontWeight: 600,
+                      color: colors.grayDark,
+                    }}
+                  >
+                    정렬하기
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
           </View>
         }
         ListFooterComponent={
@@ -56,6 +89,7 @@ const MainPage: React.FC = () => {
           </TouchableOpacity>
         }
       />
+      <SortModal isVisible={SortModalVisible} toggleModal={toggleSortModal} />
     </View>
   );
 };

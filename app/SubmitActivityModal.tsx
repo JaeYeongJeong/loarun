@@ -173,123 +173,130 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     >
       <TouchableWithoutFeedback onPress={handleCloseModal}>
         <View style={styles.modalOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={{ width: '100%' }}
-          >
-            <Animated.View
-              style={[
-                styles.modalContainer,
-                { backgroundColor: colors.cardBackground },
-                { transform: [{ translateY }] },
-              ]}
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={{ width: '100%' }}
             >
-              <Text style={[styles.modalText, { color: colors.black }]}>
-                {mode === 'edit' ? '활동 수정' : '활동 추가'}
-              </Text>
-              {activityHistory.length > 0 && (
-                <View style={styles.activityHistoryContainer}>
-                  {activityHistory.map((item, index) => (
+              <Animated.View
+                style={[
+                  styles.modalContainer,
+                  { backgroundColor: colors.cardBackground },
+                  { transform: [{ translateY }] },
+                ]}
+              >
+                <Text style={[styles.modalText, { color: colors.black }]}>
+                  {mode === 'edit' ? '활동 수정' : '활동 추가'}
+                </Text>
+                {activityHistory.length > 0 && (
+                  <View style={styles.activityHistoryContainer}>
+                    {activityHistory.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.historyButton,
+                          { backgroundColor: colors.primary },
+                        ]}
+                        onPress={() => setActivityName(item)}
+                      >
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={[
+                            styles.historyButtonText,
+                            { color: colors.white },
+                          ]}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+                <TextInput
+                  placeholder="활동명 입력"
+                  style={[
+                    styles.input,
+                    { backgroundColor: colors.grayLight },
+                    { color: colors.grayDark },
+                  ]}
+                  placeholderTextColor={colors.grayDark}
+                  value={activityName}
+                  onChangeText={setActivityName}
+                />
+                <TextInput
+                  placeholder="획득 골드"
+                  style={[
+                    styles.input,
+                    { backgroundColor: colors.grayLight },
+                    { color: colors.grayDark },
+                  ]}
+                  keyboardType={
+                    Platform.OS === 'ios'
+                      ? 'numbers-and-punctuation'
+                      : 'numeric'
+                  }
+                  placeholderTextColor={colors.grayDark}
+                  value={activityGold}
+                  onChangeText={setActivityGold}
+                />
+
+                <View style={styles.buttonGroup}>
+                  {mode === 'edit' ? (
                     <TouchableOpacity
-                      key={index}
+                      onPress={handleDelete}
                       style={[
-                        styles.historyButton,
-                        { backgroundColor: colors.primary },
+                        styles.deleteButton,
+                        { backgroundColor: colors.grayLight },
                       ]}
-                      onPress={() => setActivityName(item)}
                     >
                       <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
                         style={[
-                          styles.historyButtonText,
-                          { color: colors.white },
+                          styles.deleteButtonText,
+                          { color: colors.danger },
                         ]}
                       >
-                        {item}
+                        삭제
                       </Text>
                     </TouchableOpacity>
-                  ))}
+                  ) : (
+                    <TouchableOpacity
+                      onPress={handleCloseModal}
+                      style={[
+                        styles.deleteButton,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.deleteButtonText,
+                          { color: colors.grayDark },
+                        ]}
+                      >
+                        취소
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    style={[
+                      styles.confirmButton,
+                      { backgroundColor: colors.primary },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.confirmButtonText,
+                        { color: colors.white },
+                      ]}
+                    >
+                      확인
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-              <TextInput
-                placeholder="활동명 입력"
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.grayLight },
-                  { color: colors.grayDark },
-                ]}
-                placeholderTextColor={colors.grayDark}
-                value={activityName}
-                onChangeText={setActivityName}
-              />
-              <TextInput
-                placeholder="획득 골드"
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.grayLight },
-                  { color: colors.grayDark },
-                ]}
-                keyboardType={
-                  Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric'
-                }
-                placeholderTextColor={colors.grayDark}
-                value={activityGold}
-                onChangeText={setActivityGold}
-              />
-
-              <View style={styles.buttonGroup}>
-                {mode === 'edit' ? (
-                  <TouchableOpacity
-                    onPress={handleDelete}
-                    style={[
-                      styles.deleteButton,
-                      { backgroundColor: colors.grayLight },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.deleteButtonText,
-                        { color: colors.danger },
-                      ]}
-                    >
-                      삭제
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={handleCloseModal}
-                    style={[
-                      styles.deleteButton,
-                      { backgroundColor: colors.grayLight },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.deleteButtonText,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      취소
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  style={[
-                    styles.confirmButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                >
-                  <Text
-                    style={[styles.confirmButtonText, { color: colors.white }]}
-                  >
-                    확인
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
-          </KeyboardAvoidingView>
+              </Animated.View>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
