@@ -15,6 +15,7 @@ import {
 import { useCharacter } from '@/context/CharacterContext';
 import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
+import { Feather } from '@expo/vector-icons';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -185,9 +186,33 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   { transform: [{ translateY }] },
                 ]}
               >
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  {mode === 'edit' ? '활동 수정' : '활동 추가'}
-                </Text>
+                <View
+                  style={{
+                    width: '100%',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 20,
+                  }}
+                >
+                  {/* 왼쪽 더미 박스 */}
+                  <View style={{ width: 24 /* 아이콘 크기와 같게 */ }} />
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    {mode === 'edit' ? '활동 수정' : '활동 추가'}
+                  </Text>
+
+                  {mode === 'edit' ? (
+                    <TouchableOpacity onPress={handleDelete}>
+                      <Feather
+                        name="trash-2"
+                        size={24}
+                        color={colors.grayDark}
+                      />
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={{ width: 24 }} />
+                  )}
+                </View>
                 {activityHistory.length > 0 && (
                   <View style={styles.activityHistoryContainer}>
                     {activityHistory.map((item, index) => (
@@ -242,41 +267,23 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                 />
 
                 <View style={styles.buttonGroup}>
-                  {mode === 'edit' ? (
-                    <TouchableOpacity
-                      onPress={handleDelete}
+                  <TouchableOpacity
+                    onPress={handleCloseModal}
+                    style={[
+                      styles.actionButton,
+                      { backgroundColor: colors.grayLight },
+                    ]}
+                  >
+                    <Text
                       style={[
-                        styles.deleteButton,
-                        { backgroundColor: colors.grayLight },
+                        styles.actionButtonText,
+                        { color: colors.grayDark },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.deleteButtonText,
-                          { color: colors.danger },
-                        ]}
-                      >
-                        삭제
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={handleCloseModal}
-                      style={[
-                        styles.deleteButton,
-                        { backgroundColor: colors.grayLight },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.deleteButtonText,
-                          { color: colors.grayDark },
-                        ]}
-                      >
-                        취소
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+                      취소
+                    </Text>
+                  </TouchableOpacity>
+
                   <TouchableOpacity
                     onPress={handleSubmit}
                     style={[
@@ -319,7 +326,6 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 20,
   },
   input: {
     width: '100%',
@@ -346,14 +352,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  deleteButton: {
+  actionButton: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 20,
     marginRight: 8,
     alignItems: 'center',
   },
-  deleteButtonText: {
+  actionButtonText: {
     fontWeight: '600',
     fontSize: 16,
   },
