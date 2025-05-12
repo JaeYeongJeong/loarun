@@ -234,13 +234,12 @@ const CharacterActivity: React.FC = () => {
               {character.SelectedRaidTotalGold?.toLocaleString() || 0}
             </Text>
           </View>
-          {[0, 1, 2].map((index) => (
+          {character.SelectedRaids?.map((raid, index) => (
             <View key={index} style={{ marginBottom: 4 }}>
               {/* 🟢 레이드 제목 + 수정 버튼 한 줄 정렬 */}
               <View style={styles.raidTitleRow}>
                 <Text style={[styles.raidTitleText, { color: colors.black }]}>
-                  {character.SelectedRaids?.[index]?.name ||
-                    `레이드 ${index + 1}`}
+                  {raid.name || `레이드 ${index + 1}`}
                 </Text>
                 <TouchableOpacity
                   style={[
@@ -259,72 +258,73 @@ const CharacterActivity: React.FC = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
+
               <View
                 style={[styles.raidRow, { backgroundColor: colors.grayLight }]}
               >
-                {character.SelectedRaids?.[index]?.name ? (
-                  character.SelectedRaids?.[index]?.stages.map(
-                    (stage, stageIndex) => (
-                      <Pressable
+                {raid.name ? (
+                  raid.stages.map((stage, stageIndex) => (
+                    <Pressable
+                      key={stageIndex}
+                      style={[
+                        styles.raidButton,
+                        stage.cleared
+                          ? { backgroundColor: colors.primary }
+                          : {},
+                        stageIndex === 0
+                          ? {
+                              borderTopLeftRadius: 12,
+                              borderBottomLeftRadius: 12,
+                            }
+                          : {},
+                        stage.lastClearedStage === stageIndex
+                          ? {
+                              borderTopRightRadius: 12,
+                              borderBottomRightRadius: 12,
+                            }
+                          : {},
+                      ]}
+                      onPress={() => handleSelectStage(index, stageIndex)}
+                    >
+                      <Text
                         style={[
-                          styles.raidButton,
+                          styles.difficultyText,
                           stage.cleared
-                            ? { backgroundColor: colors.primary }
+                            ? { color: colors.white }
+                            : { color: colors.black },
+                          stage.difficulty === '노말'
+                            ? { color: colors.info }
                             : {},
-                          stageIndex === 0
-                            ? {
-                                borderTopLeftRadius: 12,
-                                borderBottomLeftRadius: 12,
-                              }
-                            : {},
-                          stage.lastClearedStage === stageIndex
-                            ? {
-                                borderTopRightRadius: 12,
-                                borderBottomRightRadius: 12,
-                              }
+                          stage.difficulty === '하드'
+                            ? { color: colors.danger }
                             : {},
                         ]}
-                        key={stageIndex}
-                        onPress={() => handleSelectStage(index, stageIndex)}
                       >
-                        <Text
-                          style={[
-                            styles.difficultyText,
-                            stage.cleared
-                              ? { color: colors.white }
-                              : { color: colors.black },
-                            stage.difficulty === '노말'
-                              ? {
-                                  color: colors.info,
-                                }
-                              : {},
-                            stage.difficulty === '하드'
-                              ? { color: colors.danger }
-                              : {},
-                          ]}
-                        >
-                          {stage.difficulty}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.raidButtonText,
-                            { color: colors.black },
-                            stage.cleared ? { color: colors.white } : {},
-                          ]}
-                        >
-                          {stage.stage} 관문
-                        </Text>
-                      </Pressable>
-                    )
-                  )
+                        {stage.difficulty}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.raidButtonText,
+                          { color: colors.black },
+                          stage.cleared ? { color: colors.white } : {},
+                        ]}
+                      >
+                        {stage.stage} 관문
+                      </Text>
+                    </Pressable>
+                  ))
                 ) : (
                   <Pressable style={styles.raidButton}>
                     <Text
                       style={[styles.raidButtonText, { color: colors.black }]}
-                    >{`레이드`}</Text>
+                    >
+                      레이드
+                    </Text>
                     <Text
                       style={[styles.raidButtonText, { color: colors.black }]}
-                    >{`(${index + 1})`}</Text>
+                    >
+                      ({index + 1})
+                    </Text>
                   </Pressable>
                 )}
               </View>
@@ -335,6 +335,7 @@ const CharacterActivity: React.FC = () => {
               style={[styles.editButton, { backgroundColor: colors.grayLight }]}
               onPress={() => {
                 toggleRaidModal();
+                setRaidIndex(-1);
               }}
             >
               <Text style={[styles.editButtonText, { color: colors.black }]}>

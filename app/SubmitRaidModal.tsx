@@ -12,7 +12,7 @@ import {
   Alert,
   KeyboardAvoidingView,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { RaidDifficulty, useCharacter } from '@/context/CharacterContext';
 import { getAvailableRaidsByItemLevel } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
@@ -30,7 +30,6 @@ type RaidModalProps = {
   setIsVisibleFalse: () => void;
   id: string;
   index: number;
-  mode?: 'edit' | 'add';
 };
 
 const RaidModal: React.FC<RaidModalProps> = ({
@@ -38,7 +37,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
   setIsVisibleFalse,
   id,
   index,
-  mode = 'edit',
 }) => {
   const { characters, updateCharacter } = useCharacter();
   const character = characters.find((c) => c.id === id);
@@ -154,14 +152,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }
     const newSelectedRaids = [...(character.SelectedRaids || [])];
 
-    if (selectedStages.length === 0) {
+    if (index >= 0 && selectedStages.length === 0) {
       // 선택이 없는 경우 빈 배열로 초기화
       newSelectedRaids[index] = {
         name: '', // 이름도 초기화할지 유지할지 선택 가능
         stages: [],
         totalGold: 0,
       };
-    } else {
+    } else if (index >= 0 && selectedStages.length > 0) {
       // 선택이 있는 경우 해당 레이드 데이터로 설정
       newSelectedRaids[index] = {
         name: selectedStages[0].raidName,
@@ -181,6 +179,26 @@ const RaidModal: React.FC<RaidModalProps> = ({
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
       };
+    } else {
+      //index = -1인 경우
+      newSelectedRaids.push({
+        name: selectedStages[0].raidName,
+        stages: selectedStages.map((s) => ({
+          difficulty: s.difficulty,
+          stage: s.stage,
+          gold:
+            (goldChecked ? s.gold : 0) +
+            (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+          cleared: false,
+        })),
+        totalGold:
+          (goldChecked
+            ? selectedStages.reduce((total, s) => total + s.gold, 0)
+            : 0) + (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+        goldChecked: goldChecked,
+        additionalGoldCheked: additionalGoldChecked,
+        additionalGold: additionalGoldChecked ? additinalGold : '',
+      });
     }
 
     updateCharacter(character.id, {
@@ -196,6 +214,26 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }).start(() => {
       setIsVisibleFalse();
     });
+  };
+
+  const handleDelete = () => {
+    Alert.alert('정말 삭제하시겠어요?', undefined, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          if (index !== undefined && index >= 0) {
+            const updated = [...(character.SelectedRaids ?? [])];
+            updated.splice(index, 1);
+            updateCharacter(character.id, {
+              SelectedRaids: updated,
+            });
+          }
+          handleCloseModal();
+        },
+      },
+    ]);
   };
 
   return (
@@ -334,18 +372,18 @@ const RaidModal: React.FC<RaidModalProps> = ({
               }}
             >
               {/* 체크박스 라인 1 */}
-              <View style={styles.checkBlock}>
-                <Text
-                  style={[
-                    styles.checkBlockText,
-                    {
-                      color: colors.black,
-                    },
-                  ]}
-                >
-                  클리어 골드 획득
-                </Text>
-                <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+              <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+                <View style={styles.checkBlock}>
+                  <Text
+                    style={[
+                      styles.checkBlockText,
+                      {
+                        color: colors.black,
+                      },
+                    ]}
+                  >
+                    클리어 골드 획득
+                  </Text>
                   <MaterialIcons
                     name={goldChecked ? 'check-box' : 'check-box-outline-blank'}
                     size={24}
@@ -353,26 +391,24 @@ const RaidModal: React.FC<RaidModalProps> = ({
                       goldChecked ? colors.secondary : colors.grayDark + 80
                     }
                   />
-                </TouchableOpacity>
-              </View>
+                </View>
+              </TouchableOpacity>
 
               {/* 체크박스 라인 2 */}
-              <View style={styles.checkBlock}>
-                <Text
-                  style={[
-                    styles.checkBlockText,
-                    {
-                      color: colors.black,
-                    },
-                  ]}
-                >
-                  버스 및 추가 골드 획득
-                </Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    setAdditionalGoldChecked(!additionalGoldChecked)
-                  }
-                >
+              <TouchableOpacity
+                onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}
+              >
+                <View style={styles.checkBlock}>
+                  <Text
+                    style={[
+                      styles.checkBlockText,
+                      {
+                        color: colors.black,
+                      },
+                    ]}
+                  >
+                    버스 및 추가 골드 획득
+                  </Text>
                   <MaterialIcons
                     name={
                       additionalGoldChecked
@@ -386,9 +422,8 @@ const RaidModal: React.FC<RaidModalProps> = ({
                         : colors.grayDark + 80
                     }
                   />
-                </TouchableOpacity>
-              </View>
-
+                </View>
+              </TouchableOpacity>
               {/* 추가 골드 입력 */}
               {additionalGoldChecked && (
                 <TextInput
@@ -408,7 +443,23 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   onChangeText={setAdditionalGold}
                 />
               )}
-
+              {index < 0 || (
+                <View style={styles.checkBlock}>
+                  <Text
+                    style={[
+                      styles.checkBlockText,
+                      {
+                        color: colors.danger,
+                      },
+                    ]}
+                  >
+                    삭제
+                  </Text>
+                  <TouchableOpacity onPress={handleDelete}>
+                    <Feather name="trash-2" size={24} color={colors.grayDark} />
+                  </TouchableOpacity>
+                </View>
+              )}
               {/* 하단 버튼 */}
               <View style={styles.fixedButtonWrapper}>
                 <TouchableOpacity
@@ -523,7 +574,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 8,
+    paddingBottom: 10,
   },
   checkBlockText: {
     fontSize: 14,
