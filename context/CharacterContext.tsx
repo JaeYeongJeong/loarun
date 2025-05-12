@@ -6,9 +6,9 @@ import {
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
 
-type RaidDifficulty = '싱글' | '노말' | '하드';
+export type RaidDifficulty = '싱글' | '노말' | '하드';
 
-type RaidStage = {
+export type RaidStage = {
   difficulty: RaidDifficulty; // 레이드 난이도 (싱글, 노말, 하드)
   stage: number; // 관문 번호 (1, 2, 3...)
   gold: number; // 해당 관문에서 획득하는 골드
@@ -16,11 +16,14 @@ type RaidStage = {
   lastClearedStage?: number; // 마지막 클리어 관문 번호 (1, 2, 3...)
 };
 
-type Raid = {
+export type Raid = {
   name: string;
   stages: RaidStage[]; // 레이드 단계별 정보
   totalGold: number;
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
+  goldChecked?: boolean;
+  additionalGoldCheked?: boolean;
+  additionalGold?: string;
 };
 
 type Activity = {

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 export default function RootLayout() {
   return (

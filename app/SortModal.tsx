@@ -99,7 +99,7 @@ const SortModal: React.FC<SortModalProps> = ({ isVisible, toggleModal }) => {
               {/* ✅ 모달 닫고 페이지 이동 */}
               <TouchableOpacity onPress={sortByDateAdded}>
                 <Text style={[styles.modalText, { color: colors.black }]}>
-                  추가 순
+                  추가 순 (기본)
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByServer}>
@@ -109,7 +109,7 @@ const SortModal: React.FC<SortModalProps> = ({ isVisible, toggleModal }) => {
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByLevel}>
                 <Text style={[styles.modalText, { color: colors.black }]}>
-                  레벨 순
+                  레벨 높은 순
                 </Text>
               </TouchableOpacity>
             </Animated.View>

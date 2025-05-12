@@ -330,6 +330,18 @@ const CharacterActivity: React.FC = () => {
               </View>
             </View>
           ))}
+          <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+            <TouchableOpacity
+              style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+              onPress={() => {
+                toggleRaidModal();
+              }}
+            >
+              <Text style={[styles.editButtonText, { color: colors.black }]}>
+                레이드 추가
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* 주간 활동 */}
