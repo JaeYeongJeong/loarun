@@ -177,15 +177,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
         stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
-          gold:
-            (goldChecked ? s.gold : 0) +
-            (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+          gold: goldChecked ? s.gold : 0,
           cleared: false,
         })),
-        totalGold:
-          (goldChecked
-            ? selectedStages.reduce((total, s) => total + s.gold, 0)
-            : 0) + (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+        totalGold: goldChecked
+          ? selectedStages.reduce((total, s) => total + s.gold, 0)
+          : 0,
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
@@ -197,15 +194,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
         stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
-          gold:
-            (goldChecked ? s.gold : 0) +
-            (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+          gold: goldChecked ? s.gold : 0,
           cleared: false,
         })),
-        totalGold:
-          (goldChecked
-            ? selectedStages.reduce((total, s) => total + s.gold, 0)
-            : 0) + (additionalGoldChecked ? Number(additinalGold.trim()) : 0),
+        totalGold: goldChecked
+          ? selectedStages.reduce((total, s) => total + s.gold, 0)
+          : 0,
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',

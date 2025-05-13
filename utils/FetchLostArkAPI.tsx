@@ -24,7 +24,7 @@ const fetchCharacterInfo = async (characterName: string) => {
     const newData = {
       ...data,
     };
-
+    console.log(newData);
     return newData;
   } catch (error) {
     console.error('API 요청 실패:', error);

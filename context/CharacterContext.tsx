@@ -151,6 +151,9 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         ? {
             ...char,
             CharacterPortraitImage: portraitImage,
+            CharacterClassName: updatedData.CharacterClassName || '',
+            ItemAvgLevel: updatedData.ItemAvgLevel || '',
+            ServerName: updatedData.ServerName || '',
             lastUpdated: new Date().toISOString(),
           }
         : char

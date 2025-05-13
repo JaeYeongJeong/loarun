@@ -42,20 +42,24 @@ const CharacterActivity: React.FC = () => {
     const updatedRaids = [...(character.SelectedRaids || [])];
     const updatedClearedRaidTotalGold =
       updatedRaids.reduce((total, raid) => {
-        return (
-          total +
-          raid.stages.reduce((stageSum, stage) => {
-            return stage.cleared ? stageSum + stage.gold : stageSum;
-          }, 0)
-        );
+        const stageSum = raid.stages.reduce((sum, stage) => {
+          return stage.cleared ? sum + stage.gold : sum;
+        }, 0);
+
+        const additionalGold = raid.cleared ? Number(raid.additionalGold) : 0;
+
+        return total + stageSum + additionalGold;
       }, 0) || 0;
 
     const updatedSelectedRaidTotalGold =
-      updatedRaids.reduce((sum, raid) => sum + raid.totalGold, 0) || 0;
+      updatedRaids.reduce(
+        (sum, raid) => sum + raid.totalGold + Number(raid.additionalGold),
+        0
+      ) || 0;
 
     updateCharacter(character.id, {
-      SelectedRaidTotalGold: updatedSelectedRaidTotalGold,
       ClearedRaidTotalGold: updatedClearedRaidTotalGold,
+      SelectedRaidTotalGold: updatedSelectedRaidTotalGold,
     });
   }, [character.SelectedRaids]);
 
@@ -105,8 +109,6 @@ const CharacterActivity: React.FC = () => {
     if (isRefreshing) return; // 이미 갱신 중이면 무시
 
     setIsRefreshing(true);
-    setRefreshText('갱신완료');
-
     const data = await fetchCharacterInfo(character.CharacterName);
     if (data) {
       refreshCharacter(character.id, {
@@ -115,6 +117,7 @@ const CharacterActivity: React.FC = () => {
         ItemAvgLevel: data.ItemAvgLevel,
         ServerName: data.ServerName,
       });
+      setRefreshText('갱신완료');
     } else {
       Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
     }
