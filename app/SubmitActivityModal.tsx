@@ -83,6 +83,10 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       return;
     }
 
+    if (activityName.length > 30) {
+      Alert.alert('입력 초과', '활동명을 30글자 이하로 입력해주세요. ');
+    }
+
     if (!activityName.trim() && !activityGold.trim()) {
       handleCloseModal();
       return;
@@ -164,6 +168,14 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         },
       },
     ]);
+  };
+
+  const handleChangeNameInput = (inputText: string) => {
+    if (inputText.length <= 30) {
+      setActivityName(inputText);
+    } else {
+      Alert.alert('범위 초과', '30글자 이하로 입력해주세요.');
+    }
   };
 
   // 인풋 핸들러
@@ -268,7 +280,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   ]}
                   placeholderTextColor={colors.grayDark}
                   value={activityName}
-                  onChangeText={setActivityName}
+                  onChangeText={handleChangeNameInput}
                 />
                 <TextInput
                   placeholder="획득 골드"

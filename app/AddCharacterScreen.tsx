@@ -117,6 +117,7 @@ const AddCharacterScreen: React.FC = () => {
             placeholder=" 캐릭터 이름"
             placeholderTextColor={colors.grayDark}
             value={characterName}
+            maxLength={30}
             onChangeText={(text) => setCharacterName(text)}
           />
 
