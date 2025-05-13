@@ -46,14 +46,17 @@ const CharacterActivity: React.FC = () => {
           return stage.cleared ? sum + stage.gold : sum;
         }, 0);
 
-        const additionalGold = raid.cleared ? Number(raid.additionalGold) : 0;
+        const additionalGold = raid.cleared
+          ? Number(raid.additionalGold?.replace(/,/g, ''))
+          : 0;
 
         return total + stageSum + additionalGold;
       }, 0) || 0;
 
     const updatedSelectedRaidTotalGold =
       updatedRaids.reduce(
-        (sum, raid) => sum + raid.totalGold + Number(raid.additionalGold),
+        (sum, raid) =>
+          sum + raid.totalGold + Number(raid.additionalGold?.replace(/,/g, '')),
         0
       ) || 0;
 
@@ -406,7 +409,7 @@ const CharacterActivity: React.FC = () => {
                         : { color: colors.warning },
                     ]}
                   >
-                    {activity.gold}
+                    {activity.gold.toLocaleString()}
                   </Text>
                 </View>
               </TouchableOpacity>

@@ -17,6 +17,7 @@ import { RaidDifficulty, useCharacter } from '@/context/CharacterContext';
 import { getAvailableRaidsByItemLevel } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { validateNumberInput } from '@/utils/validateInput';
 
 type SelectedStage = {
   raidName: string;
@@ -157,7 +158,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
       console.warn('Raid index가 없습니다.');
       return;
     }
-    if (isNaN(Number(additinalGold.trim()))) {
+    if (isNaN(Number(additinalGold.replace(/,/g, '')))) {
       Alert.alert('입력 오류', '골드를 정확히 입력해주세요.');
       return;
     }
@@ -239,6 +240,26 @@ const RaidModal: React.FC<RaidModalProps> = ({
         },
       },
     ]);
+  };
+
+  // 인풋 핸들러
+  const handleChange = (inputText: string) => {
+    const result = validateNumberInput(inputText);
+
+    switch (result.status) {
+      case 'valid':
+        setAdditionalGold(result.value.toLocaleString()); // 쉼표 없이 숫자만 저장
+        break;
+      case 'not-a-number':
+        Alert.alert('입력 오류', '숫자만 입력할 수 있습니다.');
+        break;
+      case 'exceeds-limit':
+        Alert.alert('범위 초과', '±100억 이하로 입력해주세요.');
+        break;
+      case 'empty':
+        setAdditionalGold(inputText); // 사용자가 '-'만 입력 중일 수 있으므로 그대로 유지
+        break;
+    }
   };
 
   return (
@@ -445,7 +466,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   }
                   placeholderTextColor={colors.grayDark}
                   value={additinalGold}
-                  onChangeText={setAdditionalGold}
+                  onChangeText={handleChange}
                 />
               )}
               {index < 0 || (

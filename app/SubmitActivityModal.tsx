@@ -16,6 +16,7 @@ import { useCharacter } from '@/context/CharacterContext';
 import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
+import { validateNumberInput } from '@/utils/validateInput';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -50,7 +51,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   useEffect(() => {
     if (mode === 'edit' && initialActivity) {
       setActivityName(initialActivity.name);
-      setActivityGold(initialActivity.gold.toString());
+      setActivityGold(initialActivity.gold.toLocaleString());
     } else {
       setActivityName('');
       setActivityGold('');
@@ -77,7 +78,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   };
 
   const handleSubmit = () => {
-    if (isNaN(Number(activityGold.trim()))) {
+    if (isNaN(Number(activityGold.replace(/,/g, '')))) {
       Alert.alert('입력 오류', '골드를 정확히 입력해주세요.');
       return;
     }
@@ -91,7 +92,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       const updated = [...(character.WeeklyActivity ?? [])];
       updated[index] = {
         name: activityName || '',
-        gold: Number(activityGold) || 0,
+        gold: Number(activityGold.replace(/,/g, '')) || 0,
       };
 
       updateCharacter(character.id, {
@@ -105,7 +106,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       const newActivity = [
         {
           name: activityName || '',
-          gold: Number(activityGold) || 0,
+          gold: Number(activityGold.replace(/,/g, '')) || 0,
         },
         ...(character.WeeklyActivity ?? []), // undefined일 경우 빈 배열로 대체
       ];
@@ -163,6 +164,26 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         },
       },
     ]);
+  };
+
+  // 인풋 핸들러
+  const handleChangeGoldInput = (inputText: string) => {
+    const result = validateNumberInput(inputText);
+
+    switch (result.status) {
+      case 'valid':
+        setActivityGold(result.value.toLocaleString()); // 쉼표 없이 숫자만 저장
+        break;
+      case 'not-a-number':
+        Alert.alert('입력 오류', '숫자만 입력할 수 있습니다.');
+        break;
+      case 'exceeds-limit':
+        Alert.alert('범위 초과', '±100억 이하로 입력해주세요.');
+        break;
+      case 'empty':
+        setActivityGold(inputText); // 사용자가 '-'만 입력 중일 수 있으므로 그대로 유지
+        break;
+    }
   };
 
   return (
@@ -263,7 +284,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   }
                   placeholderTextColor={colors.grayDark}
                   value={activityGold}
-                  onChangeText={setActivityGold}
+                  onChangeText={handleChangeGoldInput}
                 />
 
                 <View style={styles.buttonGroup}>
