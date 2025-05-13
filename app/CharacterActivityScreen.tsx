@@ -85,13 +85,14 @@ const CharacterActivity: React.FC = () => {
   };
 
   const handleRemoveCharacter = () => {
-    Alert.alert('캐릭터 삭제', '정말 삭제하시겠습니까?', [
+    Alert.alert('캐릭터 삭제', '정말 삭제하시겠어요?', [
       {
         text: '취소',
         style: 'cancel',
       },
       {
         text: '삭제',
+        style: 'destructive',
         onPress: () => {
           removeCharacter(character.id);
           router.back();
