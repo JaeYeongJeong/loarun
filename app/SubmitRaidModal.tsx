@@ -54,10 +54,21 @@ const RaidModal: React.FC<RaidModalProps> = ({
   const translateY = useRef(new Animated.Value(500)).current;
 
   useEffect(() => {
-    const initialValue = character.SelectedRaids?.[index];
-    setGoldChecked(initialValue?.goldChecked ?? true);
-    setAdditionalGoldChecked(initialValue?.additionalGoldCheked ?? false);
-    setAdditionalGold(initialValue?.additionalGold ?? '');
+    const initialRaidValue = character.SelectedRaids?.[index];
+    const raidName = initialRaidValue?.name || '';
+    const setValue =
+      initialRaidValue?.stages.map((stage) => ({
+        raidName,
+        difficulty: stage.difficulty,
+        stage: stage.stage,
+        gold: stage.gold,
+      })) ?? [];
+
+    setSelectedStages(setValue);
+    setGoldChecked(initialRaidValue?.goldChecked ?? true);
+    setAdditionalGoldChecked(initialRaidValue?.additionalGoldCheked ?? false);
+    setAdditionalGold(initialRaidValue?.additionalGold ?? '');
+
     if (isVisible) {
       Animated.timing(translateY, {
         toValue: 0,
