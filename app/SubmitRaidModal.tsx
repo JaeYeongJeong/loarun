@@ -298,7 +298,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   <Text style={[styles.raidName, { color: colors.black }]}>
                     {raid.name}
                   </Text>
-                  {raid.difficulty.map((difficultyObj, stageIdx) => (
+                  {raid.difficulties.map((difficultyObj, stageIdx) => (
                     <View key={stageIdx} style={styles.difficultyBlock}>
                       <View style={styles.difficultyHeader}>
                         <Text
