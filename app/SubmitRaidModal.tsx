@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { RaidDifficulty, useCharacter } from '@/context/CharacterContext';
-import { getAvailableRaidsByItemLevel } from '@/utils/raidData';
+import { getAvailableRaidsByItemLevel, RaidData } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { validateNumberInput } from '@/utils/validateInput';
@@ -92,15 +92,19 @@ const RaidModal: React.FC<RaidModalProps> = ({
     );
 
   const handleSelectStages = (
-    raidName: string,
+    raidData: RaidData,
     difficulty: RaidDifficulty,
-    stage: number,
-    gold: number
+    stage: number
   ) => {
     setSelectedStages((prev) => {
+      const getStageData = (difficulty: RaidDifficulty, stage: number) => {
+        return raidData.difficulties
+          .find((diff) => diff.difficulty === difficulty)
+          ?.stages.find((s) => s.stage === stage);
+      };
       const isSelected = prev.some(
         (s) =>
-          s.raidName === raidName &&
+          s.raidName === raidData.name &&
           s.stage === stage &&
           s.difficulty === difficulty
       );
@@ -108,33 +112,41 @@ const RaidModal: React.FC<RaidModalProps> = ({
       // 이미 선택된 관문이라면 => 해당 관문 이후 단계 제거
       if (isSelected) {
         return prev.filter(
-          (s) => !(s.raidName === raidName && s.stage >= stage)
+          (s) => !(s.raidName === raidData.name && s.stage >= stage)
         );
       }
 
       const isSingle = difficulty === '싱글';
       const hasSingle = prev.length > 0 && prev[0].difficulty === '싱글';
-      const hasOtherRaid = prev.length > 0 && prev[0].raidName !== raidName;
+      const hasOtherRaid =
+        prev.length > 0 && prev[0].raidName !== raidData.name;
 
       // 초기화 조건
       if (isSingle || hasSingle || hasOtherRaid) {
         return Array.from({ length: stage }, (_, i) => ({
-          raidName,
+          raidName: raidData.name,
           difficulty,
           stage: i + 1,
-          gold,
+          gold: getStageData(difficulty, i + 1)?.gold || 0,
         }));
       }
 
       // 같은 단계가 이미 다른 난이도로 선택된 경우 제거
       const filtered = prev.filter(
-        (s) => !(s.raidName === raidName && s.stage === stage)
+        (s) => !(s.raidName === raidData.name && s.stage === stage)
       );
 
       // 이전 + 현재 단계 추가
       for (let i = 1; i <= stage; i++) {
-        if (!filtered.some((s) => s.stage === i && s.raidName === raidName)) {
-          filtered.push({ raidName, difficulty, stage: i, gold });
+        if (
+          !filtered.some((s) => s.stage === i && s.raidName === raidData.name)
+        ) {
+          filtered.push({
+            raidName: raidData.name,
+            difficulty,
+            stage: i,
+            gold: getStageData(difficulty, i)?.gold || 0,
+          });
         }
       }
       return filtered.sort((a, b) => a.stage - b.stage); // stage 순서 유지
@@ -344,10 +356,9 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             ]}
                             onPress={() => {
                               handleSelectStages(
-                                raid.name,
+                                raid,
                                 difficultyObj.difficulty,
-                                stage.stage,
-                                stage.gold
+                                stage.stage
                               );
                             }}
                           >
