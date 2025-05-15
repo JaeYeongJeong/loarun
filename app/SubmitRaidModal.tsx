@@ -24,6 +24,7 @@ type SelectedStage = {
   difficulty: RaidDifficulty;
   stage: number;
   gold: number;
+  chestCost?: number;
 };
 
 type RaidModalProps = {
@@ -45,6 +46,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
   const [goldChecked, setGoldChecked] = useState(true);
   const [additionalGoldChecked, setAdditionalGoldChecked] = useState(false);
   const [additinalGold, setAdditionalGold] = useState('');
+  const [chestCostChecked, setChestCostChecked] = useState(false);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -63,12 +65,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
         difficulty: stage.difficulty,
         stage: stage.stage,
         gold: stage.gold,
+        chestCost: stage.chestCost,
       })) ?? [];
 
     setSelectedStages(setValue);
     setGoldChecked(initialRaidValue?.goldChecked ?? true);
     setAdditionalGoldChecked(initialRaidValue?.additionalGoldCheked ?? false);
     setAdditionalGold(initialRaidValue?.additionalGold ?? '');
+    setChestCostChecked(initialRaidValue?.chestCostChecked ?? false);
 
     if (isVisible) {
       Animated.timing(translateY, {
@@ -123,12 +127,16 @@ const RaidModal: React.FC<RaidModalProps> = ({
 
       // 초기화 조건
       if (isSingle || hasSingle || hasOtherRaid) {
-        return Array.from({ length: stage }, (_, i) => ({
-          raidName: raidData.name,
-          difficulty,
-          stage: i + 1,
-          gold: getStageData(difficulty, i + 1)?.gold || 0,
-        }));
+        return Array.from({ length: stage }, (_, i) => {
+          const stageInfo = getStageData(difficulty, i + 1);
+          return {
+            raidName: raidData.name,
+            difficulty,
+            stage: i + 1,
+            gold: stageInfo?.gold || 0,
+            chestCost: stageInfo?.chestCost || 0,
+          };
+        });
       }
 
       // 같은 단계가 이미 다른 난이도로 선택된 경우 제거
@@ -141,11 +149,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
         if (
           !filtered.some((s) => s.stage === i && s.raidName === raidData.name)
         ) {
+          const stageInfo = getStageData(difficulty, i);
+
           filtered.push({
             raidName: raidData.name,
             difficulty,
             stage: i,
-            gold: getStageData(difficulty, i)?.gold || 0,
+            gold: stageInfo?.gold || 0,
+            chestCost: stageInfo?.chestCost || 0,
           });
         }
       }
@@ -199,6 +210,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
+        chestCostChecked: chestCostChecked,
       };
     } else {
       //index = -1인 경우
@@ -216,6 +228,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
+        chestCostChecked: chestCostChecked,
       });
     }
 
@@ -430,8 +443,33 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   />
                 </View>
               </TouchableOpacity>
-
               {/* 체크박스 라인 2 */}
+              <TouchableOpacity
+                onPress={() => setChestCostChecked(!chestCostChecked)}
+              >
+                <View style={styles.checkBlock}>
+                  <Text
+                    style={[
+                      styles.checkBlockText,
+                      {
+                        color: colors.black,
+                      },
+                    ]}
+                  >
+                    더보기 체크
+                  </Text>
+                  <MaterialIcons
+                    name={
+                      chestCostChecked ? 'check-box' : 'check-box-outline-blank'
+                    }
+                    size={24}
+                    color={
+                      chestCostChecked ? colors.secondary : colors.grayDark + 80
+                    }
+                  />
+                </View>
+              </TouchableOpacity>
+              {/* 체크박스 라인 3 */}
               <TouchableOpacity
                 onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}
               >
