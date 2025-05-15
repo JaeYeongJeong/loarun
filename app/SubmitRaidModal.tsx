@@ -25,6 +25,7 @@ type SelectedStage = {
   stage: number;
   gold: number;
   chestCost?: number;
+  selectedChestCost?: boolean;
 };
 
 type RaidModalProps = {
@@ -66,6 +67,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         stage: stage.stage,
         gold: stage.gold,
         chestCost: stage.chestCost,
+        selectedChestCost: stage.selectedChestCost,
       })) ?? [];
 
     setSelectedStages(setValue);
@@ -135,6 +137,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
             stage: i + 1,
             gold: stageInfo?.gold || 0,
             chestCost: stageInfo?.chestCost || 0,
+            selectedChestCost: chestCostChecked,
           };
         });
       }
@@ -157,6 +160,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
             stage: i,
             gold: stageInfo?.gold || 0,
             chestCost: stageInfo?.chestCost || 0,
+            selectedChestCost: chestCostChecked,
           });
         }
       }
@@ -201,12 +205,18 @@ const RaidModal: React.FC<RaidModalProps> = ({
         stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
-          gold: goldChecked ? s.gold : 0,
+          gold: s.gold,
+          chestCost: s.chestCost || 0,
+          selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
-        totalGold: goldChecked
-          ? selectedStages.reduce((total, s) => total + s.gold, 0)
-          : 0,
+        totalGold: selectedStages.reduce(
+          (total, s) =>
+            total +
+            (goldChecked ? s.gold : 0) -
+            (s.selectedChestCost ? s.chestCost || 0 : 0),
+          0
+        ),
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
@@ -219,12 +229,17 @@ const RaidModal: React.FC<RaidModalProps> = ({
         stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
-          gold: goldChecked ? s.gold : 0,
+          gold: s.gold,
+          selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
-        totalGold: goldChecked
-          ? selectedStages.reduce((total, s) => total + s.gold, 0)
-          : 0,
+        totalGold: selectedStages.reduce(
+          (total, s) =>
+            total +
+            (goldChecked ? s.gold : 0) -
+            (s.selectedChestCost ? s.chestCost || 0 : 0),
+          0
+        ),
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
@@ -445,7 +460,16 @@ const RaidModal: React.FC<RaidModalProps> = ({
               </TouchableOpacity>
               {/* 체크박스 라인 2 */}
               <TouchableOpacity
-                onPress={() => setChestCostChecked(!chestCostChecked)}
+                onPress={() => {
+                  const nextChecked = !chestCostChecked;
+                  setChestCostChecked(nextChecked);
+                  setSelectedStages((prev) =>
+                    prev.map((s) => ({
+                      ...s,
+                      selectedChestCost: nextChecked,
+                    }))
+                  );
+                }}
               >
                 <View style={styles.checkBlock}>
                   <Text
@@ -469,6 +493,59 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   />
                 </View>
               </TouchableOpacity>
+              {/*더보기 뷰*/}
+              {chestCostChecked && (
+                <View
+                  style={[
+                    styles.stageContainer,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                >
+                  {selectedStages.map((stage, stageIndex) => (
+                    <TouchableOpacity
+                      key={stage.stage}
+                      style={[
+                        styles.stageBox,
+                        stage.selectedChestCost && {
+                          backgroundColor: colors.secondary,
+                        },
+                      ]}
+                      onPress={() =>
+                        setSelectedStages((prev) =>
+                          prev.map((s, sIdx) =>
+                            sIdx === stageIndex
+                              ? {
+                                  ...s,
+                                  selectedChestCost: !s.selectedChestCost,
+                                }
+                              : s
+                          )
+                        )
+                      }
+                    >
+                      <Text
+                        style={[
+                          styles.stageLabelText,
+                          { color: colors.grayDark },
+                          stage.selectedChestCost && { color: colors.white },
+                        ]}
+                      >
+                        {stage.stage}관문
+                      </Text>
+                      <Text
+                        style={[
+                          styles.stageGold,
+                          { color: colors.grayDark },
+                          stage.selectedChestCost && { color: colors.white },
+                        ]}
+                      >
+                        {`-${stage.chestCost}`}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
               {/* 체크박스 라인 3 */}
               <TouchableOpacity
                 onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}

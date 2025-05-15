@@ -12,7 +12,8 @@ export type RaidStage = {
   difficulty: RaidDifficulty; // 레이드 난이도 (싱글, 노말, 하드)
   stage: number; // 관문 번호 (1, 2, 3...)
   gold: number; // 해당 관문에서 획득하는 골드
-  chestCost?: number;
+  chestCost?: number; // 더보기 골드
+  selectedChestCost?: boolean; // 더보기 선택 여부
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
   lastClearedStage?: number; // 마지막 클리어 관문 번호 (1, 2, 3...)
 };
