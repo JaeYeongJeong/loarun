@@ -51,6 +51,8 @@ type Character = {
   WeeklyActivityTotalGold?: number; // ✅ 주간 활동 총 금액
   lastUpdated?: string; // ✅ 마지막 업데이트 날짜
   addedAt?: string; //추가된 날짜
+  weeklyRaidFolded?: boolean;
+  weeklyActivityFolded?: boolean;
 };
 
 type SortOrder = 'addedAt' | 'level' | 'server';

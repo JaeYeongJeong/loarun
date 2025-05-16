@@ -51,6 +51,11 @@ const CharacterActivity: React.FC = () => {
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
   useEffect(() => {
+    setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
+    setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
+  });
+
+  useEffect(() => {
     const updatedRaids = [...(character.SelectedRaids || [])];
     const updatedClearedRaidTotalGold =
       updatedRaids.reduce((total, raid) => {
@@ -253,7 +258,11 @@ const CharacterActivity: React.FC = () => {
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
           <TouchableOpacity
-            onPress={() => setWeeklyRaidFolded((prev) => !prev)}
+            onPress={() => {
+              const next = !weeklyRaidFolded;
+              setWeeklyRaidFolded(next);
+              updateCharacter(character.id, { weeklyRaidFolded: next });
+            }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
@@ -406,7 +415,11 @@ const CharacterActivity: React.FC = () => {
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
           <TouchableOpacity
-            onPress={() => setWeeklyActivityFolded((prev) => !prev)}
+            onPress={() => {
+              const next = !weeklyActivityFolded;
+              setWeeklyActivityFolded(next);
+              updateCharacter(character.id, { weeklyActivityFolded: next });
+            }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
