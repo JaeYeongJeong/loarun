@@ -543,6 +543,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    overflow: 'visible',
   },
   // ✅ 상단 액션바
   actionBar: {
