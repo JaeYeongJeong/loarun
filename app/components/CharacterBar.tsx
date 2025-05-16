@@ -12,6 +12,7 @@ import {
 import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/context/ThemeContext';
 import { normalize } from '@/utils/nomalize';
+import { Feather } from '@expo/vector-icons';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
@@ -91,9 +92,24 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={[styles.nameText, { color: colors.black }]}>
-            {character.CharacterName}
-          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 2,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={[styles.nameText, { color: colors.black }]}>
+              {character.CharacterName}
+            </Text>
+            {character.bookmarked && (
+              <Feather
+                name="bookmark"
+                size={SCREEN_HEIGHT / 64}
+                color={colors.black}
+              />
+            )}
+          </View>
           <Text style={[styles.infoText, { color: colors.grayDark }]}>
             {character.CharacterClassName} @ {character.ServerName}
           </Text>
@@ -138,7 +154,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   innerContainer: {
     flexDirection: 'row',

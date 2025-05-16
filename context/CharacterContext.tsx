@@ -53,6 +53,7 @@ type Character = {
   addedAt?: string; //추가된 날짜
   weeklyRaidFolded?: boolean;
   weeklyActivityFolded?: boolean;
+  bookmarked?: boolean;
 };
 
 type SortOrder = 'addedAt' | 'level' | 'server';

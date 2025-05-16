@@ -17,6 +17,7 @@ import { Feather } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -30,6 +31,7 @@ const CharacterActivity: React.FC = () => {
   const { characters, updateCharacter, removeCharacter, refreshCharacter } =
     useCharacter();
   const character = characters.find((c) => c.id === id);
+  const [bookmarked, setBookmarked] = useState(false);
 
   // 📌 모달 상태 및 관련 인덱스
   const [activityModalVisible, setActivityModalVisible] = useState(false);
@@ -53,6 +55,7 @@ const CharacterActivity: React.FC = () => {
   useEffect(() => {
     setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
     setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
+    setBookmarked(character.bookmarked ?? false);
   });
 
   useEffect(() => {
@@ -173,8 +176,18 @@ const CharacterActivity: React.FC = () => {
           <Feather name="chevron-left" size={24} color={colors.iconColor} />
         </TouchableOpacity>
         <View style={styles.actionWrapper}>
-          <TouchableOpacity>
-            <Feather name="bookmark" size={24} color={colors.iconColor} />
+          <TouchableOpacity
+            onPress={() => {
+              const next = !bookmarked;
+              setBookmarked(next);
+              updateCharacter(character.id, { bookmarked: next });
+            }}
+          >
+            {bookmarked ? (
+              <BookmarkFilled width={24} height={24} color={colors.iconColor} />
+            ) : (
+              <Feather name="bookmark" size={24} color={colors.iconColor} />
+            )}
           </TouchableOpacity>
           <TouchableOpacity onPress={handleRemoveCharacter}>
             <Feather name="trash-2" size={24} color={colors.iconColor} />
@@ -553,7 +566,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
     marginBottom: 16,
   },
 
@@ -619,7 +632,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
     marginBottom: 16,
   },
 
