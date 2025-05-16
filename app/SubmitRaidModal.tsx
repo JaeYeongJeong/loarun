@@ -230,6 +230,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
           difficulty: s.difficulty,
           stage: s.stage,
           gold: s.gold,
+          chestCost: s.chestCost,
           selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
@@ -494,11 +495,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 </View>
               </TouchableOpacity>
               {/*더보기 뷰*/}
-              {chestCostChecked && (
+              {chestCostChecked && selectedStages.length > 0 && (
                 <View
                   style={[
                     styles.stageContainer,
-                    { backgroundColor: colors.grayLight },
+                    {
+                      backgroundColor: colors.grayLight,
+                      marginBottom: 12,
+                    },
                   ]}
                 >
                   {selectedStages.map((stage, stageIndex) => (
@@ -545,7 +549,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   ))}
                 </View>
               )}
-
               {/* 체크박스 라인 3 */}
               <TouchableOpacity
                 onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}

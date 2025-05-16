@@ -19,22 +19,34 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CharacterActivity: React.FC = () => {
+  // 📌 기본 훅 및 네비게이션
   const params = useLocalSearchParams();
-  const [activityModalVisible, setActivityModalVisible] = useState(false);
-  const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
-  const [activityIndex, setActivityIndex] = useState<number | null>(null);
-  const [raidModalVisible, setRaidModalVisible] = useState(false);
-  const [raidIndex, setRaidIndex] = useState<number>(0);
-  const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
   const { id } = params;
+  const router = useRouter();
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets(); // ✅ 상단 여백
+
+  // 📌 캐릭터 관련 컨텍스트
   const { characters, updateCharacter, removeCharacter, refreshCharacter } =
     useCharacter();
   const character = characters.find((c) => c.id === id);
-  const router = useRouter();
+
+  // 📌 모달 상태 및 관련 인덱스
+  const [activityModalVisible, setActivityModalVisible] = useState(false);
+  const [activityIndex, setActivityIndex] = useState<number | null>(null);
+  const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
+
+  const [raidModalVisible, setRaidModalVisible] = useState(false);
+  const [raidIndex, setRaidIndex] = useState<number>(0);
+  const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
+
+  // 📌 새로고침 상태
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshText, setRefreshText] = useState('갱신하기');
-  const { colors } = useTheme();
-  const insets = useSafeAreaInsets(); // ✅ 상단 여백 추가
+
+  // 📌 접힘 상태
+  const [weeklyRaidFolded, setWeeklyRaidFolded] = useState(false);
+  const [weeklyActivityFolded, setWeeklyActivityFolded] = useState(false);
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
@@ -136,6 +148,10 @@ const CharacterActivity: React.FC = () => {
     }, 10000);
   };
 
+  const Spacer = ({ height = 12 }: { height?: number }) => (
+    <View style={{ height }} />
+  );
+
   return (
     <View
       style={[
@@ -236,22 +252,134 @@ const CharacterActivity: React.FC = () => {
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.black }]}>
-              주간 레이드
-            </Text>
-            <Text style={[styles.totalGoldText, { color: colors.black }]}>
-              {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
-              {character.SelectedRaidTotalGold?.toLocaleString() || 0}
-            </Text>
-          </View>
-          {character.SelectedRaids?.map((raid, index) => (
-            <View key={index} style={{ marginBottom: 4 }}>
-              {/* 🟢 레이드 제목 + 수정 버튼 한 줄 정렬 */}
-              <View style={styles.raidTitleRow}>
-                <Text style={[styles.raidTitleText, { color: colors.black }]}>
-                  {raid.name || `레이드 ${index + 1}`}
+          <TouchableOpacity
+            onPress={() => setWeeklyRaidFolded((prev) => !prev)}
+          >
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Feather
+                  name={weeklyRaidFolded ? 'chevron-down' : 'chevron-up'}
+                  size={24}
+                />
+                <Text style={[styles.sectionTitle, { color: colors.black }]}>
+                  주간 레이드
                 </Text>
+              </View>
+              <Text style={[styles.totalGoldText, { color: colors.black }]}>
+                {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
+                {character.SelectedRaidTotalGold?.toLocaleString() || 0}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {!weeklyRaidFolded && (
+            <View>
+              <Spacer height={12} />
+              {character.SelectedRaids?.map((raid, index) => (
+                <View key={index} style={{ marginBottom: 4 }}>
+                  <View style={styles.raidTitleRow}>
+                    <Text
+                      style={[styles.raidTitleText, { color: colors.black }]}
+                    >
+                      {raid.name || `레이드 ${index + 1}`}
+                    </Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.editButton,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        toggleRaidModal();
+                        setRaidIndex(index);
+                      }}
+                    >
+                      <Text
+                        style={[styles.editButtonText, { color: colors.black }]}
+                      >
+                        수정
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={[
+                      styles.raidRow,
+                      { backgroundColor: colors.grayLight },
+                    ]}
+                  >
+                    {raid.name ? (
+                      raid.stages.map((stage, stageIndex) => (
+                        <Pressable
+                          key={stageIndex}
+                          style={[
+                            styles.raidButton,
+                            stage.cleared
+                              ? { backgroundColor: colors.primary }
+                              : {},
+                            stageIndex === 0
+                              ? {
+                                  borderTopLeftRadius: 12,
+                                  borderBottomLeftRadius: 12,
+                                }
+                              : {},
+                            stage.lastClearedStage === stageIndex
+                              ? {
+                                  borderTopRightRadius: 12,
+                                  borderBottomRightRadius: 12,
+                                }
+                              : {},
+                          ]}
+                          onPress={() => handleSelectStage(index, stageIndex)}
+                        >
+                          <Text
+                            style={[
+                              styles.difficultyText,
+                              stage.cleared
+                                ? { color: colors.white }
+                                : { color: colors.black },
+                              stage.difficulty === '노말'
+                                ? { color: colors.info }
+                                : {},
+                              stage.difficulty === '하드'
+                                ? { color: colors.danger }
+                                : {},
+                            ]}
+                          >
+                            {stage.difficulty}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.raidButtonText,
+                              { color: colors.black },
+                              stage.cleared ? { color: colors.white } : {},
+                            ]}
+                          >
+                            {stage.stage} 관문
+                          </Text>
+                        </Pressable>
+                      ))
+                    ) : (
+                      <Pressable style={styles.raidButton}>
+                        <Text
+                          style={[
+                            styles.raidButtonText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          레이드
+                        </Text>
+                        <Text
+                          style={[
+                            styles.raidButtonText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          ({index + 1})
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </View>
+              ))}
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -259,165 +387,102 @@ const CharacterActivity: React.FC = () => {
                   ]}
                   onPress={() => {
                     toggleRaidModal();
-                    setRaidIndex(index);
+                    setRaidIndex(-1);
                   }}
                 >
                   <Text
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
-                    수정
+                    레이드 추가
                   </Text>
                 </TouchableOpacity>
               </View>
-
-              <View
-                style={[styles.raidRow, { backgroundColor: colors.grayLight }]}
-              >
-                {raid.name ? (
-                  raid.stages.map((stage, stageIndex) => (
-                    <Pressable
-                      key={stageIndex}
-                      style={[
-                        styles.raidButton,
-                        stage.cleared
-                          ? { backgroundColor: colors.primary }
-                          : {},
-                        stageIndex === 0
-                          ? {
-                              borderTopLeftRadius: 12,
-                              borderBottomLeftRadius: 12,
-                            }
-                          : {},
-                        stage.lastClearedStage === stageIndex
-                          ? {
-                              borderTopRightRadius: 12,
-                              borderBottomRightRadius: 12,
-                            }
-                          : {},
-                      ]}
-                      onPress={() => handleSelectStage(index, stageIndex)}
-                    >
-                      <Text
-                        style={[
-                          styles.difficultyText,
-                          stage.cleared
-                            ? { color: colors.white }
-                            : { color: colors.black },
-                          stage.difficulty === '노말'
-                            ? { color: colors.info }
-                            : {},
-                          stage.difficulty === '하드'
-                            ? { color: colors.danger }
-                            : {},
-                        ]}
-                      >
-                        {stage.difficulty}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.raidButtonText,
-                          { color: colors.black },
-                          stage.cleared ? { color: colors.white } : {},
-                        ]}
-                      >
-                        {stage.stage} 관문
-                      </Text>
-                    </Pressable>
-                  ))
-                ) : (
-                  <Pressable style={styles.raidButton}>
-                    <Text
-                      style={[styles.raidButtonText, { color: colors.black }]}
-                    >
-                      레이드
-                    </Text>
-                    <Text
-                      style={[styles.raidButtonText, { color: colors.black }]}
-                    >
-                      ({index + 1})
-                    </Text>
-                  </Pressable>
-                )}
-              </View>
             </View>
-          ))}
-          <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
-            <TouchableOpacity
-              style={[styles.editButton, { backgroundColor: colors.grayLight }]}
-              onPress={() => {
-                toggleRaidModal();
-                setRaidIndex(-1);
-              }}
-            >
-              <Text style={[styles.editButtonText, { color: colors.black }]}>
-                레이드 추가
-              </Text>
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
 
         {/* 주간 활동 */}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.black }]}>
-              추가 수입
-            </Text>
-            <Text
-              style={[
-                styles.totalGoldText,
-                (character.WeeklyActivityTotalGold || 0) >= 0
-                  ? { color: colors.black }
-                  : { color: colors.warning },
-              ]}
-            >
-              {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
-            </Text>
-          </View>
-          {/* 추가 버튼 */}
-          <View style={styles.addButtonContainer}>
-            <TouchableOpacity
-              style={[styles.addButton, { backgroundColor: colors.secondary }]}
-              onPress={toggleActivityModal}
-            >
-              <Text style={[styles.addButtonText, { color: 'white' }]}>
-                ＋ 추가
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {Array.isArray(character.WeeklyActivity) &&
-            character.WeeklyActivity.map((activity, index) => (
-              <TouchableOpacity
-                key={index}
+          <TouchableOpacity
+            onPress={() => setWeeklyActivityFolded((prev) => !prev)}
+          >
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Feather
+                  name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  size={24}
+                />
+                <Text style={[styles.sectionTitle, { color: colors.black }]}>
+                  추가 수입
+                </Text>
+              </View>
+              <Text
                 style={[
-                  styles.activityItem,
-                  { backgroundColor: colors.grayLight },
+                  styles.totalGoldText,
+                  (character.WeeklyActivityTotalGold || 0) >= 0
+                    ? { color: colors.black }
+                    : { color: colors.warning },
                 ]}
-                onPress={() => {
-                  setActivityIndex(index);
-                  toggleActivityModal();
-                }}
               >
-                <View style={styles.activityItemRow}>
-                  <Text
-                    style={[styles.activityNameText, { color: colors.black }]}
-                  >
-                    {activity.name}
+                {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {!weeklyActivityFolded && (
+            <View>
+              <View style={styles.addButtonContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.addButton,
+                    { backgroundColor: colors.secondary },
+                  ]}
+                  onPress={toggleActivityModal}
+                >
+                  <Text style={[styles.addButtonText, { color: 'white' }]}>
+                    ＋ 추가
                   </Text>
-                  <Text
+                </TouchableOpacity>
+              </View>
+              {Array.isArray(character.WeeklyActivity) &&
+                character.WeeklyActivity.map((activity, index) => (
+                  <TouchableOpacity
+                    key={index}
                     style={[
-                      styles.activityGoldText,
-                      activity.gold >= 0
-                        ? { color: colors.black }
-                        : { color: colors.warning },
+                      styles.activityItem,
+                      { backgroundColor: colors.grayLight },
                     ]}
+                    onPress={() => {
+                      setActivityIndex(index);
+                      toggleActivityModal();
+                    }}
                   >
-                    {activity.gold.toLocaleString()}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                    <View style={styles.activityItemRow}>
+                      <Text
+                        style={[
+                          styles.activityNameText,
+                          { color: colors.black },
+                        ]}
+                      >
+                        {activity.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.activityGoldText,
+                          activity.gold >= 0
+                            ? { color: colors.black }
+                            : { color: colors.warning },
+                        ]}
+                      >
+                        {activity.gold.toLocaleString()}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+            </View>
+          )}
+          {/* 추가 버튼 */}
         </View>
       </ScrollView>
 
@@ -549,7 +614,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
 
   sectionTitle: {
