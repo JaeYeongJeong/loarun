@@ -282,6 +282,7 @@ const CharacterActivity: React.FC = () => {
                 <Feather
                   name={weeklyRaidFolded ? 'chevron-down' : 'chevron-up'}
                   size={24}
+                  color={colors.black}
                 />
                 <Text style={[styles.sectionTitle, { color: colors.black }]}>
                   주간 레이드
@@ -439,6 +440,7 @@ const CharacterActivity: React.FC = () => {
                 <Feather
                   name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
                   size={24}
+                  color={colors.black}
                 />
                 <Text style={[styles.sectionTitle, { color: colors.black }]}>
                   추가 수입

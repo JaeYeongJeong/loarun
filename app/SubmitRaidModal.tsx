@@ -327,6 +327,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               showsHorizontalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={{ paddingBottom: 16 }}
+              style={{ overflow: 'visible' }}
             >
               {raidList.map((raid, raidIdx) => (
                 <View
@@ -677,7 +678,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   raidName: {
     fontSize: 16,
@@ -756,7 +757,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: 'center',
-    elevation: 3,
   },
   confirmButton: {
     flex: 1,
@@ -764,7 +764,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: 'center',
-    elevation: 3,
   },
   cancelButtonText: {
     fontSize: 16,
