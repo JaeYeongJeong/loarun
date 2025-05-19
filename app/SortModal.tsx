@@ -1,6 +1,6 @@
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Modal,
@@ -26,43 +26,6 @@ const SortModal: React.FC<SortModalProps> = ({
 }) => {
   const { colors } = useTheme();
   const { sortCharacter } = useCharacter();
-  const scale = useRef(new Animated.Value(0)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  // ✅ 모달이 열릴 때 애니메이션 실행
-  useEffect(() => {
-    if (isVisible) {
-      scale.setValue(0);
-      opacity.setValue(0);
-      Animated.parallel([
-        Animated.timing(scale, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(scale, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [isVisible]);
-
-  if (!isVisible) return null;
 
   const handleCloseModal = () => {
     toggleModal();
@@ -91,12 +54,7 @@ const SortModal: React.FC<SortModalProps> = ({
                 {
                   backgroundColor: colors.modalBackground,
                   marginTop: positionY,
-                  transform: [
-                    { translateX: 90 }, // 180 / 2
-                    { scale },
-                    { translateX: -90 },
-                  ],
-                  opacity,
+                  marginLeft: 12,
                 },
               ]}
             >

@@ -303,7 +303,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }
   };
 
-  return (
+  return isVisible ? (
     <Modal
       animationType="none"
       transparent
@@ -654,7 +654,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         </View>
       </KeyboardAvoidingView>
     </Modal>
-  );
+  ) : null;
 };
 
 const styles = StyleSheet.create({

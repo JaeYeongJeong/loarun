@@ -1,5 +1,5 @@
 import SettingModal from '@/app/SettingModal';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -12,6 +12,9 @@ function OverviewBar() {
   const [modalVisible, setModalVisible] = React.useState(false);
   const { characters } = useCharacter();
   const { colors } = useTheme();
+  const settingButtonRef = useRef<View>(null);
+  const [settingButtonX, setSettingButtonX] = useState(0);
+  const [settingButtonY, setSettingButtonY] = useState(0);
 
   const {
     totalGold,
@@ -40,7 +43,15 @@ function OverviewBar() {
   );
 
   const toggleModal = () => {
-    setModalVisible((prev) => !prev);
+    if (settingButtonRef.current) {
+      settingButtonRef.current.measureInWindow((x, y, width, height) => {
+        setSettingButtonX(x);
+        setSettingButtonY(y + height); // 버튼 아래쪽 위치
+        setModalVisible((prev) => !prev);
+      });
+    } else {
+      setModalVisible((prev) => !prev);
+    }
   };
 
   return (
@@ -80,7 +91,11 @@ function OverviewBar() {
         <View style={styles.rightBlock}>
           {/* 상단 고정 설정 아이콘 */}
           <View style={styles.settingWrapper}>
-            <Pressable onPress={toggleModal} style={styles.iconButton}>
+            <Pressable
+              ref={settingButtonRef}
+              onPress={toggleModal}
+              style={styles.iconButton}
+            >
               <Feather name="settings" size={24} color={colors.iconColor} />
             </Pressable>
           </View>
@@ -135,7 +150,12 @@ function OverviewBar() {
         </View>
       </View>
 
-      <SettingModal isVisible={modalVisible} toggleModal={toggleModal} />
+      <SettingModal
+        isVisible={modalVisible}
+        toggleModal={toggleModal}
+        positionX={setSettingButtonX}
+        positionY={settingButtonY}
+      />
     </View>
   );
 }
