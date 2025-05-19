@@ -6,22 +6,26 @@ import {
   Modal,
   Text,
   View,
-  Pressable,
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SortModalProps = {
   isVisible: boolean;
   toggleModal: () => void;
+  positionX: number;
+  positionY: number;
 };
 
-const SortModal: React.FC<SortModalProps> = ({ isVisible, toggleModal }) => {
+const SortModal: React.FC<SortModalProps> = ({
+  isVisible,
+  toggleModal,
+  positionX,
+  positionY,
+}) => {
   const { colors } = useTheme();
   const { sortCharacter } = useCharacter();
-  const insets = useSafeAreaInsets();
   const scale = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -86,7 +90,7 @@ const SortModal: React.FC<SortModalProps> = ({ isVisible, toggleModal }) => {
                 styles.modalContainer,
                 {
                   backgroundColor: colors.modalBackground,
-                  marginTop: insets.top + 60, // ✅ 상단 여백 추가
+                  marginTop: positionY,
                   transform: [
                     { translateX: 90 }, // 180 / 2
                     { scale },
@@ -123,7 +127,7 @@ const SortModal: React.FC<SortModalProps> = ({ isVisible, toggleModal }) => {
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     backgroundColor: 'transparent',
   },
   modalContainer: {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -28,9 +28,21 @@ const MainPage: React.FC = () => {
   const { characters } = useCharacter();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const toggleSortModal = () => {
+  const sortButtonRef = useRef<View>(null);
+  const [sortButtonX, setSortButtonX] = useState(0);
+  const [sortButtonY, setSortButtonY] = useState(0);
+
+const toggleSortModal = () => {
+  if (sortButtonRef.current) {
+    sortButtonRef.current.measureInWindow((x, y, width, height) => {
+      setSortButtonX(x);
+      setSortButtonY(y + height); // 버튼 아래쪽 위치
+      setSortModalVisible((prev) => !prev);
+    });
+  } else {
     setSortModalVisible((prev) => !prev);
-  };
+  }
+};
 
   return (
     <View
@@ -48,7 +60,7 @@ const MainPage: React.FC = () => {
         ListHeaderComponent={
           <View style={styles.overviewContainer}>
             <OverviewBar />
-            <TouchableOpacity onPress={toggleSortModal}>
+            <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
               <View
                 style={{
                   marginBottom: normalize(6),
@@ -89,7 +101,7 @@ const MainPage: React.FC = () => {
           </TouchableOpacity>
         }
       />
-      <SortModal isVisible={SortModalVisible} toggleModal={toggleSortModal} />
+      <SortModal isVisible={SortModalVisible} toggleModal={toggleSortModal} positionX={sortButtonX} positionY = {sortButtonY} />
     </View>
   );
 };
