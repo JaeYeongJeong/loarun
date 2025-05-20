@@ -32,17 +32,17 @@ const MainPage: React.FC = () => {
   const [sortButtonX, setSortButtonX] = useState(0);
   const [sortButtonY, setSortButtonY] = useState(0);
 
-const toggleSortModal = () => {
-  if (sortButtonRef.current) {
-    sortButtonRef.current.measureInWindow((x, y, width, height) => {
-      setSortButtonX(x);
-      setSortButtonY(y + height); // 버튼 아래쪽 위치
+  const toggleSortModal = () => {
+    if (sortButtonRef.current) {
+      sortButtonRef.current.measureInWindow((x, y, width, height) => {
+        setSortButtonX(x);
+        setSortButtonY(y + height); // 버튼 아래쪽 위치
+        setSortModalVisible((prev) => !prev);
+      });
+    } else {
       setSortModalVisible((prev) => !prev);
-    });
-  } else {
-    setSortModalVisible((prev) => !prev);
-  }
-};
+    }
+  };
 
   return (
     <View
@@ -60,14 +60,14 @@ const toggleSortModal = () => {
         ListHeaderComponent={
           <View style={styles.overviewContainer}>
             <OverviewBar />
-            <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
-              <View
-                style={{
-                  marginBottom: normalize(6),
-                  paddingHorizontal: normalize(12),
-                  alignItems: 'flex-start',
-                }}
-              >
+            <View
+              style={{
+                marginBottom: normalize(6),
+                paddingHorizontal: normalize(12),
+                alignItems: 'flex-start',
+              }}
+            >
+              <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
                 <View
                   style={{
                     paddingHorizontal: normalize(10),
@@ -84,8 +84,8 @@ const toggleSortModal = () => {
                     정렬하기
                   </Text>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
         }
         ListFooterComponent={
@@ -101,7 +101,12 @@ const toggleSortModal = () => {
           </TouchableOpacity>
         }
       />
-      <SortModal isVisible={SortModalVisible} toggleModal={toggleSortModal} positionX={sortButtonX} positionY = {sortButtonY} />
+      <SortModal
+        isVisible={SortModalVisible}
+        toggleModal={toggleSortModal}
+        positionX={sortButtonX}
+        positionY={sortButtonY}
+      />
     </View>
   );
 };

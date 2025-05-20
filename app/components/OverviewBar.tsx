@@ -153,7 +153,7 @@ function OverviewBar() {
       <SettingModal
         isVisible={modalVisible}
         toggleModal={toggleModal}
-        positionX={setSettingButtonX}
+        positionX={settingButtonX}
         positionY={settingButtonY}
       />
     </View>
