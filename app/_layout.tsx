@@ -29,16 +29,16 @@ function RootLayoutWrapper() {
         backgroundColor={colors.background}
       />
       <SafeAreaView style={{ flex: 1 }} edges={[]}>
-        <AppSettingProvider>
-          <CharacterProvider>
+        <CharacterProvider>
+          <AppSettingProvider>
             <Stack
               screenOptions={{
                 headerShown: false,
                 animation: 'slide_from_right',
               }}
             />
-          </CharacterProvider>
-        </AppSettingProvider>
+          </AppSettingProvider>
+        </CharacterProvider>
       </SafeAreaView>
     </>
   );

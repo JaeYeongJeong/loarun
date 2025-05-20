@@ -61,11 +61,19 @@ type SortOrder = 'addedAt' | 'level' | 'server';
 // ✅ Context에서 제공할 기능 정의
 type CharacterContextType = {
   characters: Character[];
-  addCharacter: (newCharacter: Character) => void;
-  removeCharacter: (id: string) => void;
-  updateCharacter: (id: string, updatedData: Partial<Character>) => void;
-  refreshCharacter: (id: string, updatedData: Partial<Character>) => void;
-  sortCharacter: (order: SortOrder) => void;
+  addCharacter: (newCharacter: Character) => Promise<void>;
+  removeCharacter: (id: string) => Promise<void>;
+  updateCharacter: (
+    id: string,
+    updatedData: Partial<Character>
+  ) => Promise<void>;
+  refreshCharacter: (
+    id: string,
+    updatedData: Partial<Character>
+  ) => Promise<void>;
+  sortCharacter: (order: SortOrder) => Promise<void>;
+  resetCharacterTask: () => Promise<void>;
+  isLoaded: boolean;
 };
 
 // ✅ Context 생성
@@ -78,6 +86,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // ✅ 저장된 캐릭터 불러오기
   useEffect(() => {
@@ -86,6 +95,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       if (storedCharacters) {
         setCharacters(JSON.parse(storedCharacters));
       }
+      setIsLoaded(true); // ✅ 로딩 완료 표시
     };
     loadCharacters();
   }, []);
@@ -220,6 +230,36 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(sortedList);
   };
 
+  const resetCharacterTask = async () => {
+    if (characters.length === 0) {
+      console.warn('No characters to reset');
+      return;
+    } else {
+      console.log('캐릭터 숙제 삭제');
+    }
+    const updated = characters.map((c) => {
+      const updatedRaids = c.SelectedRaids?.map((r) => ({
+        ...r,
+        cleared: false,
+        stages: r.stages.map((s) => ({
+          ...s,
+          cleared: false,
+        })),
+      }));
+
+      return {
+        ...c,
+        SelectedRaids: updatedRaids,
+        WeeklyActivity: [],
+        WeeklyActivityTotalGold: 0,
+        ClearedRaidTotalGold: 0,
+        SelectedRaidTotalGold: 0,
+      };
+    });
+
+    await saveCharacters(updated);
+  };
+
   return (
     <CharacterContext.Provider
       value={{
@@ -229,6 +269,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         updateCharacter,
         refreshCharacter,
         sortCharacter,
+        resetCharacterTask,
+        isLoaded,
       }}
     >
       {children}
