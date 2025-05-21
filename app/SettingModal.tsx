@@ -37,6 +37,11 @@ const SettingModal: React.FC<SettingModalProps> = ({
     toggleModal();
   };
 
+  const handleAppInfo = () => {
+    toggleModal();
+    router.push('/AppInfoScreen');
+  };
+
   const handleChangeTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     changeTheme(newTheme);
@@ -79,6 +84,14 @@ const SettingModal: React.FC<SettingModalProps> = ({
                     size={20}
                     color={colors.iconColor}
                   />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleAppInfo}>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    앱 정보
+                  </Text>
+                  <Feather name="info" size={20} color={colors.iconColor} />
                 </View>
               </TouchableOpacity>
             </Animated.View>
