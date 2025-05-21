@@ -56,7 +56,7 @@ type Character = {
   bookmarked?: boolean;
 };
 
-type SortOrder = 'addedAt' | 'level' | 'server';
+export type SortOrder = 'addedAt' | 'level' | 'server';
 
 // ✅ Context에서 제공할 기능 정의
 type CharacterContextType = {

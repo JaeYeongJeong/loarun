@@ -1,6 +1,7 @@
-import { useCharacter } from '@/context/CharacterContext';
+import { SortOrder, useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
-import React, { useEffect, useRef, useState } from 'react';
+import { Feather } from '@expo/vector-icons';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Modal,
@@ -26,21 +27,25 @@ const SortModal: React.FC<SortModalProps> = ({
 }) => {
   const { colors } = useTheme();
   const { sortCharacter } = useCharacter();
+  const [selectedOption, setSelectedOption] = useState<SortOrder>('addedAt');
 
   const handleCloseModal = () => {
     toggleModal();
   };
 
   const sortByDateAdded = () => {
-    sortCharacter('addedAt');
+    setSelectedOption('addedAt');
+    sortCharacter(selectedOption);
   };
 
   const sortByLevel = () => {
-    sortCharacter('level');
+    setSelectedOption('level');
+    sortCharacter(selectedOption);
   };
 
   const sortByServer = () => {
-    sortCharacter('server');
+    setSelectedOption('server');
+    sortCharacter(selectedOption);
   };
 
   return (
@@ -60,19 +65,34 @@ const SortModal: React.FC<SortModalProps> = ({
             >
               {/* ✅ 모달 닫고 페이지 이동 */}
               <TouchableOpacity onPress={sortByDateAdded}>
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  추가 순 (기본)
-                </Text>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    추가 순 (기본)
+                  </Text>
+                  {selectedOption === 'addedAt' && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
+                </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByServer}>
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  서버 순
-                </Text>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    서버 순
+                  </Text>
+                  {selectedOption === 'server' && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
+                </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByLevel}>
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  레벨 높은 순
-                </Text>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    레벨 높은 순
+                  </Text>
+                  {selectedOption === 'level' && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
+                </View>
               </TouchableOpacity>
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -90,15 +110,19 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     padding: 16,
-    gap: 8,
-    minWidth: 180,
-    marginRight: 16,
-    alignItems: 'flex-end',
+    gap: 12,
+    minWidth: 200,
     borderRadius: 10,
   },
   modalText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 32,
   },
 });
 

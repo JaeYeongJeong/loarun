@@ -1,16 +1,16 @@
 import { useTheme } from '@/context/ThemeContext';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Modal,
   Text,
   View,
-  Pressable,
   Animated,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SettingModalProps = {
   isVisible: boolean;
@@ -27,7 +27,6 @@ const SettingModal: React.FC<SettingModalProps> = ({
 }) => {
   const router = useRouter();
   const { colors, theme, changeTheme } = useTheme();
-  const insets = useSafeAreaInsets();
 
   const handleAddCharacter = () => {
     toggleModal();
@@ -58,16 +57,30 @@ const SettingModal: React.FC<SettingModalProps> = ({
               ]}
             >
               {/* ✅ 모달 닫고 페이지 이동 */}
-              <Pressable onPress={handleAddCharacter}>
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  다른 캐릭터 추가
-                </Text>
-              </Pressable>
-              <Pressable onPress={handleChangeTheme}>
-                <Text style={[styles.modalText, { color: colors.black }]}>
-                  테마 변경
-                </Text>
-              </Pressable>
+              <TouchableOpacity onPress={handleAddCharacter}>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    다른 캐릭터 추가
+                  </Text>
+                  <Feather
+                    name="user-plus"
+                    size={18}
+                    color={colors.iconColor}
+                  />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleChangeTheme}>
+                <View style={styles.optionContainer}>
+                  <Text style={[styles.modalText, { color: colors.black }]}>
+                    테마 변경
+                  </Text>
+                  <Feather
+                    name={theme === 'light' ? 'moon' : 'sun'}
+                    size={20}
+                    color={colors.iconColor}
+                  />
+                </View>
+              </TouchableOpacity>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>
@@ -84,14 +97,19 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     padding: 16,
-    gap: 8,
-    minWidth: 180,
-    alignItems: 'flex-end',
+    gap: 12,
+    minWidth: 200,
     borderRadius: 10,
   },
   modalText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 32,
   },
 });
 
