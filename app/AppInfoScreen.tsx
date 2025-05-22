@@ -1,26 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
-  Pressable,
-  Alert,
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
 } from 'react-native';
-import { useCharacter } from '@/context/CharacterContext';
-import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
+
+const version =
+  Constants.expoConfig?.version ?? Constants.manifest?.version ?? 'unknown';
 
 const AddCharacterScreen: React.FC = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View
@@ -37,6 +35,52 @@ const AddCharacterScreen: React.FC = () => {
           <TouchableOpacity onPress={router.back}>
             <Feather name="chevron-left" size={24} color={colors.grayDark} />
           </TouchableOpacity>
+        </View>
+        <View style={{ paddingHorizontal: 12, paddingTop: 32, gap: 12 }}>
+          <View
+            style={[
+              {
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                backgroundColor: colors.grayLight,
+                paddingHorizontal: 20,
+                paddingVertical: 12,
+                borderRadius: 12,
+              },
+            ]}
+          >
+            <Text
+              style={{ fontSize: 14, fontWeight: 500, color: colors.black }}
+            >
+              앱 버전
+            </Text>
+            <Text
+              style={{ fontSize: 14, fontWeight: 400, color: colors.black }}
+            >
+              {version}
+            </Text>
+          </View>
+          <View
+            style={[
+              {
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                backgroundColor: colors.grayLight,
+                paddingHorizontal: 20,
+                paddingVertical: 12,
+                borderRadius: 12,
+              },
+            ]}
+          >
+            <Text
+              style={{ fontSize: 14, fontWeight: 500, color: colors.black }}
+            >
+              라이선스
+            </Text>
+            <Text />
+          </View>
         </View>
       </View>
     </TouchableWithoutFeedback>

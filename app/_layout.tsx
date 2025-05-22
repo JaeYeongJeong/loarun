@@ -1,13 +1,27 @@
 import { CharacterProvider } from '@/context/CharacterContext';
 import { AppSettingProvider } from '@/context/AppSettingContext';
-import { Stack } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
+import { useFonts } from 'expo-font';
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Pretendard: require('@/assets/fonts/Pretendard-Regular.ttf'),
+    PretendardBold: require('@/assets/fonts/Pretendard-Bold.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <ThemeProvider>
       <RootLayoutWrapper />

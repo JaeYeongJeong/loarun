@@ -5,6 +5,7 @@ import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { normalize } from '@/utils/nomalize';
+import CustomText from './CustomText';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -64,7 +65,9 @@ function OverviewBar() {
         ]}
       >
         <View style={styles.leftBlock}>
-          <Text style={[styles.label, { color: colors.black }]}>이번 주</Text>
+          <CustomText style={[styles.label, { color: colors.black }]}>
+            이번 주
+          </CustomText>
           <Text style={[styles.label, { color: colors.black }]}>
             나의 로아런
           </Text>
