@@ -11,7 +11,7 @@ export type FontWeight =
   | '800'
   | '900';
 
-export type FontName = 'Pretendard' | 'Suit';
+export type FontName = 'Suit';
 
 export function getFont(weight: FontWeight = '400', font: FontName = 'Suit') {
   if (Platform.OS === 'ios') {

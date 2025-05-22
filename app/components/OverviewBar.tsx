@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   valueText: {
-    marginTop: 1,
-    fontSize: SCREEN_WIDTH / 30,
+    marginTop: normalize(2),
+    fontSize: SCREEN_WIDTH / 28,
     fontWeight: '600',
     textAlign: 'center',
   },
