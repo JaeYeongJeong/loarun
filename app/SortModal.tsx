@@ -5,12 +5,12 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   Modal,
-  Text,
   View,
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
+import CustomText from './components/CustomText';
 
 type SortModalProps = {
   isVisible: boolean;
@@ -66,9 +66,11 @@ const SortModal: React.FC<SortModalProps> = ({
               {/* ✅ 모달 닫고 페이지 이동 */}
               <TouchableOpacity onPress={sortByDateAdded}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     추가 순 (기본)
-                  </Text>
+                  </CustomText>
                   {selectedOption === 'addedAt' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
@@ -76,9 +78,11 @@ const SortModal: React.FC<SortModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByServer}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     서버 순
-                  </Text>
+                  </CustomText>
                   {selectedOption === 'server' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
@@ -86,9 +90,11 @@ const SortModal: React.FC<SortModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={sortByLevel}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     레벨 높은 순
-                  </Text>
+                  </CustomText>
                   {selectedOption === 'level' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Modal,
-  Text,
   View,
   TouchableOpacity,
   Animated,
@@ -17,6 +16,7 @@ import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
+import CustomText from './components/CustomText';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -230,9 +230,11 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                 >
                   {/* 왼쪽 더미 박스 */}
                   <View style={{ width: 24 /* 아이콘 크기와 같게 */ }} />
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     {mode === 'edit' ? '활동 수정' : '활동 추가'}
-                  </Text>
+                  </CustomText>
 
                   {mode === 'edit' ? (
                     <TouchableOpacity onPress={handleDelete}>
@@ -257,7 +259,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                         ]}
                         onPress={() => setActivityName(item)}
                       >
-                        <Text
+                        <CustomText
                           numberOfLines={1}
                           ellipsizeMode="tail"
                           style={[
@@ -266,7 +268,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                           ]}
                         >
                           {item}
-                        </Text>
+                        </CustomText>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -307,14 +309,14 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                       { backgroundColor: colors.grayLight },
                     ]}
                   >
-                    <Text
+                    <CustomText
                       style={[
                         styles.actionButtonText,
                         { color: colors.grayDark },
                       ]}
                     >
                       취소
-                    </Text>
+                    </CustomText>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -324,14 +326,14 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                       { backgroundColor: colors.primary },
                     ]}
                   >
-                    <Text
+                    <CustomText
                       style={[
                         styles.confirmButtonText,
                         { color: colors.white },
                       ]}
                     >
                       확인
-                    </Text>
+                    </CustomText>
                   </TouchableOpacity>
                 </View>
               </Animated.View>

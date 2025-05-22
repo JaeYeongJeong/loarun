@@ -1,11 +1,20 @@
-import { Text, TextProps, StyleSheet } from 'react-native';
+import React from 'react';
+import { Text, TextProps, TextStyle } from 'react-native';
+import { getFont, FontWeight, FontName } from '@/utils/getFont';
 
-export default function CustomText(props: TextProps) {
-  return <Text {...props} style={[styles.text, props.style]} />;
+type CustomTextProps = Omit<TextProps, 'style' | 'fontWeight'> & {
+  fontWeight?: FontWeight;
+  font?: FontName;
+  style?: TextStyle | TextStyle[];
+};
+
+export default function CustomText({
+  fontWeight = '400',
+  font = 'Suit',
+  style,
+  ...props
+}: CustomTextProps) {
+  const fontStyle = getFont(fontWeight, font);
+
+  return <Text {...props} style={[fontStyle, style]} />;
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontFamily: 'Pretendard',
-  },
-});

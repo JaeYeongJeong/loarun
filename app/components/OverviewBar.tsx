@@ -1,6 +1,6 @@
 import SettingModal from '@/app/SettingModal';
 import React, { useRef, useState } from 'react';
-import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
+import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
@@ -68,10 +68,10 @@ function OverviewBar() {
           <CustomText style={[styles.label, { color: colors.black }]}>
             이번 주
           </CustomText>
-          <Text style={[styles.label, { color: colors.black }]}>
+          <CustomText style={[styles.label, { color: colors.black }]}>
             나의 로아런
-          </Text>
-          <Text
+          </CustomText>
+          <CustomText
             style={[
               styles.goldText,
               {
@@ -80,7 +80,7 @@ function OverviewBar() {
             ]}
           >
             {totalGold.toLocaleString()}
-          </Text>
+          </CustomText>
         </View>
       </View>
 
@@ -106,7 +106,7 @@ function OverviewBar() {
           {/* 중앙 정렬 정보 텍스트 */}
           <View style={styles.infoWrapper}>
             <View style={styles.infoItem}>
-              <Text
+              <CustomText
                 style={[
                   styles.titleText,
                   {
@@ -115,8 +115,8 @@ function OverviewBar() {
                 ]}
               >
                 주간 레이드
-              </Text>
-              <Text
+              </CustomText>
+              <CustomText
                 style={[
                   styles.valueText,
                   {
@@ -124,30 +124,28 @@ function OverviewBar() {
                       totalClearedRaidsGold === totalRaidsGold
                         ? colors.primary
                         : colors.black,
-                    fontWeight:
-                      totalClearedRaidsGold === totalRaidsGold ? 'bold' : '600',
                   },
                 ]}
               >
                 {totalClearedRaidsGold.toLocaleString()}{' '}
-                <Text
+                <CustomText
                   style={{
                     color: colors.black + '80',
                     fontWeight: '400',
                   }}
                 >
                   /{totalRaidsGold.toLocaleString()}
-                </Text>
-              </Text>
+                </CustomText>
+              </CustomText>
             </View>
 
             <View style={styles.infoItem}>
-              <Text style={[styles.titleText, { color: colors.black }]}>
+              <CustomText style={[styles.titleText, { color: colors.black }]}>
                 추가 활동
-              </Text>
-              <Text style={[styles.valueText, { color: colors.black }]}>
+              </CustomText>
+              <CustomText style={[styles.valueText, { color: colors.black }]}>
                 {totalWeeklyActivityGold.toLocaleString()}
-              </Text>
+              </CustomText>
             </View>
           </View>
         </View>
@@ -228,7 +226,7 @@ const styles = StyleSheet.create({
   },
   goldText: {
     fontSize: SCREEN_WIDTH / 20,
-    fontWeight: 'bold',
+    fontWeight: '600',
     paddingTop: '10%',
     textAlign: 'right',
   },

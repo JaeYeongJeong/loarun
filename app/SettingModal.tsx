@@ -5,12 +5,12 @@ import React from 'react';
 import {
   StyleSheet,
   Modal,
-  Text,
   View,
   Animated,
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
+import CustomText from './components/CustomText';
 
 type SettingModalProps = {
   isVisible: boolean;
@@ -64,9 +64,11 @@ const SettingModal: React.FC<SettingModalProps> = ({
               {/* ✅ 모달 닫고 페이지 이동 */}
               <TouchableOpacity onPress={handleAddCharacter}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     다른 캐릭터 추가
-                  </Text>
+                  </CustomText>
                   <Feather
                     name="user-plus"
                     size={18}
@@ -76,9 +78,11 @@ const SettingModal: React.FC<SettingModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={handleChangeTheme}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     테마 변경
-                  </Text>
+                  </CustomText>
                   <Feather
                     name={theme === 'light' ? 'moon' : 'sun'}
                     size={20}
@@ -88,9 +92,11 @@ const SettingModal: React.FC<SettingModalProps> = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={handleAppInfo}>
                 <View style={styles.optionContainer}>
-                  <Text style={[styles.modalText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
                     앱 정보
-                  </Text>
+                  </CustomText>
                   <Feather name="info" size={20} color={colors.iconColor} />
                 </View>
               </TouchableOpacity>

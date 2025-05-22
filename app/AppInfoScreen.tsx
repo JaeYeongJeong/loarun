@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   TouchableWithoutFeedback,
   Keyboard,
@@ -12,6 +11,7 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
+import CustomText from './components/CustomText';
 
 const version =
   Constants.expoConfig?.version ?? Constants.manifest?.version ?? 'unknown';
@@ -50,16 +50,16 @@ const AddCharacterScreen: React.FC = () => {
               },
             ]}
           >
-            <Text
+            <CustomText
               style={{ fontSize: 14, fontWeight: 500, color: colors.black }}
             >
               앱 버전
-            </Text>
-            <Text
+            </CustomText>
+            <CustomText
               style={{ fontSize: 14, fontWeight: 400, color: colors.black }}
             >
               {version}
-            </Text>
+            </CustomText>
           </View>
           <View
             style={[
@@ -74,12 +74,12 @@ const AddCharacterScreen: React.FC = () => {
               },
             ]}
           >
-            <Text
+            <CustomText
               style={{ fontSize: 14, fontWeight: 500, color: colors.black }}
             >
               라이선스
-            </Text>
-            <Text />
+            </CustomText>
+            <View />
           </View>
         </View>
       </View>

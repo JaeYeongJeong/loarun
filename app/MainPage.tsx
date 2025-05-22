@@ -5,7 +5,6 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
-  Text,
 } from 'react-native';
 import CharacterBar from './components/CharacterBar';
 import OverviewBar from '@/app/components/OverviewBar';
@@ -16,6 +15,7 @@ import { Entypo } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
+import CustomText from './components/CustomText';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -74,7 +74,7 @@ const MainPage: React.FC = () => {
                     paddingVertical: normalize(4),
                   }}
                 >
-                  <Text
+                  <CustomText
                     style={{
                       fontSize: normalize(12),
                       fontWeight: 600,
@@ -82,7 +82,7 @@ const MainPage: React.FC = () => {
                     }}
                   >
                     정렬하기
-                  </Text>
+                  </CustomText>
                 </View>
               </TouchableOpacity>
             </View>

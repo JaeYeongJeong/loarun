@@ -2,7 +2,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Pressable,
   ScrollView,
@@ -18,6 +17,7 @@ import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
+import CustomText from './components/CustomText';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -226,17 +226,21 @@ const CharacterActivity: React.FC = () => {
         {/* 오른쪽: 캐릭터 정보 */}
         <View style={styles.characterInfoContainer}>
           <View style={styles.nameRow}>
-            <Text style={[styles.characterName, { color: colors.black }]}>
+            <CustomText style={[styles.characterName, { color: colors.black }]}>
               {character.CharacterName}
-            </Text>
+            </CustomText>
           </View>
 
-          <Text style={[styles.characterInfo, { color: colors.grayDark }]}>
+          <CustomText
+            style={[styles.characterInfo, { color: colors.grayDark }]}
+          >
             {character.CharacterClassName} @ {character.ServerName}
-          </Text>
-          <Text style={(styles.characterInfo, { color: colors.grayDark })}>
+          </CustomText>
+          <CustomText
+            style={(styles.characterInfo, { color: colors.grayDark })}
+          >
             Lv. {character.ItemAvgLevel}
-          </Text>
+          </CustomText>
 
           <View style={styles.refreshButtonWrapper}>
             <TouchableOpacity
@@ -248,7 +252,7 @@ const CharacterActivity: React.FC = () => {
               onPress={handleRefreshCharacter}
               disabled={isRefreshing}
             >
-              <Text
+              <CustomText
                 style={[
                   styles.refreshButtonText,
                   { color: colors.black },
@@ -256,7 +260,7 @@ const CharacterActivity: React.FC = () => {
                 ]}
               >
                 {refreshText}
-              </Text>
+              </CustomText>
             </TouchableOpacity>
           </View>
         </View>
@@ -284,14 +288,18 @@ const CharacterActivity: React.FC = () => {
                   size={24}
                   color={colors.black}
                 />
-                <Text style={[styles.sectionTitle, { color: colors.black }]}>
+                <CustomText
+                  style={[styles.sectionTitle, { color: colors.black }]}
+                >
                   주간 레이드
-                </Text>
+                </CustomText>
               </View>
-              <Text style={[styles.totalGoldText, { color: colors.black }]}>
+              <CustomText
+                style={[styles.totalGoldText, { color: colors.black }]}
+              >
                 {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
                 {character.SelectedRaidTotalGold?.toLocaleString() || 0}
-              </Text>
+              </CustomText>
             </View>
           </TouchableOpacity>
           {!weeklyRaidFolded && (
@@ -300,11 +308,11 @@ const CharacterActivity: React.FC = () => {
               {character.SelectedRaids?.map((raid, index) => (
                 <View key={index} style={{ marginBottom: 4 }}>
                   <View style={styles.raidTitleRow}>
-                    <Text
+                    <CustomText
                       style={[styles.raidTitleText, { color: colors.black }]}
                     >
                       {raid.name || `레이드 ${index + 1}`}
-                    </Text>
+                    </CustomText>
                     <TouchableOpacity
                       style={[
                         styles.editButton,
@@ -315,11 +323,11 @@ const CharacterActivity: React.FC = () => {
                         setRaidIndex(index);
                       }}
                     >
-                      <Text
+                      <CustomText
                         style={[styles.editButtonText, { color: colors.black }]}
                       >
                         수정
-                      </Text>
+                      </CustomText>
                     </TouchableOpacity>
                   </View>
                   <View
@@ -352,7 +360,7 @@ const CharacterActivity: React.FC = () => {
                           ]}
                           onPress={() => handleSelectStage(index, stageIndex)}
                         >
-                          <Text
+                          <CustomText
                             style={[
                               styles.difficultyText,
                               stage.cleared
@@ -367,8 +375,8 @@ const CharacterActivity: React.FC = () => {
                             ]}
                           >
                             {stage.difficulty}
-                          </Text>
-                          <Text
+                          </CustomText>
+                          <CustomText
                             style={[
                               styles.raidButtonText,
                               { color: colors.black },
@@ -376,27 +384,27 @@ const CharacterActivity: React.FC = () => {
                             ]}
                           >
                             {stage.stage} 관문
-                          </Text>
+                          </CustomText>
                         </Pressable>
                       ))
                     ) : (
                       <Pressable style={styles.raidButton}>
-                        <Text
+                        <CustomText
                           style={[
                             styles.raidButtonText,
                             { color: colors.black },
                           ]}
                         >
                           레이드
-                        </Text>
-                        <Text
+                        </CustomText>
+                        <CustomText
                           style={[
                             styles.raidButtonText,
                             { color: colors.black },
                           ]}
                         >
                           ({index + 1})
-                        </Text>
+                        </CustomText>
                       </Pressable>
                     )}
                   </View>
@@ -413,11 +421,11 @@ const CharacterActivity: React.FC = () => {
                     setRaidIndex(-1);
                   }}
                 >
-                  <Text
+                  <CustomText
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
                     레이드 추가
-                  </Text>
+                  </CustomText>
                 </TouchableOpacity>
               </View>
             </View>
@@ -442,11 +450,13 @@ const CharacterActivity: React.FC = () => {
                   size={24}
                   color={colors.black}
                 />
-                <Text style={[styles.sectionTitle, { color: colors.black }]}>
+                <CustomText
+                  style={[styles.sectionTitle, { color: colors.black }]}
+                >
                   추가 수입
-                </Text>
+                </CustomText>
               </View>
-              <Text
+              <CustomText
                 style={[
                   styles.totalGoldText,
                   (character.WeeklyActivityTotalGold || 0) >= 0
@@ -455,7 +465,7 @@ const CharacterActivity: React.FC = () => {
                 ]}
               >
                 {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
-              </Text>
+              </CustomText>
             </View>
           </TouchableOpacity>
           {!weeklyActivityFolded && (
@@ -468,9 +478,11 @@ const CharacterActivity: React.FC = () => {
                   ]}
                   onPress={toggleActivityModal}
                 >
-                  <Text style={[styles.addButtonText, { color: 'white' }]}>
+                  <CustomText
+                    style={[styles.addButtonText, { color: 'white' }]}
+                  >
                     ＋ 추가
-                  </Text>
+                  </CustomText>
                 </TouchableOpacity>
               </View>
               {Array.isArray(character.WeeklyActivity) &&
@@ -487,15 +499,15 @@ const CharacterActivity: React.FC = () => {
                     }}
                   >
                     <View style={styles.activityItemRow}>
-                      <Text
+                      <CustomText
                         style={[
                           styles.activityNameText,
                           { color: colors.black },
                         ]}
                       >
                         {activity.name}
-                      </Text>
-                      <Text
+                      </CustomText>
+                      <CustomText
                         style={[
                           styles.activityGoldText,
                           activity.gold >= 0
@@ -504,7 +516,7 @@ const CharacterActivity: React.FC = () => {
                         ]}
                       >
                         {activity.gold.toLocaleString()}
-                      </Text>
+                      </CustomText>
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -647,7 +659,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   totalGoldText: {
@@ -666,7 +678,7 @@ const styles = StyleSheet.create({
 
   raidTitleText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
 
   raidRow: {
@@ -697,7 +709,7 @@ const styles = StyleSheet.create({
 
   difficultyText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   raidButtonText: {
     fontSize: 10,

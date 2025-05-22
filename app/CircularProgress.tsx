@@ -1,7 +1,8 @@
 import { useTheme } from '@/context/ThemeContext';
 import React from 'react';
 import { Svg, Circle } from 'react-native-svg';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import CustomText from './components/CustomText';
 
 type CircularProgressProps = {
   processed?: number;
@@ -49,15 +50,19 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       {/* 커스텀 분수 텍스트 */}
       <View style={styles.fractionWrapper}>
         <View style={[styles.fractionItem, styles.numerator]}>
-          <Text style={[styles.text, { color: colors.black }]}>
+          <CustomText style={[styles.text, { color: colors.black }]}>
             {processed}
-          </Text>
+          </CustomText>
         </View>
         <View style={[styles.fractionItem, styles.slash]}>
-          <Text style={[styles.text, { color: colors.black }]}>/</Text>
+          <CustomText style={[styles.text, { color: colors.black }]}>
+            /
+          </CustomText>
         </View>
         <View style={[styles.fractionItem, styles.denominator]}>
-          <Text style={[styles.text, { color: colors.black }]}>{total}</Text>
+          <CustomText style={[styles.text, { color: colors.black }]}>
+            {total}
+          </CustomText>
         </View>
       </View>
     </View>

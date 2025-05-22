@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Modal,
-  Text,
   View,
   Animated,
   TouchableOpacity,
@@ -18,6 +17,7 @@ import { getAvailableRaidsByItemLevel, RaidData } from '@/utils/raidData';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { validateNumberInput } from '@/utils/validateInput';
+import CustomText from './components/CustomText';
 
 type SelectedStage = {
   raidName: string;
@@ -337,13 +337,15 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     { backgroundColor: colors.cardBackground },
                   ]}
                 >
-                  <Text style={[styles.raidName, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.raidName, { color: colors.black }]}
+                  >
                     {raid.name}
-                  </Text>
+                  </CustomText>
                   {raid.difficulties.map((difficultyObj, stageIdx) => (
                     <View key={stageIdx} style={styles.difficultyBlock}>
                       <View style={styles.difficultyHeader}>
-                        <Text
+                        <CustomText
                           style={[
                             styles.difficultyText,
                             { color: colors.black },
@@ -356,15 +358,15 @@ const RaidModal: React.FC<RaidModalProps> = ({
                           ]}
                         >
                           {difficultyObj.difficulty}
-                        </Text>
-                        <Text
+                        </CustomText>
+                        <CustomText
                           style={[
                             styles.totalGoldText,
                             { color: colors.grayDark },
                           ]}
                         >
                           {difficultyObj.totalGold}
-                        </Text>
+                        </CustomText>
                       </View>
 
                       <View
@@ -392,32 +394,38 @@ const RaidModal: React.FC<RaidModalProps> = ({
                               );
                             }}
                           >
-                            <Text
+                            <CustomText
                               style={[
                                 styles.stageLabelText,
-                                { color: colors.grayDark },
-                                isSelected(
-                                  raid.name,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                ) && { color: colors.white },
+                                {
+                                  color: isSelected(
+                                    raid.name,
+                                    difficultyObj.difficulty,
+                                    stage.stage
+                                  )
+                                    ? colors.white
+                                    : colors.grayDark,
+                                },
                               ]}
                             >
                               {stage.stage}관문
-                            </Text>
-                            <Text
+                            </CustomText>
+                            <CustomText
                               style={[
                                 styles.stageGold,
-                                { color: colors.grayDark },
-                                isSelected(
-                                  raid.name,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                ) && { color: colors.white },
+                                {
+                                  color: isSelected(
+                                    raid.name,
+                                    difficultyObj.difficulty,
+                                    stage.stage
+                                  )
+                                    ? colors.white
+                                    : colors.grayDark,
+                                },
                               ]}
                             >
                               {stage.gold}
-                            </Text>
+                            </CustomText>
                           </TouchableOpacity>
                         ))}
                       </View>
@@ -441,7 +449,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               {/* 체크박스 라인 1 */}
               <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
                 <View style={styles.checkBlock}>
-                  <Text
+                  <CustomText
                     style={[
                       styles.checkBlockText,
                       {
@@ -450,7 +458,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     ]}
                   >
                     클리어 골드 획득
-                  </Text>
+                  </CustomText>
                   <MaterialIcons
                     name={goldChecked ? 'check-box' : 'check-box-outline-blank'}
                     size={24}
@@ -474,7 +482,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 }}
               >
                 <View style={styles.checkBlock}>
-                  <Text
+                  <CustomText
                     style={[
                       styles.checkBlockText,
                       {
@@ -483,7 +491,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     ]}
                   >
                     더보기 체크
-                  </Text>
+                  </CustomText>
                   <MaterialIcons
                     name={
                       chestCostChecked ? 'check-box' : 'check-box-outline-blank'
@@ -528,24 +536,30 @@ const RaidModal: React.FC<RaidModalProps> = ({
                         )
                       }
                     >
-                      <Text
+                      <CustomText
                         style={[
                           styles.stageLabelText,
-                          { color: colors.grayDark },
-                          stage.selectedChestCost && { color: colors.white },
+                          {
+                            color: stage.selectedChestCost
+                              ? colors.white
+                              : colors.grayDark,
+                          },
                         ]}
                       >
                         {stage.stage}관문
-                      </Text>
-                      <Text
+                      </CustomText>
+                      <CustomText
                         style={[
                           styles.stageGold,
-                          { color: colors.grayDark },
-                          stage.selectedChestCost && { color: colors.white },
+                          {
+                            color: stage.selectedChestCost
+                              ? colors.white
+                              : colors.grayDark,
+                          },
                         ]}
                       >
                         {`-${stage.chestCost}`}
-                      </Text>
+                      </CustomText>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -555,7 +569,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}
               >
                 <View style={styles.checkBlock}>
-                  <Text
+                  <CustomText
                     style={[
                       styles.checkBlockText,
                       {
@@ -564,7 +578,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     ]}
                   >
                     버스 및 추가 골드 획득
-                  </Text>
+                  </CustomText>
                   <MaterialIcons
                     name={
                       additionalGoldChecked
@@ -601,7 +615,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               )}
               {index < 0 || (
                 <View style={styles.checkBlock}>
-                  <Text
+                  <CustomText
                     style={[
                       styles.checkBlockText,
                       {
@@ -610,7 +624,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     ]}
                   >
                     삭제
-                  </Text>
+                  </CustomText>
                   <TouchableOpacity onPress={handleDelete}>
                     <Feather name="trash-2" size={24} color={colors.grayDark} />
                   </TouchableOpacity>
@@ -625,14 +639,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     { backgroundColor: colors.cardBackground },
                   ]}
                 >
-                  <Text
+                  <CustomText
                     style={[
                       styles.cancelButtonText,
                       { color: colors.grayDark },
                     ]}
                   >
                     닫기
-                  </Text>
+                  </CustomText>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -642,11 +656,11 @@ const RaidModal: React.FC<RaidModalProps> = ({
                     { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Text
+                  <CustomText
                     style={[styles.confirmButtonText, { color: colors.white }]}
                   >
                     확인
-                  </Text>
+                  </CustomText>
                 </TouchableOpacity>
               </View>
             </View>

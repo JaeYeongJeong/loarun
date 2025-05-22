@@ -6,13 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
-import { useFonts } from 'expo-font';
+import { useLoadFonts } from '@/hooks/useLoadFonts';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    Pretendard: require('@/assets/fonts/Pretendard-Regular.ttf'),
-    PretendardBold: require('@/assets/fonts/Pretendard-Bold.ttf'),
-  });
+  const fontsLoaded = useLoadFonts();
 
   useEffect(() => {
     if (fontsLoaded) {

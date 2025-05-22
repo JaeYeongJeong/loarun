@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  Text,
   TextInput,
   View,
   Pressable,
@@ -16,6 +15,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import CustomText from './components/CustomText';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -104,9 +104,9 @@ const AddCharacterScreen: React.FC = () => {
 
         <View style={styles.contentWrapper}>
           {/* 왼쪽 정렬된 타이틀 */}
-          <Text style={[styles.title, { color: colors.black }]}>
+          <CustomText style={[styles.title, { color: colors.black }]}>
             캐릭터 추가
-          </Text>
+          </CustomText>
 
           {/* 입력 필드 */}
           <TextInput
@@ -133,9 +133,9 @@ const AddCharacterScreen: React.FC = () => {
             {isLoading ? (
               <Feather name="more-horizontal" size={16} color={colors.white} />
             ) : (
-              <Text style={[styles.buttonText, { color: colors.white }]}>
+              <CustomText style={[styles.buttonText, { color: colors.white }]}>
                 검색
-              </Text>
+              </CustomText>
             )}
           </Pressable>
 
@@ -150,16 +150,22 @@ const AddCharacterScreen: React.FC = () => {
               <View style={styles.infoRow}>
                 {/* 왼쪽: 캐릭터 정보 */}
                 <View style={styles.infoTexts}>
-                  <Text style={[styles.nameText, { color: colors.black }]}>
+                  <CustomText
+                    style={[styles.nameText, { color: colors.black }]}
+                  >
                     {characterInfo.CharacterName}
-                  </Text>
-                  <Text style={[styles.infoText, { color: colors.grayDark }]}>
+                  </CustomText>
+                  <CustomText
+                    style={[styles.infoText, { color: colors.grayDark }]}
+                  >
                     {characterInfo.ItemAvgLevel}
-                  </Text>
-                  <Text style={[styles.infoText, { color: colors.grayDark }]}>
+                  </CustomText>
+                  <CustomText
+                    style={[styles.infoText, { color: colors.grayDark }]}
+                  >
                     {characterInfo.CharacterClassName} @{' '}
                     {characterInfo.ServerName}
-                  </Text>
+                  </CustomText>
                 </View>
 
                 {/* 오른쪽: 체크 아이콘 버튼 */}

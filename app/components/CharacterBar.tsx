@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   Image,
   Dimensions,
@@ -13,6 +12,7 @@ import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/context/ThemeContext';
 import { normalize } from '@/utils/nomalize';
 import { Feather } from '@expo/vector-icons';
+import CustomText from './CustomText';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
@@ -99,9 +99,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
               alignItems: 'center',
             }}
           >
-            <Text style={[styles.nameText, { color: colors.black }]}>
+            <CustomText style={[styles.nameText, { color: colors.black }]}>
               {character.CharacterName}
-            </Text>
+            </CustomText>
             {character.bookmarked && (
               <Feather
                 name="bookmark"
@@ -110,18 +110,18 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
               />
             )}
           </View>
-          <Text style={[styles.infoText, { color: colors.grayDark }]}>
+          <CustomText style={[styles.infoText, { color: colors.grayDark }]}>
             {character.CharacterClassName} @ {character.ServerName}
-          </Text>
-          <Text style={[styles.levelText, { color: colors.grayDark }]}>
+          </CustomText>
+          <CustomText style={[styles.levelText, { color: colors.grayDark }]}>
             Lv. {character.ItemAvgLevel}
-          </Text>
+          </CustomText>
         </View>
       </View>
 
       {/* 오른쪽: 총 골드 + 클리어 정보 */}
       <View style={styles.rightContainer}>
-        <Text
+        <CustomText
           style={[
             styles.goldText,
             totalGold >= 0
@@ -130,11 +130,11 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           ]}
         >
           {totalGold.toLocaleString()}
-        </Text>
-        <Text style={[styles.countText, { color: colors.grayDark }]}>
+        </CustomText>
+        <CustomText style={[styles.countText, { color: colors.grayDark }]}>
           주간 {totalCount > 0 ? clearedCount : '-'} /{' '}
           {totalCount > 0 ? totalCount : '-'}
-        </Text>
+        </CustomText>
       </View>
     </TouchableOpacity>
   );
