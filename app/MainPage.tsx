@@ -48,59 +48,51 @@ const MainPage: React.FC = () => {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top }, // ✅ 상단 여백 추가
-        { backgroundColor: colors.background }, // ✅ 배경색 설정
+        {
+          backgroundColor: colors.background,
+          paddingTop: insets.top,
+        },
       ]}
     >
+      {/* ✅ 고정된 상단 영역 */}
+      <View style={styles.overviewContainer}>
+        <OverviewBar />
+        <View style={styles.sortButtonWrapper}>
+          <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
+            <View style={styles.sortButton}>
+              <CustomText
+                style={[styles.sortButtonText, { color: colors.grayDark }]}
+              >
+                정렬하기
+              </CustomText>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* ✅ FlatList는 스크롤 영역 */}
       <FlatList
+        style={{ flex: 1 }}
         data={characters}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CharacterBar id={item.id} />}
-        // ✅ `OverviewBar`를 FlatList 최상단에 추가 (높이 고정)
-        ListHeaderComponent={
-          <View style={styles.overviewContainer}>
-            <OverviewBar />
-            <View
-              style={{
-                marginBottom: normalize(6),
-                paddingHorizontal: normalize(12),
-                alignItems: 'flex-start',
-              }}
-            >
-              <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
-                <View
-                  style={{
-                    paddingHorizontal: normalize(10),
-                    paddingVertical: normalize(4),
-                  }}
-                >
-                  <CustomText
-                    style={{
-                      fontSize: normalize(12),
-                      fontWeight: 600,
-                      color: colors.grayDark,
-                    }}
-                  >
-                    정렬하기
-                  </CustomText>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        }
         ListFooterComponent={
           <TouchableOpacity onPress={() => router.push('/AddCharacterScreen')}>
             <View
-              style={[
-                styles.addContainer,
-                { borderColor: colors.grayLight }, // ✅ 테두리 색상 설정
-              ]}
+              style={[styles.addContainer, { borderColor: colors.grayLight }]}
             >
               <Entypo name="plus" size={24} color={colors.secondary} />
             </View>
           </TouchableOpacity>
         }
+        contentContainerStyle={{
+          paddingTop: normalize(8),
+          paddingBottom: normalize(12),
+        }}
+        showsVerticalScrollIndicator={false}
       />
+
+      {/* ✅ 정렬 모달 */}
       <SortModal
         isVisible={SortModalVisible}
         toggleModal={toggleSortModal}
@@ -116,7 +108,18 @@ const styles = StyleSheet.create({
     flex: 1, // ✅ 화면 전체 차지
   },
   overviewContainer: {
-    flex: 1,
+    zIndex: 1,
+  },
+  sortButtonWrapper: {
+    alignItems: 'flex-start',
+  },
+  sortButton: {
+    paddingHorizontal: normalize(20),
+    paddingVertical: normalize(4),
+  },
+  sortButtonText: {
+    fontSize: normalize(12),
+    fontWeight: '600',
   },
   addContainer: {
     height: CHARACTER_BAR_HEIGHT,
