@@ -682,6 +682,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    overflow: 'hidden',
   },
   raidBlock: {
     marginHorizontal: 16,
