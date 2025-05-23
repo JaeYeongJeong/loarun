@@ -94,7 +94,7 @@ const CharacterActivity: React.FC = () => {
         const stageSum = raid.stages.reduce((sum, stage) => {
           return stage.cleared
             ? sum +
-                stage.gold -
+                (raid.goldChecked ? stage.gold : 0) -
                 (stage.selectedChestCost ? stage.chestCost || 0 : 0)
             : sum;
         }, 0);

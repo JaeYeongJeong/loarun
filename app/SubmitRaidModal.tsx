@@ -230,7 +230,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
           difficulty: s.difficulty,
           stage: s.stage,
           gold: s.gold,
-          chestCost: s.chestCost,
+          chestCost: s.chestCost || 0,
           selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
