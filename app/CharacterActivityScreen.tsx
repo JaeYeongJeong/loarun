@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -31,24 +31,28 @@ const CharacterActivity: React.FC = () => {
   const { characters, updateCharacter, removeCharacter, refreshCharacter } =
     useCharacter();
   const character = characters.find((c) => c.id === id);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState<boolean>(false);
 
   // 📌 모달 상태 및 관련 인덱스
-  const [activityModalVisible, setActivityModalVisible] = useState(false);
+  const [activityModalVisible, setActivityModalVisible] =
+    useState<boolean>(false);
   const [activityIndex, setActivityIndex] = useState<number | null>(null);
   const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
 
-  const [raidModalVisible, setRaidModalVisible] = useState(false);
+  const [raidModalVisible, setRaidModalVisible] = useState<boolean>(false);
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
 
   // 📌 새로고침 상태
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshable, setRefreshable] = useState<boolean>(true);
   const [refreshText, setRefreshText] = useState('갱신하기');
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 📌 접힘 상태
-  const [weeklyRaidFolded, setWeeklyRaidFolded] = useState(false);
-  const [weeklyActivityFolded, setWeeklyActivityFolded] = useState(false);
+  const [weeklyRaidFolded, setWeeklyRaidFolded] = useState<boolean>(false);
+  const [weeklyActivityFolded, setWeeklyActivityFolded] =
+    useState<boolean>(false);
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
@@ -56,7 +60,32 @@ const CharacterActivity: React.FC = () => {
     setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
     setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
     setBookmarked(character.bookmarked ?? false);
-  });
+
+    const now = Date.now();
+    const lastUpdated = new Date(character.lastUpdated ?? 0).getTime();
+    const diff = now - lastUpdated;
+
+    if (diff < 60000) {
+      setRefreshText('갱신완료');
+      setRefreshable(false);
+
+      const remaining = 60000 - diff;
+      timeoutRef.current = setTimeout(() => {
+        setRefreshText('갱신하기');
+        setRefreshable(true);
+        timeoutRef.current = null;
+      }, remaining);
+    } else {
+      setRefreshText('갱신하기');
+      setRefreshable(true);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const updatedRaids = [...(character.SelectedRaids || [])];
@@ -133,27 +162,34 @@ const CharacterActivity: React.FC = () => {
   };
 
   const handleRefreshCharacter = async () => {
-    if (isRefreshing) return; // 이미 갱신 중이면 무시
+    if (!refreshable) return;
 
     setIsRefreshing(true);
-    const data = await fetchCharacterInfo(character.CharacterName);
-    if (data) {
-      refreshCharacter(character.id, {
-        CharacterImage: data.CharacterImage,
-        CharacterClassName: data.CharacterClassName,
-        ItemAvgLevel: data.ItemAvgLevel,
-        ServerName: data.ServerName,
-      });
-      setRefreshText('갱신완료');
-    } else {
-      Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
-    }
+    try {
+      const data = await fetchCharacterInfo(character.CharacterName);
+      if (data) {
+        refreshCharacter(character.id, {
+          CharacterImage: data.CharacterImage,
+          CharacterClassName: data.CharacterClassName,
+          ItemAvgLevel: data.ItemAvgLevel,
+          ServerName: data.ServerName,
+        });
+        setRefreshText('갱신완료');
+        setRefreshable(false);
 
-    // 10초 후 다시 활성화
-    setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
+          setRefreshText('갱신하기');
+          setRefreshable(true);
+          timeoutRef.current = null;
+        }, 60000);
+      } else {
+        Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+      }
+    } catch (err) {
+      Alert.alert('오류', '데이터를 불러오는 데 실패했습니다.');
+    } finally {
       setIsRefreshing(false);
-      setRefreshText('갱신하기');
-    }, 10000);
+    }
   };
 
   const Spacer = ({ height = 12 }: { height?: number }) => (
@@ -247,17 +283,12 @@ const CharacterActivity: React.FC = () => {
               style={[
                 styles.refreshButton,
                 { backgroundColor: colors.grayLight },
-                isRefreshing ? { backgroundColor: colors.grayLight } : {},
               ]}
               onPress={handleRefreshCharacter}
-              disabled={isRefreshing}
+              disabled={!refreshable}
             >
               <CustomText
-                style={[
-                  styles.refreshButtonText,
-                  { color: colors.black },
-                  isRefreshing ? { color: colors.black } : {},
-                ]}
+                style={[styles.refreshButtonText, { color: colors.black }]}
               >
                 {refreshText}
               </CustomText>
