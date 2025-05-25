@@ -191,7 +191,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }
     const newSelectedRaids = [...(character.SelectedRaids || [])];
 
-    if (index >= 0 && selectedStages.length === 0) {
+    if (selectedStages.length <= 0) {
       // 선택이 없는 경우 빈 배열로 초기화
       newSelectedRaids[index] = {
         name: '', // 이름도 초기화할지 유지할지 선택 가능
@@ -606,7 +606,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   keyboardType={
                     Platform.OS === 'ios'
                       ? 'numbers-and-punctuation'
-                      : 'numeric'
+                      : 'default'
                   }
                   placeholderTextColor={colors.grayDark}
                   value={additinalGold}

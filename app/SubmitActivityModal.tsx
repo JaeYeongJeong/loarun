@@ -294,7 +294,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   keyboardType={
                     Platform.OS === 'ios'
                       ? 'numbers-and-punctuation'
-                      : 'numeric'
+                      : 'default'
                   }
                   placeholderTextColor={colors.grayDark}
                   value={activityGold}
