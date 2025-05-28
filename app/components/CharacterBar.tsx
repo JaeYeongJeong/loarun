@@ -100,7 +100,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             }}
           >
             <CustomText style={[styles.nameText, { color: colors.black }]}>
-              {character.CharacterName}
+              {character.isInfoVisible ?? true
+                ? character.CharacterName
+                : '익명'}
             </CustomText>
             {character.bookmarked && (
               <Feather
@@ -111,10 +113,14 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             )}
           </View>
           <CustomText style={[styles.infoText, { color: colors.grayDark }]}>
-            {character.CharacterClassName} @ {character.ServerName}
+            {character.isInfoVisible ?? true
+              ? character.CharacterClassName
+              : '직업'}{' '}
+            @ {character.isInfoVisible ?? true ? character.ServerName : '서버'}
           </CustomText>
           <CustomText style={[styles.levelText, { color: colors.grayDark }]}>
-            Lv. {character.ItemAvgLevel}
+            Lv.
+            {character.isInfoVisible ?? true ? character.ItemAvgLevel : '-'}
           </CustomText>
         </View>
       </View>

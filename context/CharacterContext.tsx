@@ -54,6 +54,7 @@ type Character = {
   weeklyRaidFolded?: boolean;
   weeklyActivityFolded?: boolean;
   bookmarked?: boolean;
+  isInfoVisible?: boolean; // ✅ 캐릭터 정보 숨김 여부
 };
 
 export type SortOrder = 'addedAt' | 'level' | 'server';
@@ -74,6 +75,7 @@ type CharacterContextType = {
   sortCharacter: (order: SortOrder) => Promise<void>;
   resetCharacterTask: () => Promise<void>;
   isLoaded: boolean;
+  toggleInfoVisibility: () => Promise<void>;
 };
 
 // ✅ Context 생성
@@ -231,7 +233,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const resetCharacterTask = async () => {
     if (characters.length === 0) {
-      console.warn('No characters to reset');
+      console.log('No characters to reset');
       return;
     } else {
       console.log('캐릭터 숙제 삭제');
@@ -258,6 +260,14 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
+  const toggleInfoVisibility = async () => {
+    const updated = characters.map((c) => ({
+      ...c,
+      isInfoVisible: !(c.isInfoVisible ?? true), // 현재 상태를 반전
+    }));
+    await saveCharacters(updated);
+  };
+
   return (
     <CharacterContext.Provider
       value={{
@@ -269,6 +279,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         sortCharacter,
         resetCharacterTask,
         isLoaded,
+        toggleInfoVisibility,
       }}
     >
       {children}

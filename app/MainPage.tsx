@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
 import CustomText from './components/CustomText';
+import OptionsModal from './optionsModal';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -23,7 +24,8 @@ const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
 
 const MainPage: React.FC = () => {
-  const [SortModalVisible, setSortModalVisible] = React.useState(false);
+  const [sortModalVisible, setSortModalVisible] = React.useState(false);
+  const [optionModalVisible, setOptionModalVisible] = React.useState(false);
   const { colors } = useTheme();
   const { characters } = useCharacter();
   const insets = useSafeAreaInsets();
@@ -31,6 +33,9 @@ const MainPage: React.FC = () => {
   const sortButtonRef = useRef<View>(null);
   const [sortButtonX, setSortButtonX] = useState(0);
   const [sortButtonY, setSortButtonY] = useState(0);
+  const optionsButtonRef = useRef<View>(null);
+  const [optionsButtonX, setOptionsButtonX] = useState(0);
+  const [optionsButtonY, setOptionsButtonY] = useState(0);
 
   const toggleSortModal = () => {
     if (sortButtonRef.current) {
@@ -41,6 +46,18 @@ const MainPage: React.FC = () => {
       });
     } else {
       setSortModalVisible((prev) => !prev);
+    }
+  };
+
+  const toggleOptionsModal = () => {
+    if (optionsButtonRef.current) {
+      optionsButtonRef.current.measureInWindow((x, y, width, height) => {
+        setOptionsButtonX(x);
+        setOptionsButtonY(y + height); // 버튼 아래쪽 위치
+        setOptionModalVisible((prev) => !prev);
+      });
+    } else {
+      setOptionModalVisible((prev) => !prev);
     }
   };
 
@@ -64,6 +81,15 @@ const MainPage: React.FC = () => {
                 style={[styles.sortButtonText, { color: colors.grayDark }]}
               >
                 정렬하기
+              </CustomText>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity ref={optionsButtonRef} onPress={toggleOptionsModal}>
+            <View style={styles.sortButton}>
+              <CustomText
+                style={[styles.sortButtonText, { color: colors.grayDark }]}
+              >
+                옵션
               </CustomText>
             </View>
           </TouchableOpacity>
@@ -94,10 +120,18 @@ const MainPage: React.FC = () => {
 
       {/* ✅ 정렬 모달 */}
       <SortModal
-        isVisible={SortModalVisible}
+        isVisible={sortModalVisible}
         toggleModal={toggleSortModal}
         positionX={sortButtonX}
         positionY={sortButtonY}
+      />
+
+      {/* ✅ 옵션 모달 */}
+      <OptionsModal
+        isVisible={optionModalVisible}
+        toggleModal={toggleOptionsModal}
+        positionX={optionsButtonX}
+        positionY={optionsButtonY}
       />
     </View>
   );
@@ -111,7 +145,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   sortButtonWrapper: {
-    alignItems: 'flex-start',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'center',
   },
   sortButton: {
     paddingHorizontal: normalize(20),

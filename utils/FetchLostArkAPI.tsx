@@ -18,13 +18,13 @@ const fetchCharacterInfo = async (characterName: string) => {
     if (!response.ok) {
       throw new Error(`HTTP Error! Status: ${response.status}`);
     }
+    console.log(response.headers);
 
     const data = await response.json();
 
     const newData = {
       ...data,
     };
-    console.log(newData);
     return newData;
   } catch (error) {
     console.error('API 요청 실패:', error);

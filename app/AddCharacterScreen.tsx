@@ -70,7 +70,6 @@ const AddCharacterScreen: React.FC = () => {
 
     try {
       const data = await fetchCharacterInfo(characterName);
-      console.log('API 응답:', data);
       if (data && data.CharacterName) {
         setCharacterInfo(data);
       } else {
@@ -127,7 +126,9 @@ const AddCharacterScreen: React.FC = () => {
               styles.button,
               { backgroundColor: isLoading ? colors.grayDark : colors.primary },
             ]}
-            onPress={handlerSearchCharacter}
+            onPress={() => {
+              handlerSearchCharacter();
+            }}
             disabled={isLoading} // 로딩 중 비활성화
           >
             {isLoading ? (
