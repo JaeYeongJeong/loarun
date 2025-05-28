@@ -11,13 +11,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CustomText from './components/CustomText';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 type OptionsModalProps = {
   isVisible: boolean;
   toggleModal: () => void;
   positionX: number;
   positionY: number;
+  isBookmarkedFilterOn: boolean;
   toggleBookmarkFilter: () => void;
+  toggleInfoVisibility: () => void;
 };
 
 const OptionsModal: React.FC<OptionsModalProps> = ({
@@ -25,16 +28,17 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
   toggleModal,
   positionX,
   positionY,
+  isBookmarkedFilterOn,
   toggleBookmarkFilter,
+  toggleInfoVisibility,
 }) => {
   const { colors } = useTheme();
-  const { toggleInfoVisibility } = useCharacter();
-
+  const { isInfoVisible } = useAppSetting();
   const handleCloseModal = () => {
     toggleModal();
   };
 
-  const handleHideCharacterInfo = () => {
+  const handleToggleInfoVisiblility = () => {
     toggleInfoVisibility();
     toggleModal();
   };
@@ -59,13 +63,16 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
                 },
               ]}
             >
-              <TouchableOpacity onPress={handleHideCharacterInfo}>
+              <TouchableOpacity onPress={handleToggleInfoVisiblility}>
                 <View style={styles.optionContainer}>
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
                     캐릭터 정보 비공개
                   </CustomText>
+                  {!isInfoVisible && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
                 </View>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleToggleBookmarkFilter}>
@@ -75,6 +82,9 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
                   >
                     즐겨찾기 목록
                   </CustomText>
+                  {isBookmarkedFilterOn && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
                 </View>
               </TouchableOpacity>
             </Animated.View>

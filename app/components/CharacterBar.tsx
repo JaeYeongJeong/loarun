@@ -13,6 +13,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { normalize } from '@/utils/nomalize';
 import { Feather } from '@expo/vector-icons';
 import CustomText from './CustomText';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
@@ -27,6 +28,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   const character = characters.find((c) => c.id === id);
   const [portraitUri, setPortraitUri] = useState<string | null>(null);
   const { colors } = useTheme(); // 테마 색상 가져오기
+  const { isInfoVisible } = useAppSetting();
 
   if (!character) return; // 캐릭터가 없으면 아무것도 하지 않음
 
@@ -100,9 +102,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             }}
           >
             <CustomText style={[styles.nameText, { color: colors.black }]}>
-              {character.isInfoVisible ?? true
-                ? character.CharacterName
-                : '익명'}
+              {isInfoVisible ?? true ? character.CharacterName : '익명'}
             </CustomText>
             {character.isBookmarked && (
               <Feather
@@ -113,14 +113,12 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             )}
           </View>
           <CustomText style={[styles.infoText, { color: colors.grayDark }]}>
-            {character.isInfoVisible ?? true
-              ? character.CharacterClassName
-              : '직업'}{' '}
-            @ {character.isInfoVisible ?? true ? character.ServerName : '서버'}
+            {isInfoVisible ?? true ? character.CharacterClassName : '직업'} @{' '}
+            {isInfoVisible ?? true ? character.ServerName : '서버'}
           </CustomText>
           <CustomText style={[styles.levelText, { color: colors.grayDark }]}>
             Lv.
-            {character.isInfoVisible ?? true ? character.ItemAvgLevel : '-'}
+            {isInfoVisible ?? true ? character.ItemAvgLevel : '-'}
           </CustomText>
         </View>
       </View>

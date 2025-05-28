@@ -1,10 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  use,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCharacter } from './CharacterContext';
 
 type AppSettingContextType = {
   activityHistory: string[];
   updateActivityHistory: (history: string[]) => void;
+  isInfoVisible: boolean;
+  toggleInfoVisibility: () => void;
 };
 
 const AppSettingContext = createContext<AppSettingContextType | undefined>(
@@ -15,14 +23,26 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [activityHistory, setActivityHistory] = useState<string[]>([]);
+  const [isInfoVisible, setIsInfoVisible] = useState<boolean>(true);
   const { resetCharacterTask, isLoaded } = useCharacter();
 
   useEffect(() => {
-    if (!isLoaded) return; // 캐릭터 로딩 전이면 아무것도 하지 않음
-
-    shouldResetData();
+    loadIsInfoVisible();
     loadActivityHistory();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    // 캐릭터가 로딩된 후에만 데이터 초기화 확인
+    shouldResetData();
   }, [isLoaded]);
+
+  useEffect(() => {
+    AsyncStorage.setItem(
+      'isInfoVisible',
+      isInfoVisible ? 'true' : 'false'
+    ).catch((err) => console.error('캐릭터 정보 표시 여부 저장 실패:', err));
+  }, [isInfoVisible]);
 
   const shouldResetData = async () => {
     const now = new Date();
@@ -80,11 +100,30 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const toggleInfoVisibility = () => {
+    setIsInfoVisible((prev) => !prev);
+  };
+
+  const loadIsInfoVisible = async () => {
+    try {
+      const savedVisible = await AsyncStorage.getItem('isInfoVisible');
+      if (savedVisible !== null) {
+        setIsInfoVisible(savedVisible === 'true');
+      } else {
+        setIsInfoVisible(true); // 기본값은 true
+      }
+    } catch (err) {
+      console.error('캐릭터 정보 표시 여부 로드 실패:', err);
+    }
+  };
+
   return (
     <AppSettingContext.Provider
       value={{
         activityHistory,
         updateActivityHistory,
+        isInfoVisible,
+        toggleInfoVisibility,
       }}
     >
       {children}

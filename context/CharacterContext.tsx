@@ -5,6 +5,7 @@ import {
   deletePortraitImage,
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
+import { useAppSetting } from './AppSettingContext';
 
 export type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -54,7 +55,6 @@ type Character = {
   weeklyRaidFolded?: boolean;
   weeklyActivityFolded?: boolean;
   isBookmarked?: boolean;
-  isInfoVisible?: boolean; // ✅ 캐릭터 정보 숨김 여부
 };
 
 export type SortOrder = 'addedAt' | 'level' | 'server';
@@ -75,7 +75,6 @@ type CharacterContextType = {
   sortCharacter: (order: SortOrder) => Promise<void>;
   resetCharacterTask: () => Promise<void>;
   isLoaded: boolean;
-  toggleInfoVisibility: () => Promise<void>;
 };
 
 // ✅ Context 생성
@@ -260,14 +259,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
-  const toggleInfoVisibility = async () => {
-    const updated = characters.map((c) => ({
-      ...c,
-      isInfoVisible: !(c.isInfoVisible ?? true), // 현재 상태를 반전
-    }));
-    await saveCharacters(updated);
-  };
-
   return (
     <CharacterContext.Provider
       value={{
@@ -279,7 +270,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         sortCharacter,
         resetCharacterTask,
         isLoaded,
-        toggleInfoVisibility,
       }}
     >
       {children}

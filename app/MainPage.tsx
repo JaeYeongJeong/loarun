@@ -11,12 +11,14 @@ import OverviewBar from '@/app/components/OverviewBar';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
 import CustomText from './components/CustomText';
 import OptionsModal from './optionsModal';
+import { useAppSetting } from '@/context/AppSettingContext';
+import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -28,6 +30,7 @@ const MainPage: React.FC = () => {
   const [optionModalVisible, setOptionModalVisible] = React.useState(false);
   const { colors } = useTheme();
   const { characters } = useCharacter();
+  const { isInfoVisible, toggleInfoVisibility } = useAppSetting();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const sortButtonRef = useRef<View>(null);
@@ -83,7 +86,7 @@ const MainPage: React.FC = () => {
       {/* ✅ 고정된 상단 영역 */}
       <View style={styles.overviewContainer}>
         <OverviewBar />
-        <View style={styles.sortButtonWrapper}>
+        <View style={styles.headerWrapper}>
           <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
             <View style={styles.sortButton}>
               <CustomText
@@ -94,12 +97,30 @@ const MainPage: React.FC = () => {
             </View>
           </TouchableOpacity>
           <TouchableOpacity ref={optionsButtonRef} onPress={toggleOptionsModal}>
-            <View style={styles.sortButton}>
-              <CustomText
-                style={[styles.sortButtonText, { color: colors.grayDark }]}
-              >
-                옵션
-              </CustomText>
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: normalize(8),
+                alignItems: 'center',
+              }}
+            >
+              {!isInfoVisible && (
+                <Feather name="eye-off" size={16} color={colors.grayDark} />
+              )}
+              {isBookmarkedFilterOn && (
+                <BookmarkFilled
+                  width={16}
+                  height={16}
+                  color={colors.grayDark}
+                />
+              )}
+              <View style={styles.optionButton}>
+                <CustomText
+                  style={[styles.sortButtonText, { color: colors.grayDark }]}
+                >
+                  옵션
+                </CustomText>
+              </View>
             </View>
           </TouchableOpacity>
         </View>
@@ -141,7 +162,9 @@ const MainPage: React.FC = () => {
         toggleModal={toggleOptionsModal}
         positionX={optionsButtonX}
         positionY={optionsButtonY}
+        isBookmarkedFilterOn={isBookmarkedFilterOn}
         toggleBookmarkFilter={toggleBookmarkFilter}
+        toggleInfoVisibility={toggleInfoVisibility}
       />
     </View>
   );
@@ -154,7 +177,7 @@ const styles = StyleSheet.create({
   overviewContainer: {
     zIndex: 1,
   },
-  sortButtonWrapper: {
+  headerWrapper: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -162,6 +185,10 @@ const styles = StyleSheet.create({
   },
   sortButton: {
     paddingHorizontal: normalize(20),
+    paddingVertical: normalize(4),
+  },
+  optionButton: {
+    paddingRight: normalize(20),
     paddingVertical: normalize(4),
   },
   sortButtonText: {
