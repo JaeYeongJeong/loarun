@@ -226,7 +226,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    console.log(order, sortedList);
     await saveCharacters(sortedList);
   };
 
@@ -253,7 +252,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         WeeklyActivity: [],
         WeeklyActivityTotalGold: 0,
         ClearedRaidTotalGold: 0,
-        SelectedRaidTotalGold: 0,
       };
     });
 
