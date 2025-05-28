@@ -36,16 +36,19 @@ const SortModal: React.FC<SortModalProps> = ({
   const sortByDateAdded = () => {
     setSelectedOption('addedAt');
     sortCharacter(selectedOption);
+    toggleModal();
   };
 
   const sortByLevel = () => {
     setSelectedOption('level');
     sortCharacter(selectedOption);
+    toggleModal();
   };
 
   const sortByServer = () => {
     setSelectedOption('server');
     sortCharacter(selectedOption);
+    toggleModal();
   };
 
   return (

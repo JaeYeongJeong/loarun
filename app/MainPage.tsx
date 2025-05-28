@@ -36,6 +36,7 @@ const MainPage: React.FC = () => {
   const optionsButtonRef = useRef<View>(null);
   const [optionsButtonX, setOptionsButtonX] = useState(0);
   const [optionsButtonY, setOptionsButtonY] = useState(0);
+  const [isBookmarkedFilterOn, setIsBookmarkedFilterOn] = useState(false);
 
   const toggleSortModal = () => {
     if (sortButtonRef.current) {
@@ -60,6 +61,14 @@ const MainPage: React.FC = () => {
       setOptionModalVisible((prev) => !prev);
     }
   };
+
+  const toggleBookmarkFilter = () => {
+    setIsBookmarkedFilterOn((prev) => !prev);
+  };
+
+  const filteredCharacters = isBookmarkedFilterOn
+    ? characters.filter((character) => character.isBookmarked)
+    : characters;
 
   return (
     <View
@@ -99,7 +108,7 @@ const MainPage: React.FC = () => {
       {/* ✅ FlatList는 스크롤 영역 */}
       <FlatList
         style={{ flex: 1 }}
-        data={characters}
+        data={filteredCharacters}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CharacterBar id={item.id} />}
         ListFooterComponent={
@@ -132,6 +141,7 @@ const MainPage: React.FC = () => {
         toggleModal={toggleOptionsModal}
         positionX={optionsButtonX}
         positionY={optionsButtonY}
+        toggleBookmarkFilter={toggleBookmarkFilter}
       />
     </View>
   );

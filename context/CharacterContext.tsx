@@ -53,7 +53,7 @@ type Character = {
   addedAt?: string; //추가된 날짜
   weeklyRaidFolded?: boolean;
   weeklyActivityFolded?: boolean;
-  bookmarked?: boolean;
+  isBookmarked?: boolean;
   isInfoVisible?: boolean; // ✅ 캐릭터 정보 숨김 여부
 };
 

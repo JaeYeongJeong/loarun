@@ -43,7 +43,7 @@ const CharacterActivity: React.FC = () => {
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
 
-  // 📌 새로고침 상태
+  // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
   const [refreshText, setRefreshText] = useState('갱신하기');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -59,7 +59,7 @@ const CharacterActivity: React.FC = () => {
   useEffect(() => {
     setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
     setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
-    setBookmarked(character.bookmarked ?? false);
+    setBookmarked(character.isBookmarked ?? false);
 
     const now = Date.now();
     const lastUpdated = new Date(character.lastUpdated ?? 0).getTime();
@@ -216,7 +216,7 @@ const CharacterActivity: React.FC = () => {
             onPress={() => {
               const next = !bookmarked;
               setBookmarked(next);
-              updateCharacter(character.id, { bookmarked: next });
+              updateCharacter(character.id, { isBookmarked: next });
             }}
           >
             {bookmarked ? (

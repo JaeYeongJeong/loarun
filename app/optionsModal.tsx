@@ -17,6 +17,7 @@ type OptionsModalProps = {
   toggleModal: () => void;
   positionX: number;
   positionY: number;
+  toggleBookmarkFilter: () => void;
 };
 
 const OptionsModal: React.FC<OptionsModalProps> = ({
@@ -24,9 +25,10 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
   toggleModal,
   positionX,
   positionY,
+  toggleBookmarkFilter,
 }) => {
   const { colors } = useTheme();
-  const { characters, toggleInfoVisibility } = useCharacter();
+  const { toggleInfoVisibility } = useCharacter();
 
   const handleCloseModal = () => {
     toggleModal();
@@ -34,6 +36,12 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
 
   const handleHideCharacterInfo = () => {
     toggleInfoVisibility();
+    toggleModal();
+  };
+
+  const handleToggleBookmarkFilter = () => {
+    toggleBookmarkFilter();
+    toggleModal();
   };
 
   return (
@@ -51,13 +59,21 @@ const OptionsModal: React.FC<OptionsModalProps> = ({
                 },
               ]}
             >
-              {/* ✅ 모달 닫고 페이지 이동 */}
               <TouchableOpacity onPress={handleHideCharacterInfo}>
                 <View style={styles.optionContainer}>
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
                     캐릭터 정보 비공개
+                  </CustomText>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleToggleBookmarkFilter}>
+                <View style={styles.optionContainer}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
+                    즐겨찾기 목록
                   </CustomText>
                 </View>
               </TouchableOpacity>

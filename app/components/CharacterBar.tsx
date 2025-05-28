@@ -104,7 +104,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
                 ? character.CharacterName
                 : '익명'}
             </CustomText>
-            {character.bookmarked && (
+            {character.isBookmarked && (
               <Feather
                 name="bookmark"
                 size={SCREEN_HEIGHT / 64}
