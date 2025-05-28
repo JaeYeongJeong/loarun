@@ -9,16 +9,6 @@ import * as SystemUI from 'expo-system-ui';
 import { useLoadFonts } from '@/hooks/useLoadFonts';
 
 export default function RootLayout() {
-  const fontsLoaded = useLoadFonts();
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
-
   return (
     <ThemeProvider>
       <RootLayoutWrapper />
@@ -32,6 +22,16 @@ function RootLayoutWrapper() {
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(colors.background);
   }, [theme]);
+
+  const fontsLoaded = useLoadFonts();
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
 
   return (
     <>
