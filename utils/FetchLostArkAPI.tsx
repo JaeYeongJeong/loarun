@@ -1,9 +1,14 @@
-import { LOSTARK_API_TOKEN } from '@/config';
-
+//for local development
+// import { LOSTARK_API_TOKEN } from '@/config';
+//for Expo preview
+const LOSTARK_API_TOKEN = process.env.EXPO_LOSTARK_API_TOKEN;
 const LOSTARK_API_URL = 'https://developer-lostark.game.onstove.com';
 
 const fetchCharacterInfo = async (characterName: string) => {
   try {
+    if (!LOSTARK_API_TOKEN) {
+      throw new Error('LOSTARK_API_TOKEN is not defined');
+    }
     const response = await fetch(
       `${LOSTARK_API_URL}/armories/characters/${characterName}/profiles`,
       {

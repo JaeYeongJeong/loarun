@@ -38,3 +38,9 @@ yarn-error.*
 app-example
 # config
 config.ts
+
+#env
+.env
+.env.development
+.env.production
+.env.preview
