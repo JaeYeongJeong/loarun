@@ -1,9 +1,9 @@
 // for local development
-// import { LOSTARK_API_TOKEN } from '@/config';
+import { LOSTARK_API_TOKEN } from '@/config';
 
 // //for Expo preview
-import Constants from 'expo-constants';
-const LOSTARK_API_TOKEN = Constants.expoConfig?.extra?.EXPO_LOSTARK_API_TOKEN;
+// import Constants from 'expo-constants';
+// const LOSTARK_API_TOKEN = Constants.expoConfig?.extra?.EXPO_LOSTARK_API_TOKEN;
 
 const LOSTARK_API_URL = 'https://developer-lostark.game.onstove.com';
 

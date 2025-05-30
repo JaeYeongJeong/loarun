@@ -5,7 +5,6 @@ import {
   deletePortraitImage,
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
-import { useAppSetting } from './AppSettingContext';
 
 export type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -89,16 +88,43 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // ✅ 저장된 캐릭터 불러오기
   useEffect(() => {
-    const loadCharacters = async () => {
+    const loadAndMaybeReset = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
       if (storedCharacters) {
         setCharacters(JSON.parse(storedCharacters));
       }
-      setIsLoaded(true); // ✅ 로딩 완료 표시
+      setIsLoaded(true);
+
+      const now = new Date();
+      const lastReset = await AsyncStorage.getItem('lastReset');
+
+      const isAfterWednesday6AM = () => {
+        const day = now.getDay();
+        const hour = now.getHours();
+        return day > 3 || (day === 3 && hour >= 6);
+      };
+
+      const getThisWednesday6AM = () => {
+        const date = new Date(now);
+        const currentDay = date.getDay();
+        const daysSinceWednesday =
+          currentDay >= 3 ? currentDay - 3 : 7 - (3 - currentDay);
+        date.setDate(date.getDate() - daysSinceWednesday);
+        date.setHours(6, 0, 0, 0);
+        return date;
+      };
+
+      if (isAfterWednesday6AM()) {
+        const wednesdayDate = getThisWednesday6AM();
+        if (!lastReset || new Date(lastReset) < wednesdayDate) {
+          resetCharacterTask(); // ✅ characters가 로딩된 이후 실행
+          await AsyncStorage.setItem('lastReset', now.toISOString());
+        }
+      }
     };
-    loadCharacters();
+
+    loadAndMaybeReset();
   }, []);
 
   const saveCharacters = async (data: Character[]) => {
