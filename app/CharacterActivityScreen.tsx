@@ -762,6 +762,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 14,
     fontWeight: '600',
+    lineHeight: 18,
   },
   activityItem: {
     borderRadius: 12,

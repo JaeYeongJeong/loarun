@@ -38,6 +38,9 @@ export default () => ({
     },
     extra: {
       EXPO_LOSTARK_API_TOKEN: process.env.EXPO_LOSTARK_API_TOKEN,
+      eas: {
+        projectId: "4c38c770-e9bf-493a-bd93-10f47f51463f"
+      }
     }
   }
 });
