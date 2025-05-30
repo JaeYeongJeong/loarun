@@ -21,7 +21,7 @@ export default () => ({
     android: {
       versionCode: 1,
       adaptiveIcon: {
-        foregroundImage: "./assets/images/loarunIcon-adaptive-432.png",
+        foregroundImage: "./assets/images/loarunIcon-1024-removebg.png",
         backgroundColor: "#ffffff"
       },
       edgeToEdgeEnabled: true,
