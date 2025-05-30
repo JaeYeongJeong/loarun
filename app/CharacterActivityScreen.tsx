@@ -18,6 +18,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import CustomText from './components/CustomText';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -32,6 +33,7 @@ const CharacterActivity: React.FC = () => {
     useCharacter();
   const character = characters.find((c) => c.id === id);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
+  const { isInfoVisible } = useAppSetting();
 
   // 📌 모달 상태 및 관련 인덱스
   const [activityModalVisible, setActivityModalVisible] =
@@ -263,19 +265,21 @@ const CharacterActivity: React.FC = () => {
         <View style={styles.characterInfoContainer}>
           <View style={styles.nameRow}>
             <CustomText style={[styles.characterName, { color: colors.black }]}>
-              {character.CharacterName}
+              {isInfoVisible ?? true ? character.CharacterName : '익명'}
             </CustomText>
           </View>
 
           <CustomText
             style={[styles.characterInfo, { color: colors.grayDark }]}
           >
-            {character.CharacterClassName} @ {character.ServerName}
+            {isInfoVisible ?? true ? character.CharacterClassName : '직업'} @{' '}
+            {isInfoVisible ?? true ? character.ServerName : '서버'}
           </CustomText>
           <CustomText
             style={(styles.characterInfo, { color: colors.grayDark })}
           >
-            Lv. {character.ItemAvgLevel}
+            Lv.
+            {isInfoVisible ?? true ? character.ItemAvgLevel : '-'}
           </CustomText>
 
           <View style={styles.refreshButtonWrapper}>
