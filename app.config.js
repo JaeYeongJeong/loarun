@@ -1,7 +1,7 @@
 // app.config.js
 export default () => ({
   expo: {
-    name: "Loarun",
+    name: "로아런",
     slug: "loarun",
     scheme: "loarun",
     orientation: "portrait",
