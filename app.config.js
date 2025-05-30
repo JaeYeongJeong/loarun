@@ -6,7 +6,7 @@ export default () => ({
     scheme: "loarun",
     orientation: "portrait",
     userInterfaceStyle: "automatic",
-    icon: "./assets/images/loarunIcon-favicon-512.png",
+    icon: "./assets/images/loarunIcon-1024-removebg.png",
     version: "1.0.0",
     newArchEnabled: true,
     splash: {
