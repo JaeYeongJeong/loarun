@@ -14,7 +14,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "versionCode": 1,
+      "buildNumber": "1.0.0",
       "supportsTablet": true
     },
     "android": {
@@ -31,9 +31,7 @@
       "output": "static",
       "favicon": "./assets/images/loarunIcon-favicon-512.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     },
