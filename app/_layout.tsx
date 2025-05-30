@@ -32,8 +32,6 @@ function RootLayoutWrapper() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) return null;
-
   return (
     <>
       <StatusBar
