@@ -72,7 +72,6 @@ type CharacterContextType = {
     updatedData: Partial<Character>
   ) => Promise<void>;
   sortCharacter: (order: SortOrder) => Promise<void>;
-  resetCharacterTask: () => Promise<void>;
   isLoaded: boolean;
 };
 
@@ -91,10 +90,9 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const loadAndMaybeReset = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
-      if (storedCharacters) {
-        setCharacters(JSON.parse(storedCharacters));
-      }
-      setIsLoaded(true);
+      const parsedCharacters = storedCharacters
+        ? JSON.parse(storedCharacters)
+        : [];
 
       const now = new Date();
       const lastReset = await AsyncStorage.getItem('lastReset');
@@ -115,13 +113,21 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return date;
       };
 
-      if (isAfterWednesday6AM()) {
+      if (parsedCharacters.length > 0 && isAfterWednesday6AM()) {
         const wednesdayDate = getThisWednesday6AM();
         if (!lastReset || new Date(lastReset) < wednesdayDate) {
-          resetCharacterTask(); // ✅ characters가 로딩된 이후 실행
+          await resetCharacterTask(parsedCharacters);
           await AsyncStorage.setItem('lastReset', now.toISOString());
+        } else {
+          setCharacters(parsedCharacters);
+        }
+      } else {
+        if (parsedCharacters.length > 0) {
+          setCharacters(parsedCharacters);
         }
       }
+
+      setIsLoaded(true); // ✅ 로딩과 초기화가 끝난 뒤에 호출
     };
 
     loadAndMaybeReset();
@@ -256,14 +262,15 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(sortedList);
   };
 
-  const resetCharacterTask = async () => {
-    if (characters.length === 0) {
+  const resetCharacterTask = async (targetCharacters: Character[]) => {
+    if (targetCharacters.length === 0) {
       console.log('No characters to reset');
       return;
     } else {
       console.log('캐릭터 숙제 삭제');
     }
-    const updated = characters.map((c) => {
+
+    const updated = targetCharacters.map((c) => {
       const updatedRaids = c.SelectedRaids?.map((r) => ({
         ...r,
         cleared: false,
@@ -294,7 +301,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         updateCharacter,
         refreshCharacter,
         sortCharacter,
-        resetCharacterTask,
         isLoaded,
       }}
     >

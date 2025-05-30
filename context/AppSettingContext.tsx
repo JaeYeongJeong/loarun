@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCharacter } from './CharacterContext';
 
 type AppSettingContextType = {
   activityHistory: string[];
@@ -18,7 +17,6 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [activityHistory, setActivityHistory] = useState<string[]>([]);
   const [isInfoVisible, setIsInfoVisible] = useState<boolean>(true);
-  const { resetCharacterTask, isLoaded } = useCharacter();
 
   useEffect(() => {
     loadIsInfoVisible();
