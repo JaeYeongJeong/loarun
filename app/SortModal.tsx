@@ -35,19 +35,19 @@ const SortModal: React.FC<SortModalProps> = ({
 
   const sortByDateAdded = () => {
     setSelectedOption('addedAt');
-    sortCharacter(selectedOption);
+    sortCharacter('addedAt');
     toggleModal();
   };
 
   const sortByLevel = () => {
     setSelectedOption('level');
-    sortCharacter(selectedOption);
+    sortCharacter('level');
     toggleModal();
   };
 
   const sortByServer = () => {
     setSelectedOption('server');
-    sortCharacter(selectedOption);
+    sortCharacter('level');
     toggleModal();
   };
 
@@ -72,7 +72,7 @@ const SortModal: React.FC<SortModalProps> = ({
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
-                    추가 순 (기본)
+                    추가 순
                   </CustomText>
                   {selectedOption === 'addedAt' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
