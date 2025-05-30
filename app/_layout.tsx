@@ -1,10 +1,10 @@
 import { CharacterProvider } from '@/context/CharacterContext';
 import { AppSettingProvider } from '@/context/AppSettingContext';
 import { SplashScreen, Stack } from 'expo-router';
-import { StatusBar } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import * as SystemUI from 'expo-system-ui';
 import { useLoadFonts } from '@/hooks/useLoadFonts';
 
@@ -18,16 +18,17 @@ export default function RootLayout() {
 
 function RootLayoutWrapper() {
   const { colors, theme } = useTheme();
+  const fontsLoaded = useLoadFonts();
+  const hasHiddenSplash = useRef(false); // ✅ 중복 방지용
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(colors.background);
   }, [theme]);
 
-  const fontsLoaded = useLoadFonts();
-
-  useEffect(() => {
-    if (fontsLoaded) {
+  const handleLayout = useCallback(() => {
+    if (fontsLoaded && !hasHiddenSplash.current) {
       SplashScreen.hideAsync();
+      hasHiddenSplash.current = true;
     }
   }, [fontsLoaded]);
 
@@ -42,12 +43,14 @@ function RootLayoutWrapper() {
       <SafeAreaView style={{ flex: 1 }} edges={[]}>
         <CharacterProvider>
           <AppSettingProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'slide_from_right',
-              }}
-            />
+            <View style={{ flex: 1 }} onLayout={handleLayout}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+            </View>
           </AppSettingProvider>
         </CharacterProvider>
       </SafeAreaView>
