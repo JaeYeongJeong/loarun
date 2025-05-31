@@ -36,10 +36,10 @@ function RootLayoutWrapper() {
   const fontsLoaded = useLoadFonts();
   const hasHiddenSplash = useRef(false);
 
-  // useEffect(() => {
-  //   console.log('[RootLayout] theme:', theme);
-  //   SystemUI.setBackgroundColorAsync(colors.background);
-  // }, [theme]);
+  useEffect(() => {
+    console.log('[RootLayout] theme:', theme);
+    SystemUI.setBackgroundColorAsync(colors.background);
+  }, [theme]);
 
   const handleLayout = useCallback(() => {
     if (fontsLoaded && !hasHiddenSplash.current) {
@@ -49,10 +49,10 @@ function RootLayoutWrapper() {
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    console.log('[RootLayout] Waiting for fonts to load...');
-    return null;
-  }
+  // if (!fontsLoaded) {
+  //   console.log('[RootLayout] Waiting for fonts to load...');
+  //   return null;
+  // }
 
   return (
     <>
