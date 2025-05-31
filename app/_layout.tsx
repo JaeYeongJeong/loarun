@@ -21,9 +21,13 @@ function ErrorFallback({ error }: { error: Error }) {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootLayoutWrapper />
-    </ThemeProvider>
+    <ErrorBoundary
+      fallbackRender={({ error }) => <ErrorFallback error={error} />}
+    >
+      <ThemeProvider>
+        <RootLayoutWrapper />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -32,10 +36,10 @@ function RootLayoutWrapper() {
   const fontsLoaded = useLoadFonts();
   const hasHiddenSplash = useRef(false);
 
-  useEffect(() => {
-    console.log('[RootLayout] theme:', theme);
-    SystemUI.setBackgroundColorAsync(colors.background);
-  }, [theme]);
+  // useEffect(() => {
+  //   console.log('[RootLayout] theme:', theme);
+  //   SystemUI.setBackgroundColorAsync(colors.background);
+  // }, [theme]);
 
   const handleLayout = useCallback(() => {
     if (fontsLoaded && !hasHiddenSplash.current) {
@@ -58,20 +62,16 @@ function RootLayoutWrapper() {
       />
       <SafeAreaView style={{ flex: 1 }} edges={[]}>
         <CharacterProvider>
-          <ErrorBoundary
-            fallbackRender={({ error }) => <ErrorFallback error={error} />}
-          >
-            <AppSettingProvider>
-              <View style={{ flex: 1 }} onLayout={handleLayout}>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'slide_from_right',
-                  }}
-                />
-              </View>
-            </AppSettingProvider>
-          </ErrorBoundary>
+          <AppSettingProvider>
+            <View style={{ flex: 1 }} onLayout={handleLayout}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+            </View>
+          </AppSettingProvider>
         </CharacterProvider>
       </SafeAreaView>
     </>
