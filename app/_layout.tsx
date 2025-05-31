@@ -36,11 +36,6 @@ function RootLayoutWrapper() {
   const fontsLoaded = useLoadFonts();
   const hasHiddenSplash = useRef(false);
 
-  useEffect(() => {
-    console.log('[RootLayout] theme:', theme);
-    SystemUI.setBackgroundColorAsync(colors.background);
-  }, [theme]);
-
   const handleLayout = useCallback(() => {
     if (fontsLoaded && !hasHiddenSplash.current) {
       console.log('[RootLayout] Fonts loaded, hiding splash');
@@ -49,10 +44,10 @@ function RootLayoutWrapper() {
     }
   }, [fontsLoaded]);
 
-  // if (!fontsLoaded) {
-  //   console.log('[RootLayout] Waiting for fonts to load...');
-  //   return null;
-  // }
+  useEffect(() => {
+    console.log('[RootLayout] theme:', theme);
+    SystemUI.setBackgroundColorAsync(colors.background);
+  }, [theme]);
 
   return (
     <>
@@ -60,10 +55,10 @@ function RootLayoutWrapper() {
         barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
       />
-      <SafeAreaView style={{ flex: 1 }} edges={[]}>
+      <SafeAreaView style={{ flex: 1 }} edges={[]} onLayout={handleLayout}>
         <CharacterProvider>
           <AppSettingProvider>
-            <View style={{ flex: 1 }} onLayout={handleLayout}>
+            <View style={{ flex: 1 }}>
               <Stack
                 screenOptions={{
                   headerShown: false,
