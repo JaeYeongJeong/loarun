@@ -47,7 +47,7 @@ const SortModal: React.FC<SortModalProps> = ({
 
   const sortByServer = () => {
     setSelectedOption('server');
-    sortCharacter('level');
+    sortCharacter('server');
     toggleModal();
   };
 

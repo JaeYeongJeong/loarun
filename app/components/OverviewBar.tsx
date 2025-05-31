@@ -127,14 +127,14 @@ function OverviewBar() {
                   },
                 ]}
               >
-                {totalClearedRaidsGold.toLocaleString()}{' '}
+                {totalClearedRaidsGold.toLocaleString() || '0'}{' '}
                 <CustomText
                   style={{
                     color: colors.black + '80',
                     fontWeight: '400',
                   }}
                 >
-                  /{totalRaidsGold.toLocaleString()}
+                  /{totalRaidsGold.toLocaleString() || '0'}
                 </CustomText>
               </CustomText>
             </View>
@@ -144,7 +144,7 @@ function OverviewBar() {
                 추가 활동
               </CustomText>
               <CustomText style={[styles.valueText, { color: colors.black }]}>
-                {totalWeeklyActivityGold.toLocaleString()}
+                {totalWeeklyActivityGold.toLocaleString() || '0'}
               </CustomText>
             </View>
           </View>
