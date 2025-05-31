@@ -5,7 +5,6 @@ import {
   deletePortraitImage,
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
-import { useAppSetting } from './AppSettingContext';
 
 export type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -73,7 +72,6 @@ type CharacterContextType = {
     updatedData: Partial<Character>
   ) => Promise<void>;
   sortCharacter: (order: SortOrder) => Promise<void>;
-  resetCharacterTask: () => Promise<void>;
   isLoaded: boolean;
 };
 
@@ -89,16 +87,50 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // ✅ 저장된 캐릭터 불러오기
   useEffect(() => {
-    const loadCharacters = async () => {
+    const loadAndMaybeReset = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
-      if (storedCharacters) {
-        setCharacters(JSON.parse(storedCharacters));
+      const parsedCharacters = storedCharacters
+        ? JSON.parse(storedCharacters)
+        : [];
+
+      const now = new Date();
+      const lastReset = await AsyncStorage.getItem('lastReset');
+
+      const isAfterWednesday6AM = () => {
+        const day = now.getDay();
+        const hour = now.getHours();
+        return day > 3 || (day === 3 && hour >= 6);
+      };
+
+      const getThisWednesday6AM = () => {
+        const date = new Date(now);
+        const currentDay = date.getDay();
+        const daysSinceWednesday =
+          currentDay >= 3 ? currentDay - 3 : 7 - (3 - currentDay);
+        date.setDate(date.getDate() - daysSinceWednesday);
+        date.setHours(6, 0, 0, 0);
+        return date;
+      };
+
+      if (parsedCharacters.length > 0 && isAfterWednesday6AM()) {
+        const wednesdayDate = getThisWednesday6AM();
+        if (!lastReset || new Date(lastReset) < wednesdayDate) {
+          await resetCharacterTask(parsedCharacters);
+          await AsyncStorage.setItem('lastReset', now.toISOString());
+        } else {
+          setCharacters(parsedCharacters);
+        }
+      } else {
+        if (parsedCharacters.length > 0) {
+          setCharacters(parsedCharacters);
+        }
       }
-      setIsLoaded(true); // ✅ 로딩 완료 표시
+
+      setIsLoaded(true); // ✅ 로딩과 초기화가 끝난 뒤에 호출
     };
-    loadCharacters();
+
+    loadAndMaybeReset();
   }, []);
 
   const saveCharacters = async (data: Character[]) => {
@@ -230,14 +262,15 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(sortedList);
   };
 
-  const resetCharacterTask = async () => {
-    if (characters.length === 0) {
+  const resetCharacterTask = async (targetCharacters: Character[]) => {
+    if (targetCharacters.length === 0) {
       console.log('No characters to reset');
       return;
     } else {
       console.log('캐릭터 숙제 삭제');
     }
-    const updated = characters.map((c) => {
+
+    const updated = targetCharacters.map((c) => {
       const updatedRaids = c.SelectedRaids?.map((r) => ({
         ...r,
         cleared: false,
@@ -268,7 +301,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         updateCharacter,
         refreshCharacter,
         sortCharacter,
-        resetCharacterTask,
         isLoaded,
       }}
     >

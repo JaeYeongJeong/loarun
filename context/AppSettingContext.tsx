@@ -1,12 +1,5 @@
-import React, {
-  createContext,
-  use,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCharacter } from './CharacterContext';
 
 type AppSettingContextType = {
   activityHistory: string[];
@@ -24,7 +17,6 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [activityHistory, setActivityHistory] = useState<string[]>([]);
   const [isInfoVisible, setIsInfoVisible] = useState<boolean>(true);
-  const { resetCharacterTask, isLoaded } = useCharacter();
 
   useEffect(() => {
     loadIsInfoVisible();
@@ -32,51 +24,11 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    // 캐릭터가 로딩된 후에만 데이터 초기화 확인
-    shouldResetData();
-  }, [isLoaded]);
-
-  useEffect(() => {
     AsyncStorage.setItem(
       'isInfoVisible',
       isInfoVisible ? 'true' : 'false'
     ).catch((err) => console.error('캐릭터 정보 표시 여부 저장 실패:', err));
   }, [isInfoVisible]);
-
-  const shouldResetData = async () => {
-    const now = new Date();
-    const lastReset = await AsyncStorage.getItem('lastReset');
-
-    // 현재가 수요일 6시 이후인지 판단
-    const isAfterWednesday6AM = () => {
-      const day = now.getDay(); // 0: 일요일, 3: 수요일
-      const hour = now.getHours();
-
-      if (day > 3) return true; // 목~토
-      if (day === 3 && hour >= 6) return true; // 수요일 6시 이후
-      return false;
-    };
-
-    // 이번 주 수요일 오전 6시 날짜 구하기
-    const getThisWednesday6AM = () => {
-      const date = new Date(now);
-      const currentDay = date.getDay();
-      const daysSinceWednesday =
-        currentDay >= 3 ? currentDay - 3 : 7 - (3 - currentDay);
-      date.setDate(date.getDate() - daysSinceWednesday);
-      date.setHours(6, 0, 0, 0);
-      return date;
-    };
-
-    if (isAfterWednesday6AM()) {
-      const wednesdayDate = getThisWednesday6AM();
-      if (!lastReset || new Date(lastReset) < wednesdayDate) {
-        resetCharacterTask();
-        await AsyncStorage.setItem('lastReset', now.toISOString());
-      }
-    }
-  };
 
   const loadActivityHistory = async () => {
     try {
