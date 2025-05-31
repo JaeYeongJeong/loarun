@@ -58,10 +58,10 @@ function RootLayoutWrapper() {
       />
       <SafeAreaView style={{ flex: 1 }} edges={[]}>
         <CharacterProvider>
-          <AppSettingProvider>
-            <ErrorBoundary
-              fallbackRender={({ error }) => <ErrorFallback error={error} />}
-            >
+          <ErrorBoundary
+            fallbackRender={({ error }) => <ErrorFallback error={error} />}
+          >
+            <AppSettingProvider>
               <View style={{ flex: 1 }} onLayout={handleLayout}>
                 <Stack
                   screenOptions={{
@@ -70,8 +70,8 @@ function RootLayoutWrapper() {
                   }}
                 />
               </View>
-            </ErrorBoundary>
-          </AppSettingProvider>
+            </AppSettingProvider>
+          </ErrorBoundary>
         </CharacterProvider>
       </SafeAreaView>
     </>
