@@ -69,14 +69,27 @@ const AddCharacterScreen: React.FC = () => {
     setIsLoading(true); // 로딩 시작
 
     try {
-      const data = await fetchCharacterInfo(characterName);
+      let data;
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+      for (let i = 0; i < 103; i++) {
+        data = await fetchCharacterInfo(characterName);
+        await sleep(100);
+      }
       if (data && data.CharacterName) {
         setCharacterInfo(data);
       } else {
         Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
       }
-    } catch (err) {
-      Alert.alert('오류', '검색 중 문제가 발생했습니다.');
+    } catch (err: any) {
+      if (err.status === 429) {
+        Alert.alert(
+          '오류',
+          'API 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'
+        );
+      } else {
+        Alert.alert('오류', '검색 중 문제가 발생했습니다.');
+      }
     }
 
     setIsLoading(false); // 로딩 종료
