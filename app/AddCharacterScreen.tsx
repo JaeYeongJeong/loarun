@@ -69,13 +69,8 @@ const AddCharacterScreen: React.FC = () => {
     setIsLoading(true); // 로딩 시작
 
     try {
-      let data;
-      const sleep = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms));
-      for (let i = 0; i < 103; i++) {
-        data = await fetchCharacterInfo(characterName);
-        await sleep(100);
-      }
+      const data = await fetchCharacterInfo(characterName);
+
       if (data && data.CharacterName) {
         setCharacterInfo(data);
       } else {
