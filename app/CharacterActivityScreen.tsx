@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import CustomText from './components/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
+import OtherActivityModal from './OtherActivityModal';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -40,6 +41,14 @@ const CharacterActivity: React.FC = () => {
     useState<boolean>(false);
   const [activityIndex, setActivityIndex] = useState<number | null>(null);
   const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
+
+  const [otherActivityModalVisible, setOtherActivityModalVisible] =
+    useState<boolean>(false);
+  const [otherActivityIndex, setOtherActivityIndex] = useState<number | null>(
+    null
+  );
+  const toggleOtherActivityModal = () =>
+    setActivityModalVisible((prev) => !prev);
 
   const [raidModalVisible, setRaidModalVisible] = useState<boolean>(false);
   const [raidIndex, setRaidIndex] = useState<number>(0);
@@ -466,8 +475,7 @@ const CharacterActivity: React.FC = () => {
             </View>
           )}
         </View>
-
-        {/* 주간 활동 */}
+        {/* 주간 활동*/}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
@@ -488,7 +496,99 @@ const CharacterActivity: React.FC = () => {
                 <CustomText
                   style={[styles.sectionTitle, { color: colors.black }]}
                 >
-                  추가 수입
+                  추가 활동
+                </CustomText>
+              </View>
+              <CustomText
+                style={[
+                  styles.totalGoldText,
+                  (character.WeeklyActivityTotalGold || 0) >= 0
+                    ? { color: colors.black }
+                    : { color: colors.warning },
+                ]}
+              >
+                {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
+              </CustomText>
+            </View>
+          </TouchableOpacity>
+          {!weeklyActivityFolded && (
+            <View>
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                  onPress={toggleActivityModal}
+                >
+                  <CustomText
+                    style={[styles.editButtonText, { color: colors.black }]}
+                  >
+                    활동 추가
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
+              {Array.isArray(character.WeeklyActivity) &&
+                character.WeeklyActivity.map((activity, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.activityItem,
+                      { backgroundColor: colors.grayLight },
+                    ]}
+                    onPress={() => {
+                      setActivityIndex(index);
+                      toggleActivityModal();
+                    }}
+                  >
+                    <View style={styles.activityItemRow}>
+                      <CustomText
+                        style={[
+                          styles.activityNameText,
+                          { color: colors.black },
+                        ]}
+                      >
+                        {activity.name}
+                      </CustomText>
+                      <CustomText
+                        style={[
+                          styles.activityGoldText,
+                          activity.gold >= 0
+                            ? { color: colors.black }
+                            : { color: colors.warning },
+                        ]}
+                      >
+                        {activity.gold.toLocaleString()}
+                      </CustomText>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+            </View>
+          )}
+          {/* 추가 버튼 */}
+        </View>
+        {/* 기타 수입 */}
+        <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              const next = !weeklyActivityFolded;
+              setWeeklyActivityFolded(next);
+              updateCharacter(character.id, { weeklyActivityFolded: next });
+            }}
+          >
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Feather
+                  name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  size={24}
+                  color={colors.black}
+                />
+                <CustomText
+                  style={[styles.sectionTitle, { color: colors.black }]}
+                >
+                  기타 수입
                 </CustomText>
               </View>
               <CustomText
@@ -571,6 +671,20 @@ const CharacterActivity: React.FC = () => {
         initialActivity={
           activityIndex !== null
             ? character.WeeklyActivity?.[activityIndex]
+            : undefined
+        }
+      />
+
+      <OtherActivityModal
+        isVisible={otherActivityModalVisible}
+        setIndexNull={() => setOtherActivityIndex(null)}
+        setIsVisibleFalse={() => setOtherActivityModalVisible(false)}
+        id={character.id}
+        mode={otherActivityIndex !== null ? 'edit' : 'add'}
+        index={otherActivityIndex ?? undefined}
+        initialActivity={
+          otherActivityIndex !== null
+            ? character.WeeklyActivity?.[otherActivityIndex]
             : undefined
         }
       />

@@ -36,7 +36,7 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
       if (savedHistory !== null) {
         setActivityHistory(JSON.parse(savedHistory));
       } else {
-        setActivityHistory(['카던', '가토', '버스']);
+        setActivityHistory(['악세', '유각', '보석']);
       }
     } catch (err) {
       console.error('검색 기록 로드 실패:', err);
