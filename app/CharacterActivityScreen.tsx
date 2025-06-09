@@ -513,21 +513,6 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!weeklyActivityFolded && (
             <View>
-              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
-                <TouchableOpacity
-                  style={[
-                    styles.editButton,
-                    { backgroundColor: colors.grayLight },
-                  ]}
-                  onPress={toggleActivityModal}
-                >
-                  <CustomText
-                    style={[styles.editButtonText, { color: colors.black }]}
-                  >
-                    활동 추가
-                  </CustomText>
-                </TouchableOpacity>
-              </View>
               {Array.isArray(character.WeeklyActivity) &&
                 character.WeeklyActivity.map((activity, index) => (
                   <TouchableOpacity
@@ -563,6 +548,21 @@ const CharacterActivity: React.FC = () => {
                     </View>
                   </TouchableOpacity>
                 ))}
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                  onPress={toggleActivityModal}
+                >
+                  <CustomText
+                    style={[styles.editButtonText, { color: colors.black }]}
+                  >
+                    활동 추가
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
           {/* 추가 버튼 */}
