@@ -12,7 +12,7 @@ import {
 import ActivityModal from './SubmitActivityModal';
 import { useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -201,6 +201,16 @@ const CharacterActivity: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
+  };
+
+  const handleChecklistToggle = (index: number) => {
+    const updatedCheckList = character.checkList?.map((item, i) =>
+      i === index ? { ...item, checked: !item.checked } : item
+    );
+
+    updateCharacter(character.id, {
+      checkList: updatedCheckList,
+    });
   };
 
   const Spacer = ({ height = 12 }: { height?: number }) => (
@@ -496,7 +506,7 @@ const CharacterActivity: React.FC = () => {
                 <CustomText
                   style={[styles.sectionTitle, { color: colors.black }]}
                 >
-                  체크리스트
+                  일일/주간 미션
                 </CustomText>
               </View>
               <CustomText
@@ -513,40 +523,66 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!weeklyActivityFolded && (
             <View>
-              {Array.isArray(character.WeeklyActivity) &&
-                character.WeeklyActivity.map((activity, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.activityItem,
-                      { backgroundColor: colors.grayLight },
-                    ]}
-                    onPress={() => {
-                      setActivityIndex(index);
-                      toggleActivityModal();
+              {Array.isArray(character.checkList) &&
+                character.checkList.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 10,
+                      marginTop: index === 0 ? 12 : 0,
                     }}
+                    key={index}
                   >
-                    <View style={styles.activityItemRow}>
-                      <CustomText
-                        style={[
-                          styles.activityNameText,
-                          { color: colors.black },
-                        ]}
-                      >
-                        {activity.name}
-                      </CustomText>
-                      <CustomText
-                        style={[
-                          styles.activityGoldText,
-                          activity.gold >= 0
-                            ? { color: colors.black }
-                            : { color: colors.warning },
-                        ]}
-                      >
-                        {activity.gold.toLocaleString()}
-                      </CustomText>
-                    </View>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.activityItem,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        handleChecklistToggle(index);
+                      }}
+                    >
+                      <View style={styles.activityItemRow}>
+                        <CustomText
+                          style={[
+                            styles.activityNameText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          {item.name}
+                        </CustomText>
+                        <MaterialIcons
+                          name={
+                            item.checked
+                              ? 'check-box'
+                              : 'check-box-outline-blank'
+                          }
+                          size={24}
+                          color={
+                            item.checked
+                              ? colors.secondary
+                              : colors.grayDark + 80
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        paddingLeft: 8,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setActivityIndex(index);
+                        toggleActivityModal();
+                      }}
+                    >
+                      <Feather
+                        name="edit"
+                        size={20}
+                        color={colors.iconColor + 80}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 ))}
               <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
@@ -554,12 +590,15 @@ const CharacterActivity: React.FC = () => {
                     styles.editButton,
                     { backgroundColor: colors.grayLight },
                   ]}
-                  onPress={toggleActivityModal}
+                  onPress={() => {
+                    setActivityIndex(null);
+                    toggleActivityModal();
+                  }}
                 >
                   <CustomText
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
-                    활동 추가
+                    리스트 추가
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -670,7 +709,7 @@ const CharacterActivity: React.FC = () => {
         index={activityIndex ?? undefined}
         initialActivity={
           activityIndex !== null
-            ? character.WeeklyActivity?.[activityIndex]
+            ? character.checkList?.[activityIndex]
             : undefined
         }
       />
@@ -837,8 +876,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
     borderRadius: 12,
   },
 
@@ -886,10 +925,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   activityItem: {
+    flex: 1,
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    marginBottom: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
 
   activityItemRow: {

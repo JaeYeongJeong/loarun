@@ -16,6 +16,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import CustomText from './components/CustomText';
+import { missionCheckListData } from '@/utils/missionCheckListData';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -52,6 +53,7 @@ const AddCharacterScreen: React.FC = () => {
       CharacterClassName: characterInfo.CharacterClassName,
       ItemAvgLevel: characterInfo.ItemAvgLevel,
       ServerName: characterInfo.ServerName,
+      checkList: missionCheckListData,
     });
 
     Alert.alert('성공', `${characterInfo.CharacterName}이(가) 추가되었습니다.`);

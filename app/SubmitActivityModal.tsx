@@ -12,11 +12,12 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
-import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
+
+type resetPeriodType = 'daily' | 'weekly' | '';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -24,7 +25,13 @@ type ActivityModalProps = {
   setIsVisibleFalse: () => void;
   id: string;
   mode?: 'add' | 'edit';
-  initialActivity?: { name: string; gold: number };
+  initialActivity?: {
+    name: string;
+    checked?: boolean;
+    gold?: number;
+    goldChecked?: boolean;
+    resetPeriod?: resetPeriodType;
+  };
   index?: number;
 };
 
@@ -40,9 +47,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const [activityName, setActivityName] = useState('');
   const [activityGold, setActivityGold] = useState('');
   const [goldChecked, setGoldChecked] = useState(false);
-  const [resetPeriod, setResetPeriod] = useState<'daily' | 'weekly' | ''>('');
+  const [resetPeriod, setResetPeriod] = useState<resetPeriodType>('');
   const { characters, updateCharacter } = useCharacter();
-  const { activityHistory, updateActivityHistory } = useAppSetting();
   const character = characters.find((c) => c.id === id);
   const { colors } = useTheme();
 
@@ -53,10 +59,14 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   useEffect(() => {
     if (mode === 'edit' && initialActivity) {
       setActivityName(initialActivity.name);
-      setActivityGold(initialActivity.gold.toLocaleString());
+      setActivityGold(initialActivity.gold?.toLocaleString() || '');
+      setGoldChecked(initialActivity.goldChecked || false);
+      setResetPeriod(initialActivity.resetPeriod || '');
     } else {
       setActivityName('');
       setActivityGold('');
+      setResetPeriod('');
+      setGoldChecked(false);
     }
 
     if (isVisible) {
@@ -95,51 +105,44 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     }
 
     if (mode === 'edit' && index !== undefined) {
-      const updated = [...(character.WeeklyActivity ?? [])];
+      const updated = [...(character.checkList ?? [])];
       updated[index] = {
         name: activityName || '',
+        resetPeriod: resetPeriod,
+        checked: initialActivity?.checked || false,
+        goldChecked: goldChecked,
         gold: Number(activityGold.replace(/,/g, '')) || 0,
       };
-
-      updateCharacter(character.id, {
-        WeeklyActivity: updated,
-        WeeklyActivityTotalGold: updated.reduce(
-          (total, activity) => total + activity.gold,
-          0
-        ),
-      });
-    } else {
-      const newActivity = [
-        {
-          name: activityName || '',
-          gold: Number(activityGold.replace(/,/g, '')) || 0,
-        },
-        ...(character.WeeklyActivity ?? []), // undefined일 경우 빈 배열로 대체
-      ];
-
-      const updatedTotalGold = newActivity.reduce(
-        (total, activity) => total + activity.gold,
+      const updatedTotalGold = updated.reduce(
+        (total, item) => total + (item.gold || 0),
         0
       );
 
       updateCharacter(character.id, {
-        WeeklyActivity: newActivity,
-        WeeklyActivityTotalGold: updatedTotalGold,
+        checkList: updated,
+        checkListTotalGold: updatedTotalGold,
       });
+    } else {
+      const newCheckList = [
+        ...(character.checkList ?? []),
+        {
+          name: activityName || '',
+          resetPeriod: resetPeriod,
+          checked: false,
+          goldChecked: goldChecked,
+          gold: Number(activityGold.replace(/,/g, '')) || 0,
+        },
+      ];
 
-      if (activityName.trim() !== '') {
-        const MAX_HISTORY_LENGTH = 8; // 최대 히스토리 길이
-        let updatedHistory = [...activityHistory];
-        const activityHistoryIndex = activityHistory.findIndex(
-          (item) => item === activityName.trim()
-        );
-        if (activityHistoryIndex !== -1) {
-          updatedHistory.splice(activityHistoryIndex, 1); // 기존 히스토리 삭제
-        } else if (updatedHistory.length >= MAX_HISTORY_LENGTH) {
-          updatedHistory.pop(); // 가장 오래된 히스토리 삭제
-        }
-        updateActivityHistory([activityName.trim(), ...updatedHistory]); // 맨 앞으로 삽입
-      }
+      const updatedTotalGold = newCheckList.reduce(
+        (total, item) => total + (item.gold || 0),
+        0
+      );
+
+      updateCharacter(character.id, {
+        checkList: newCheckList,
+        checkListTotalGold: updatedTotalGold,
+      });
     }
 
     setIndexNull(); // 인덱스 초기화
@@ -154,15 +157,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         style: 'destructive',
         onPress: () => {
           if (index !== undefined) {
-            const updated = [...(character.WeeklyActivity ?? [])];
+            const updated = [...(character.checkList ?? [])];
             updated.splice(index, 1);
             const updatedTotalGold = updated.reduce(
-              (total, activity) => total + activity.gold,
+              (total, item) => total + (item.gold || 0),
               0
             );
             updateCharacter(character.id, {
-              WeeklyActivity: updated,
-              WeeklyActivityTotalGold: updatedTotalGold,
+              checkList: updated,
+              checkListTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();
@@ -266,7 +269,6 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                       style={{ flexDirection: 'row', alignItems: 'center' }}
                     >
                       <TouchableOpacity
-                        key={index}
                         style={[
                           styles.historyButton,
                           {

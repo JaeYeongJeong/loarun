@@ -5,6 +5,7 @@ import {
   deletePortraitImage,
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
+import { checkListItem } from '@/utils/missionCheckListData';
 
 export type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -55,14 +56,9 @@ type Character = {
   weeklyActivityFolded?: boolean;
   isBookmarked?: boolean;
   checkList?: checkListItem[];
+  checkListTotalGold?: number; // 체크리스트에서 획득한 총 골드
+  checkListFolded?: boolean; // 체크리스트 접기 상태
 };
-
-type checkListItem = {
-  name: string;
-  checked: boolean;
-  gold?: number; // 골드가 있는 경우에만
-  cycle?: number; // 주기 (예: 1주, 2주 등)
-}
 
 export type SortOrder = 'addedAt' | 'level' | 'server';
 
