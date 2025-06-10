@@ -113,14 +113,9 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         goldChecked: goldChecked,
         gold: Number(activityGold.replace(/,/g, '')) || 0,
       };
-      const updatedTotalGold = updated.reduce(
-        (total, item) => total + (item.gold || 0),
-        0
-      );
 
       updateCharacter(character.id, {
         checkList: updated,
-        checkListTotalGold: updatedTotalGold,
       });
     } else {
       const newCheckList = [
@@ -134,14 +129,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         },
       ];
 
-      const updatedTotalGold = newCheckList.reduce(
-        (total, item) => total + (item.gold || 0),
-        0
-      );
-
       updateCharacter(character.id, {
         checkList: newCheckList,
-        checkListTotalGold: updatedTotalGold,
       });
     }
 

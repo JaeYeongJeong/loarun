@@ -62,6 +62,7 @@ const CharacterActivity: React.FC = () => {
 
   // 📌 접힘 상태
   const [weeklyRaidFolded, setWeeklyRaidFolded] = useState<boolean>(false);
+  const [checkedListFolded, setCheckedListFolded] = useState<boolean>(false);
   const [weeklyActivityFolded, setWeeklyActivityFolded] =
     useState<boolean>(false);
 
@@ -70,6 +71,7 @@ const CharacterActivity: React.FC = () => {
   useEffect(() => {
     setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
     setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
+    setCheckedListFolded(character.checkedListFolded ?? false);
     setBookmarked(character.isBookmarked ?? false);
 
     const now = Date.now();
@@ -154,6 +156,12 @@ const CharacterActivity: React.FC = () => {
       SelectedRaids: updatedRaids,
     });
   };
+
+  const checkedListTotalGold =
+    character.checkList?.reduce(
+      (total, item) => total + (item.checked ? item.gold || 0 : 0),
+      0
+    ) || 0;
 
   const handleRemoveCharacter = () => {
     Alert.alert('캐릭터 삭제', '정말 삭제하시겠어요?', [
@@ -485,21 +493,21 @@ const CharacterActivity: React.FC = () => {
             </View>
           )}
         </View>
-        {/* 체크리스트*/}
+        {/* 일일 주간 미션 체크리스트*/}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
           <TouchableOpacity
             onPress={() => {
-              const next = !weeklyActivityFolded;
-              setWeeklyActivityFolded(next);
-              updateCharacter(character.id, { weeklyActivityFolded: next });
+              const next = !checkedListFolded;
+              setCheckedListFolded(next);
+              updateCharacter(character.id, { checkedListFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
                 <Feather
-                  name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  name={checkedListFolded ? 'chevron-down' : 'chevron-up'}
                   size={24}
                   color={colors.black}
                 />
@@ -512,16 +520,16 @@ const CharacterActivity: React.FC = () => {
               <CustomText
                 style={[
                   styles.totalGoldText,
-                  (character.WeeklyActivityTotalGold || 0) >= 0
+                  checkedListTotalGold >= 0
                     ? { color: colors.black }
                     : { color: colors.warning },
                 ]}
               >
-                {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
+                {checkedListTotalGold.toLocaleString() || 0}
               </CustomText>
             </View>
           </TouchableOpacity>
-          {!weeklyActivityFolded && (
+          {!checkedListFolded && (
             <View>
               {Array.isArray(character.checkList) &&
                 character.checkList.map((item, index) => (
@@ -529,7 +537,7 @@ const CharacterActivity: React.FC = () => {
                     style={{
                       flexDirection: 'row',
                       marginBottom: 10,
-                      marginTop: index === 0 ? 12 : 0,
+                      marginTop: index === 0 ? 16 : 0,
                     }}
                     key={index}
                   >

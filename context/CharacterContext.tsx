@@ -53,6 +53,7 @@ type Character = {
   lastUpdated?: string; // ✅ 마지막 업데이트 날짜
   addedAt?: string; //추가된 날짜
   weeklyRaidFolded?: boolean;
+  checkedListFolded?: boolean; // 체크리스트 접기 상태
   weeklyActivityFolded?: boolean;
   isBookmarked?: boolean;
   checkList?: checkListItem[];
