@@ -311,7 +311,7 @@ const CharacterActivity: React.FC = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollView}
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
         {/* 주간 레이드 */}
@@ -706,8 +706,8 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    overflow: 'visible',
-    marginHorizontal: 16,
+    overflow: 'hidden',
+    paddingHorizontal: 16,
   },
   // ✅ 상단 액션바
   actionBar: {
@@ -725,7 +725,6 @@ const styles = StyleSheet.create({
   },
   // ✅ 캐릭터 카드
   characterCard: {
-    marginHorizontal: 16,
     flexDirection: 'row',
     padding: 16,
     borderRadius: 10,
@@ -734,6 +733,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    marginHorizontal: 16,
     marginBottom: 16,
   },
 
