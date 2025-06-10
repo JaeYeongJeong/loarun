@@ -54,7 +54,15 @@ type Character = {
   weeklyRaidFolded?: boolean;
   weeklyActivityFolded?: boolean;
   isBookmarked?: boolean;
+  checkList?: checkListItem[];
 };
+
+type checkListItem = {
+  name: string;
+  checked: boolean;
+  gold?: number; // 골드가 있는 경우에만
+  cycle?: number; // 주기 (예: 1주, 2주 등)
+}
 
 export type SortOrder = 'addedAt' | 'level' | 'server';
 

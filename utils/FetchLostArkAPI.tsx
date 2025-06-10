@@ -1,27 +1,16 @@
-// for local development
-import { LOSTARK_API_TOKEN } from '@/config';
+// // for local development
+import { LOARUN_API_PROXY_URL } from '@/config';
 
 // //for Expo preview
 // import Constants from 'expo-constants';
-// const LOSTARK_API_TOKEN = Constants.expoConfig?.extra?.EXPO_LOSTARK_API_TOKEN;
-
-const LOSTARK_API_URL = 'https://developer-lostark.game.onstove.com';
+// const LOARUN_API_PROXY_URL =
+//   Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL;
 
 const fetchCharacterInfo = async (characterName: string) => {
-  if (!LOSTARK_API_TOKEN) {
-    throw new Error('LOSTARK_API_TOKEN is not defined');
-  }
-
-  const response = await fetch(
-    `${LOSTARK_API_URL}/armories/characters/${characterName}/profiles`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `bearer ${LOSTARK_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+  const url = `${LOARUN_API_PROXY_URL}/api/character?name=${encodeURIComponent(
+    characterName
+  )}`;
+  const response = await fetch(url);
 
   if (!response.ok) {
     const error = new Error(
@@ -33,10 +22,8 @@ const fetchCharacterInfo = async (characterName: string) => {
     throw error;
   }
 
-  console.log('남은 요청 수:', response.headers.get('x-ratelimit-remaining'));
-
   const data = await response.json();
-  return { ...data };
+  return data;
 };
 
 export { fetchCharacterInfo };

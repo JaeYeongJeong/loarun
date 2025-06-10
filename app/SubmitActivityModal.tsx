@@ -14,7 +14,7 @@ import {
 import { useCharacter } from '@/context/CharacterContext';
 import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
 
@@ -39,6 +39,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
 }) => {
   const [activityName, setActivityName] = useState('');
   const [activityGold, setActivityGold] = useState('');
+  const [goldChecked, setGoldChecked] = useState(false);
+  const [resetPeriod, setResetPeriod] = useState<'daily' | 'weekly' | ''>('');
   const { characters, updateCharacter } = useCharacter();
   const { activityHistory, updateActivityHistory } = useAppSetting();
   const character = characters.find((c) => c.id === id);
@@ -233,7 +235,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
-                    {mode === 'edit' ? '활동 수정' : '활동 추가'}
+                    {mode === 'edit' ? '리스트 수정' : '리스트 추가'}
                   </CustomText>
 
                   {mode === 'edit' ? (
@@ -248,31 +250,93 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                     <View style={{ width: 24 }} />
                   )}
                 </View>
-                {activityHistory.length > 0 && (
-                  <View style={styles.activityHistoryContainer}>
-                    {activityHistory.map((item, index) => (
+                <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+                  <View style={styles.checkBlock}>
+                    <CustomText
+                      style={[
+                        styles.checkBlockText,
+                        {
+                          color: colors.black,
+                        },
+                      ]}
+                    >
+                      리셋 주기
+                    </CustomText>
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
                       <TouchableOpacity
                         key={index}
                         style={[
                           styles.historyButton,
-                          { backgroundColor: colors.primary },
+                          {
+                            backgroundColor:
+                              resetPeriod === 'daily'
+                                ? colors.secondary
+                                : colors.grayLight,
+                          },
                         ]}
-                        onPress={() => setActivityName(item)}
+                        onPress={() => {
+                          setResetPeriod((prev) => {
+                            if (prev === 'daily') {
+                              return '';
+                            }
+                            return 'daily';
+                          });
+                        }}
                       >
                         <CustomText
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
                           style={[
                             styles.historyButtonText,
-                            { color: colors.white },
+                            {
+                              color:
+                                resetPeriod === 'daily'
+                                  ? colors.white
+                                  : colors.grayDark,
+                            },
                           ]}
                         >
-                          {item}
+                          일간
                         </CustomText>
                       </TouchableOpacity>
-                    ))}
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.historyButton,
+                          {
+                            backgroundColor:
+                              resetPeriod === 'weekly'
+                                ? colors.secondary
+                                : colors.grayLight,
+                          },
+                        ]}
+                        onPress={() => {
+                          setResetPeriod((prev) => {
+                            if (prev === 'weekly') {
+                              return '';
+                            }
+                            return 'weekly';
+                          });
+                        }}
+                      >
+                        <CustomText
+                          style={[
+                            styles.historyButtonText,
+                            {
+                              color:
+                                resetPeriod === 'weekly'
+                                  ? colors.white
+                                  : colors.grayDark,
+                            },
+                          ]}
+                        >
+                          주간
+                        </CustomText>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                )}
+                </TouchableOpacity>
+
                 <TextInput
                   placeholder="활동명 입력"
                   style={[
@@ -284,23 +348,47 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   value={activityName}
                   onChangeText={handleChangeNameInput}
                 />
-                <TextInput
-                  placeholder="획득 골드"
-                  style={[
-                    styles.input,
-                    { backgroundColor: colors.grayLight },
-                    { color: colors.grayDark },
-                  ]}
-                  keyboardType={
-                    Platform.OS === 'ios'
-                      ? 'numbers-and-punctuation'
-                      : 'default'
-                  }
-                  placeholderTextColor={colors.grayDark}
-                  value={activityGold}
-                  onChangeText={handleChangeGoldInput}
-                />
-
+                <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+                  <View style={styles.checkBlock}>
+                    <CustomText
+                      style={[
+                        styles.checkBlockText,
+                        {
+                          color: colors.black,
+                        },
+                      ]}
+                    >
+                      골드 추가
+                    </CustomText>
+                    <MaterialIcons
+                      name={
+                        goldChecked ? 'check-box' : 'check-box-outline-blank'
+                      }
+                      size={24}
+                      color={
+                        goldChecked ? colors.secondary : colors.grayDark + 80
+                      }
+                    />
+                  </View>
+                </TouchableOpacity>
+                {goldChecked && (
+                  <TextInput
+                    placeholder="획득 골드"
+                    style={[
+                      styles.input,
+                      { backgroundColor: colors.grayLight },
+                      { color: colors.grayDark },
+                    ]}
+                    keyboardType={
+                      Platform.OS === 'ios'
+                        ? 'numbers-and-punctuation'
+                        : 'default'
+                    }
+                    placeholderTextColor={colors.grayDark}
+                    value={activityGold}
+                    onChangeText={handleChangeGoldInput}
+                  />
+                )}
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
                     onPress={handleCloseModal}
@@ -407,10 +495,10 @@ const styles = StyleSheet.create({
   },
 
   historyButton: {
-    paddingVertical: 6,
+    paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 20,
-    marginRight: 4,
+    marginLeft: 4,
     marginBottom: 4,
     maxWidth: 140, // 혹은 원하는 길이
   },
@@ -418,6 +506,18 @@ const styles = StyleSheet.create({
   historyButtonText: {
     fontWeight: '500',
     fontSize: 14,
+  },
+  checkBlock: {
+    width: '100%',
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+  checkBlockText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

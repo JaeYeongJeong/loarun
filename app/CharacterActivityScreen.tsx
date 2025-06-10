@@ -48,7 +48,7 @@ const CharacterActivity: React.FC = () => {
     null
   );
   const toggleOtherActivityModal = () =>
-    setActivityModalVisible((prev) => !prev);
+    setOtherActivityModalVisible((prev) => !prev);
 
   const [raidModalVisible, setRaidModalVisible] = useState<boolean>(false);
   const [raidIndex, setRaidIndex] = useState<number>(0);
@@ -311,7 +311,7 @@ const CharacterActivity: React.FC = () => {
       </View>
 
       <ScrollView
-        style={styles.scrollView}
+        contentContainerStyle={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
         {/* 주간 레이드 */}
@@ -475,7 +475,7 @@ const CharacterActivity: React.FC = () => {
             </View>
           )}
         </View>
-        {/* 주간 활동*/}
+        {/* 체크리스트*/}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
@@ -496,7 +496,7 @@ const CharacterActivity: React.FC = () => {
                 <CustomText
                   style={[styles.sectionTitle, { color: colors.black }]}
                 >
-                  추가 활동
+                  체크리스트
                 </CustomText>
               </View>
               <CustomText
@@ -611,7 +611,7 @@ const CharacterActivity: React.FC = () => {
                     styles.addButton,
                     { backgroundColor: colors.secondary },
                   ]}
-                  onPress={toggleActivityModal}
+                  onPress={toggleOtherActivityModal}
                 >
                   <CustomText
                     style={[styles.addButtonText, { color: 'white' }]}
@@ -629,8 +629,8 @@ const CharacterActivity: React.FC = () => {
                       { backgroundColor: colors.grayLight },
                     ]}
                     onPress={() => {
-                      setActivityIndex(index);
-                      toggleActivityModal();
+                      setOtherActivityIndex(index);
+                      toggleOtherActivityModal();
                     }}
                   >
                     <View style={styles.activityItemRow}>
@@ -702,11 +702,12 @@ const CharacterActivity: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingVertical: 16,
   },
   scrollView: {
     flex: 1,
     overflow: 'visible',
+    marginHorizontal: 16,
   },
   // ✅ 상단 액션바
   actionBar: {
@@ -714,6 +715,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 8,
+    marginHorizontal: 16,
     marginBottom: 12,
   },
   actionWrapper: {
@@ -723,6 +725,7 @@ const styles = StyleSheet.create({
   },
   // ✅ 캐릭터 카드
   characterCard: {
+    marginHorizontal: 16,
     flexDirection: 'row',
     padding: 16,
     borderRadius: 10,
