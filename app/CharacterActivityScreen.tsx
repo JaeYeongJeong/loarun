@@ -606,7 +606,7 @@ const CharacterActivity: React.FC = () => {
                   <CustomText
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
-                    리스트 추가
+                    미션 추가
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -614,7 +614,7 @@ const CharacterActivity: React.FC = () => {
           )}
           {/* 추가 버튼 */}
         </View>
-        {/* 기타 수입 */}
+        {/* 기타 활동 */}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
@@ -635,7 +635,7 @@ const CharacterActivity: React.FC = () => {
                 <CustomText
                   style={[styles.sectionTitle, { color: colors.black }]}
                 >
-                  기타 수입
+                  기타 활동
                 </CustomText>
               </View>
               <CustomText
@@ -652,18 +652,18 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!weeklyActivityFolded && (
             <View>
-              <View style={styles.addButtonContainer}>
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
                   style={[
-                    styles.addButton,
-                    { backgroundColor: colors.secondary },
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
                   ]}
                   onPress={toggleOtherActivityModal}
                 >
                   <CustomText
-                    style={[styles.addButtonText, { color: 'white' }]}
+                    style={[styles.editButtonText, { color: colors.black }]}
                   >
-                    ＋ 추가
+                    활동 추가
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -672,8 +672,12 @@ const CharacterActivity: React.FC = () => {
                   <TouchableOpacity
                     key={index}
                     style={[
-                      styles.activityItem,
-                      { backgroundColor: colors.grayLight },
+                      styles.otherActivityItem,
+                      {
+                        backgroundColor: colors.grayLight,
+                        marginTop: index === 0 ? 16 : 0,
+                        marginBottom: 10,
+                      },
                     ]}
                     onPress={() => {
                       setOtherActivityIndex(index);
@@ -938,7 +942,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
-
+  otherActivityItem: {
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
   activityItemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -948,6 +956,7 @@ const styles = StyleSheet.create({
   activityNameText: {
     fontSize: 14,
     fontWeight: '600',
+    lineHeight: 24,
   },
 
   activityGoldText: {

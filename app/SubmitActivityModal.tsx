@@ -339,7 +339,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   value={activityName}
                   onChangeText={handleChangeNameInput}
                 />
-                <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const temp = !goldChecked;
+                    setGoldChecked(temp);
+                    if (temp === false) {
+                      setActivityGold(''); // 골드 체크 해제 시 입력값 초기화
+                    }
+                  }}
+                >
                   <View style={styles.checkBlock}>
                     <CustomText
                       style={[

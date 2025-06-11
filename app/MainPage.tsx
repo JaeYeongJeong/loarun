@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
   sortButtonText: {
     fontSize: normalize(12),
     fontWeight: '600',
+    textAlign: 'center',
   },
   addContainer: {
     height: CHARACTER_BAR_HEIGHT,
