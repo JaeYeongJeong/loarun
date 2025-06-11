@@ -4,7 +4,6 @@ import {
   Modal,
   View,
   TextInput,
-  Button,
   Pressable,
   TouchableOpacity,
 } from 'react-native';
@@ -16,6 +15,7 @@ type CustomPromptProps = {
   setIsVisibleFalse: () => void;
   titleText?: string;
   messageText?: string;
+  inputPlaceholder?: string;
   onSubmit?: (input: string) => void;
 };
 
@@ -24,6 +24,7 @@ const CustomPrompt: React.FC<CustomPromptProps> = ({
   setIsVisibleFalse,
   titleText = '제목',
   messageText = '메세지',
+  inputPlaceholder = '입력',
   onSubmit: submitAction,
 }) => {
   const { colors } = useTheme();
@@ -56,21 +57,22 @@ const CustomPrompt: React.FC<CustomPromptProps> = ({
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="닉네임 입력"
+            placeholder={inputPlaceholder}
+            placeholderTextColor={colors.grayDark}
             style={[
               styles.input,
               { color: colors.black, backgroundColor: colors.grayLight },
             ]}
           />
           <View style={styles.buttonWrapper}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleClose}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
                 닫기
               </CustomText>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleSubmit}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
@@ -99,7 +101,6 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 16,
     fontWeight: '600',
-
     marginBottom: 10,
   },
   messageText: {
@@ -119,8 +120,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 20,
+    justifyContent: 'space-around',
   },
   buttonText: {
     fontSize: 16,

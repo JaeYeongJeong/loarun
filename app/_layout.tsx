@@ -8,6 +8,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import * as SystemUI from 'expo-system-ui';
 import { useLoadFonts } from '@/hooks/useLoadFonts';
 import { ErrorBoundary } from 'react-error-boundary';
+import { PaperProvider } from 'react-native-paper';
 
 function ErrorFallback({ error }: { error: Error }) {
   return (
@@ -24,9 +25,11 @@ export default function RootLayout() {
     <ErrorBoundary
       fallbackRender={({ error }) => <ErrorFallback error={error} />}
     >
-      <ThemeProvider>
-        <RootLayoutWrapper />
-      </ThemeProvider>
+      <PaperProvider>
+        <ThemeProvider>
+          <RootLayoutWrapper />
+        </ThemeProvider>
+      </PaperProvider>
     </ErrorBoundary>
   );
 }

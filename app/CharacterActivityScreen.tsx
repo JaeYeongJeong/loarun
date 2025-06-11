@@ -742,24 +742,11 @@ const CharacterActivity: React.FC = () => {
         positionX={optionsButtonX}
         positionY={optionsButtonY}
         resetMissions={() => {
-          Alert.alert('기본값으로 초기화하시겠어요?', undefined, [
-            {
-              text: '취소',
-              style: 'default',
-            },
-            {
-              text: '예',
-              style: 'default',
-              onPress: () => {
-                setOptionsModalVisible(false);
-                updateCharacter(character.id, {
-                  checkList: missionCheckListData,
-                });
-                setActivityIndex(null);
-                setCheckedListFolded(false);
-              },
-            },
-          ]);
+          updateCharacter(character.id, {
+            checkList: missionCheckListData,
+          });
+          setActivityIndex(null);
+          setCheckedListFolded(false);
         }}
         changeName={() => {
           setOptionsModalVisible(false);
@@ -809,6 +796,7 @@ const CharacterActivity: React.FC = () => {
         messageText={
           '변경한 캐릭터 이름을 입력해주세요.\n변경 후 갱신하면 정보가 업데이트 됩니다.'
         }
+        inputPlaceholder="닉네임 입력"
         onSubmit={(input) => {
           if (!input.trim()) {
             Alert.alert('오류', '닉네임을 입력해주세요.');
