@@ -45,7 +45,10 @@ const CustomPrompt: React.FC<CustomPromptProps> = ({
     <Modal animationType="none" transparent visible={isVisible}>
       <Pressable style={styles.overlay} onPress={handleClose}>
         <Pressable
-          style={[styles.container, { backgroundColor: colors.background }]}
+          style={[
+            styles.container,
+            { backgroundColor: colors.alertBackground },
+          ]}
           onPress={() => {}}
         >
           <CustomText style={[styles.titleText, { color: colors.black }]}>

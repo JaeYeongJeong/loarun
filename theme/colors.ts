@@ -2,6 +2,7 @@ type ColorTheme = {
   background: string; // 배경색
   cardBackground: string; // 카드 배경색
   modalBackground: string; // 모달 배경색
+  alertBackground: string;
   grayLight: string; // 회색 밝은 색상
   grayDark: string; // 회색 어두운 색상
   black: string; // 검정색
@@ -19,6 +20,7 @@ const lightColors: ColorTheme = {
   background: '#f8f9fa',
   cardBackground: '#ffffff',
   modalBackground: '#e9ecef',
+  alertBackground: '#f8f9fa',
   grayLight: '#f1f3f5',
   grayDark: '#666666',
   black: '#212529',
@@ -36,6 +38,7 @@ const darkColors: ColorTheme = {
   background: '#121212', // 다크 배경
   cardBackground: '#1e1e1e', // 카드용 약간 밝은 회색
   modalBackground: '#2a2a2a',
+  alertBackground: '#1e1e1e',
   grayLight: '#2c2c2c', // 버튼 배경 같은 곳에
   grayDark: '#aaaaaa', // 텍스트용 밝은 회색
   black: '#f8f9fa', // 다크에서는 흰색이 메인 텍스트가 됨

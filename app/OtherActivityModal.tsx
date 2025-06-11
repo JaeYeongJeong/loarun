@@ -199,149 +199,151 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
   };
 
   return (
-    <Modal
-      animationType="none"
-      transparent
-      visible={isVisible}
-      onRequestClose={handleCloseModal}
-    >
-      <TouchableWithoutFeedback onPress={handleCloseModal}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback onPress={() => {}}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-              style={{ width: '100%' }}
-            >
-              <Animated.View
-                style={[
-                  styles.modalContainer,
-                  { backgroundColor: colors.cardBackground },
-                  { transform: [{ translateY }] },
-                ]}
+    <>
+      <Modal
+        animationType="none"
+        transparent
+        visible={isVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <TouchableWithoutFeedback onPress={handleCloseModal}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ width: '100%' }}
               >
-                <View
-                  style={{
-                    width: '100%',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 20,
-                  }}
+                <Animated.View
+                  style={[
+                    styles.modalContainer,
+                    { backgroundColor: colors.cardBackground },
+                    { transform: [{ translateY }] },
+                  ]}
                 >
-                  {/* 왼쪽 더미 박스 */}
-                  <View style={{ width: 24 /* 아이콘 크기와 같게 */ }} />
-                  <CustomText
-                    style={[styles.modalText, { color: colors.black }]}
+                  <View
+                    style={{
+                      width: '100%',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 20,
+                    }}
                   >
-                    {mode === 'edit' ? '활동 수정' : '활동 추가'}
-                  </CustomText>
+                    {/* 왼쪽 더미 박스 */}
+                    <View style={{ width: 24 /* 아이콘 크기와 같게 */ }} />
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      {mode === 'edit' ? '활동 수정' : '활동 추가'}
+                    </CustomText>
 
-                  {mode === 'edit' ? (
-                    <TouchableOpacity onPress={handleDelete}>
-                      <Feather
-                        name="trash-2"
-                        size={24}
-                        color={colors.grayDark}
-                      />
-                    </TouchableOpacity>
-                  ) : (
-                    <View style={{ width: 24 }} />
-                  )}
-                </View>
-                {activityHistory.length > 0 && (
-                  <View style={styles.activityHistoryContainer}>
-                    {activityHistory.map((item, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.historyButton,
-                          { backgroundColor: colors.primary },
-                        ]}
-                        onPress={() => setActivityName(item)}
-                      >
-                        <CustomText
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={[
-                            styles.historyButtonText,
-                            { color: colors.white },
-                          ]}
-                        >
-                          {item}
-                        </CustomText>
+                    {mode === 'edit' ? (
+                      <TouchableOpacity onPress={handleDelete}>
+                        <Feather
+                          name="trash-2"
+                          size={24}
+                          color={colors.grayDark}
+                        />
                       </TouchableOpacity>
-                    ))}
+                    ) : (
+                      <View style={{ width: 24 }} />
+                    )}
                   </View>
-                )}
-                <TextInput
-                  placeholder="활동명 입력"
-                  style={[
-                    styles.input,
-                    { backgroundColor: colors.grayLight },
-                    { color: colors.grayDark },
-                  ]}
-                  placeholderTextColor={colors.grayDark}
-                  value={activityName}
-                  onChangeText={handleChangeNameInput}
-                />
-                <TextInput
-                  placeholder="획득 골드"
-                  style={[
-                    styles.input,
-                    { backgroundColor: colors.grayLight },
-                    { color: colors.grayDark },
-                  ]}
-                  keyboardType={
-                    Platform.OS === 'ios'
-                      ? 'numbers-and-punctuation'
-                      : 'default'
-                  }
-                  placeholderTextColor={colors.grayDark}
-                  value={activityGold}
-                  onChangeText={handleChangeGoldInput}
-                />
-
-                <View style={styles.buttonGroup}>
-                  <TouchableOpacity
-                    onPress={handleCloseModal}
+                  {activityHistory.length > 0 && (
+                    <View style={styles.activityHistoryContainer}>
+                      {activityHistory.map((item, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.historyButton,
+                            { backgroundColor: colors.primary },
+                          ]}
+                          onPress={() => setActivityName(item)}
+                        >
+                          <CustomText
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={[
+                              styles.historyButtonText,
+                              { color: colors.white },
+                            ]}
+                          >
+                            {item}
+                          </CustomText>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                  <TextInput
+                    placeholder="활동명 입력"
                     style={[
-                      styles.actionButton,
+                      styles.input,
                       { backgroundColor: colors.grayLight },
+                      { color: colors.grayDark },
                     ]}
-                  >
-                    <CustomText
-                      style={[
-                        styles.actionButtonText,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      취소
-                    </CustomText>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={handleSubmit}
+                    placeholderTextColor={colors.grayDark}
+                    value={activityName}
+                    onChangeText={handleChangeNameInput}
+                  />
+                  <TextInput
+                    placeholder="획득 골드"
                     style={[
-                      styles.confirmButton,
-                      { backgroundColor: colors.primary },
+                      styles.input,
+                      { backgroundColor: colors.grayLight },
+                      { color: colors.grayDark },
                     ]}
-                  >
-                    <CustomText
+                    keyboardType={
+                      Platform.OS === 'ios'
+                        ? 'numbers-and-punctuation'
+                        : 'default'
+                    }
+                    placeholderTextColor={colors.grayDark}
+                    value={activityGold}
+                    onChangeText={handleChangeGoldInput}
+                  />
+
+                  <View style={styles.buttonGroup}>
+                    <TouchableOpacity
+                      onPress={handleCloseModal}
                       style={[
-                        styles.confirmButtonText,
-                        { color: colors.white },
+                        styles.actionButton,
+                        { backgroundColor: colors.grayLight },
                       ]}
                     >
-                      확인
-                    </CustomText>
-                  </TouchableOpacity>
-                </View>
-              </Animated.View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+                      <CustomText
+                        style={[
+                          styles.actionButtonText,
+                          { color: colors.grayDark },
+                        ]}
+                      >
+                        취소
+                      </CustomText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={handleSubmit}
+                      style={[
+                        styles.confirmButton,
+                        { backgroundColor: colors.primary },
+                      ]}
+                    >
+                      <CustomText
+                        style={[
+                          styles.confirmButtonText,
+                          { color: colors.white },
+                        ]}
+                      >
+                        확인
+                      </CustomText>
+                    </TouchableOpacity>
+                  </View>
+                </Animated.View>
+              </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 };
 

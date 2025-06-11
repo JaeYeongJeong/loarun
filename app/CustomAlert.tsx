@@ -1,6 +1,11 @@
 import React from 'react';
-import { Portal, Modal } from 'react-native-paper';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import CustomText from './components/CustomText';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -17,12 +22,12 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   setIsVisibleFalse,
   titleText = '제목',
   messageText = '메세지',
-  onSubmit,
+  onSubmit: submitAction,
 }) => {
   const { colors } = useTheme();
 
   const handleSubmit = () => {
-    onSubmit?.();
+    submitAction?.();
     setIsVisibleFalse();
   };
 
@@ -31,53 +36,61 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   };
 
   return (
-    <Portal>
-      <Modal
-        visible={isVisible}
-        onDismiss={handleClose} // 모달 외부 터치 시 닫기
-        contentContainerStyle={[
-          styles.container,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <CustomText style={[styles.titleText, { color: colors.black }]}>
-          {titleText}
-        </CustomText>
-        <CustomText style={[styles.messageText, { color: colors.black }]}>
-          {messageText}
-        </CustomText>
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity onPress={handleClose}>
-            <CustomText
-              style={[styles.buttonText, { color: colors.secondary }]}
-            >
-              닫기
-            </CustomText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleSubmit}>
-            <CustomText
-              style={[styles.buttonText, { color: colors.secondary }]}
-            >
-              확인
-            </CustomText>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </Portal>
+    <Modal
+      animationType="none"
+      transparent
+      visible={isVisible}
+      presentationStyle="overFullScreen"
+    >
+      <Pressable style={styles.overlay} onPress={handleClose}>
+        <Pressable
+          style={[styles.container, { backgroundColor: colors.background }]}
+          onPress={() => {}}
+        >
+          <CustomText style={[styles.titleText, { color: colors.black }]}>
+            {titleText}
+          </CustomText>
+          <CustomText style={[styles.messageText, { color: colors.black }]}>
+            {messageText}
+          </CustomText>
+          <View style={styles.buttonWrapper}>
+            <TouchableOpacity onPress={handleClose}>
+              <CustomText
+                style={[styles.buttonText, { color: colors.secondary }]}
+              >
+                닫기
+              </CustomText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSubmit}>
+              <CustomText
+                style={[styles.buttonText, { color: colors.secondary }]}
+              >
+                확인
+              </CustomText>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
-    backgroundColor: 'white',
+    width: 280,
     padding: 20,
     borderRadius: 10,
-    width: 280,
-    alignSelf: 'center',
   },
   titleText: {
     fontSize: 16,
     fontWeight: '600',
+
     marginBottom: 10,
   },
   messageText: {
