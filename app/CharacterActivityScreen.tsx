@@ -23,6 +23,7 @@ import OtherActivityModal from './OtherActivityModal';
 import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
 import { missionCheckListData } from '@/utils/missionCheckListData';
 import CustomPrompt from './CustomPrompt';
+import CustomAlert from './CustomAlert';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -77,6 +78,8 @@ const CharacterActivity: React.FC = () => {
 
   const [changeNamePromptVisible, setChangeNamePromptVisible] =
     useState<boolean>(false);
+
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState<boolean>(false);
 
   // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
@@ -188,20 +191,8 @@ const CharacterActivity: React.FC = () => {
     ) || 0;
 
   const handleRemoveCharacter = () => {
-    Alert.alert('캐릭터 삭제', '정말 삭제하시겠어요?', [
-      {
-        text: '취소',
-        style: 'cancel',
-      },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: () => {
-          removeCharacter(character.id);
-          router.back();
-        },
-      },
-    ]);
+    removeCharacter(character.id);
+    router.back();
   };
 
   const handleRefreshCharacter = async () => {
@@ -278,7 +269,7 @@ const CharacterActivity: React.FC = () => {
               <Feather name="bookmark" size={24} color={colors.iconColor} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleRemoveCharacter}>
+          <TouchableOpacity onPress={() => setDeleteAlertVisible(true)}>
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
@@ -805,6 +796,13 @@ const CharacterActivity: React.FC = () => {
           updateCharacter(character.id, { CharacterName: input });
           Alert.alert('성공', '닉네임이 변경되었습니다.');
         }}
+      />
+
+      <CustomAlert
+        isVisible={deleteAlertVisible}
+        setIsVisibleFalse={() => setDeleteAlertVisible(false)}
+        titleText="캐릭터를 삭제하시겠습니까?"
+        onSubmit={handleRemoveCharacter}
       />
     </View>
   );

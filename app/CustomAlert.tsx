@@ -20,8 +20,8 @@ type CustomAlertProps = {
 const CustomAlert: React.FC<CustomAlertProps> = ({
   isVisible,
   setIsVisibleFalse,
-  titleText = '제목',
-  messageText = '메세지',
+  titleText,
+  messageText,
   onSubmit: submitAction,
 }) => {
   const { colors } = useTheme();
@@ -44,24 +44,29 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
     >
       <Pressable style={styles.overlay} onPress={handleClose}>
         <Pressable
-          style={[styles.container, { backgroundColor: colors.background }]}
+          style={[
+            styles.container,
+            { backgroundColor: colors.alertBackground },
+          ]}
           onPress={() => {}}
         >
           <CustomText style={[styles.titleText, { color: colors.black }]}>
             {titleText}
           </CustomText>
-          <CustomText style={[styles.messageText, { color: colors.black }]}>
-            {messageText}
-          </CustomText>
+          {messageText && (
+            <CustomText style={[styles.messageText, { color: colors.black }]}>
+              {messageText}
+            </CustomText>
+          )}
           <View style={styles.buttonWrapper}>
-            <TouchableOpacity onPress={handleClose}>
+            <TouchableOpacity style={styles.button} onPress={handleClose}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
                 닫기
               </CustomText>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSubmit}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
@@ -96,12 +101,18 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 14,
     fontWeight: '400',
-    marginBottom: 16,
     lineHeight: 20,
   },
   buttonWrapper: {
+    marginTop: 16,
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    minWidth: 80,
   },
   buttonText: {
     fontSize: 16,

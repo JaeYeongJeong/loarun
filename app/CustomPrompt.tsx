@@ -68,14 +68,14 @@ const CustomPrompt: React.FC<CustomPromptProps> = ({
             ]}
           />
           <View style={styles.buttonWrapper}>
-            <TouchableOpacity onPress={handleClose}>
+            <TouchableOpacity style={styles.button} onPress={handleClose}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
                 닫기
               </CustomText>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSubmit}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
               >
@@ -124,6 +124,12 @@ const styles = StyleSheet.create({
   buttonWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    minWidth: 80,
   },
   buttonText: {
     fontSize: 16,
