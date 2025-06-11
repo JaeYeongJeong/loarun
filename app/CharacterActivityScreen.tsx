@@ -20,6 +20,9 @@ import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import CustomText from './components/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import OtherActivityModal from './OtherActivityModal';
+import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
+import { missionCheckListData } from '@/utils/missionCheckListData';
+import CustomPrompt from './CustomPrompt';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -53,6 +56,27 @@ const CharacterActivity: React.FC = () => {
   const [raidModalVisible, setRaidModalVisible] = useState<boolean>(false);
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
+
+  const [optionsModalVisible, setOptionsModalVisible] =
+    useState<boolean>(false);
+  const optionsButtonRef = useRef<View>(null);
+  const [optionsButtonX, setOptionsButtonX] = useState(0);
+  const [optionsButtonY, setOptionsButtonY] = useState(0);
+
+  const toggleOptionsModal = () => {
+    if (optionsButtonRef.current) {
+      optionsButtonRef.current.measureInWindow((x, y, width, height) => {
+        setOptionsButtonX(x);
+        setOptionsButtonY(y + height); // 버튼 아래쪽 위치
+        setOptionsModalVisible((prev) => !prev);
+      });
+    } else {
+      setOptionsModalVisible((prev) => !prev);
+    }
+  };
+
+  const [changeNamePromptVisible, setChangeNamePromptVisible] =
+    useState<boolean>(false);
 
   // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
@@ -257,7 +281,7 @@ const CharacterActivity: React.FC = () => {
           <TouchableOpacity onPress={handleRemoveCharacter}>
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
             <Feather
               name="more-horizontal"
               size={24}
@@ -712,6 +736,37 @@ const CharacterActivity: React.FC = () => {
         </View>
       </ScrollView>
 
+      <CharacterActivityOptionsModal
+        isVisible={optionsModalVisible}
+        toggleModal={toggleOptionsModal}
+        positionX={optionsButtonX}
+        positionY={optionsButtonY}
+        resetMissions={() => {
+          Alert.alert('기본값으로 초기화하시겠어요?', undefined, [
+            {
+              text: '취소',
+              style: 'default',
+            },
+            {
+              text: '예',
+              style: 'default',
+              onPress: () => {
+                setOptionsModalVisible(false);
+                updateCharacter(character.id, {
+                  checkList: missionCheckListData,
+                });
+                setActivityIndex(null);
+                setCheckedListFolded(false);
+              },
+            },
+          ]);
+        }}
+        changeName={() => {
+          setOptionsModalVisible(false);
+          setChangeNamePromptVisible(true);
+        }}
+      />
+
       <ActivityModal
         isVisible={activityModalVisible}
         setIndexNull={() => setActivityIndex(null)}
@@ -745,6 +800,23 @@ const CharacterActivity: React.FC = () => {
         setIsVisibleFalse={() => setRaidModalVisible(false)}
         id={character.id}
         index={raidIndex}
+      />
+
+      <CustomPrompt
+        isVisible={changeNamePromptVisible}
+        setIsVisibleFalse={() => setChangeNamePromptVisible(false)}
+        titleText="닉네임 변경"
+        messageText={
+          '변경한 캐릭터 이름을 입력해주세요.\n변경 후 갱신하면 정보가 업데이트 됩니다.'
+        }
+        onSubmit={(input) => {
+          if (!input.trim()) {
+            Alert.alert('오류', '닉네임을 입력해주세요.');
+            return;
+          }
+          updateCharacter(character.id, { CharacterName: input });
+          Alert.alert('성공', '닉네임이 변경되었습니다.');
+        }}
       />
     </View>
   );

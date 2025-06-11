@@ -1,7 +1,6 @@
-import { SortOrder, useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Modal,

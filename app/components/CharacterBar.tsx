@@ -136,7 +136,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           {totalGold.toLocaleString()}
         </CustomText>
         <CustomText style={[styles.countText, { color: colors.grayDark }]}>
-          주간 {totalCount > 0 ? clearedCount : '-'} /{' '}
+          레이드 {totalCount > 0 ? clearedCount : '-'} /{' '}
           {totalCount > 0 ? totalCount : '-'}
         </CustomText>
       </View>
