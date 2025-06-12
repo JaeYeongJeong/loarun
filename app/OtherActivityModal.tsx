@@ -93,15 +93,15 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
     }
 
     if (mode === 'edit' && index !== undefined) {
-      const updated = [...(character.WeeklyActivity ?? [])];
+      const updated = [...(character.OtherActivity ?? [])];
       updated[index] = {
         name: activityName || '',
         gold: Number(activityGold.replace(/,/g, '')) || 0,
       };
 
       updateCharacter(character.id, {
-        WeeklyActivity: updated,
-        WeeklyActivityTotalGold: updated.reduce(
+        OtherActivity: updated,
+        OtherActivityTotalGold: updated.reduce(
           (total, activity) => total + activity.gold,
           0
         ),
@@ -112,7 +112,7 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
           name: activityName || '',
           gold: Number(activityGold.replace(/,/g, '')) || 0,
         },
-        ...(character.WeeklyActivity ?? []), // undefined일 경우 빈 배열로 대체
+        ...(character.OtherActivity ?? []), // undefined일 경우 빈 배열로 대체
       ];
 
       const updatedTotalGold = newActivity.reduce(
@@ -121,8 +121,8 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
       );
 
       updateCharacter(character.id, {
-        WeeklyActivity: newActivity,
-        WeeklyActivityTotalGold: updatedTotalGold,
+        OtherActivity: newActivity,
+        OtherActivityTotalGold: updatedTotalGold,
       });
 
       if (activityName.trim() !== '') {
@@ -152,15 +152,15 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
         style: 'destructive',
         onPress: () => {
           if (index !== undefined) {
-            const updated = [...(character.WeeklyActivity ?? [])];
+            const updated = [...(character.OtherActivity ?? [])];
             updated.splice(index, 1);
             const updatedTotalGold = updated.reduce(
               (total, activity) => total + activity.gold,
               0
             );
             updateCharacter(character.id, {
-              WeeklyActivity: updated,
-              WeeklyActivityTotalGold: updatedTotalGold,
+              OtherActivity: updated,
+              OtherActivityTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();

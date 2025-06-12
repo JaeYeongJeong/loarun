@@ -50,7 +50,15 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
           ]}
           onPress={() => {}}
         >
-          <CustomText style={[styles.titleText, { color: colors.black }]}>
+          <CustomText
+            style={[
+              styles.titleText,
+              {
+                color: colors.black,
+                textAlign: messageText ? 'auto' : 'center',
+              },
+            ]}
+          >
             {titleText}
           </CustomText>
           {messageText && (

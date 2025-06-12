@@ -53,7 +53,7 @@ const AddCharacterScreen: React.FC = () => {
       CharacterClassName: characterInfo.CharacterClassName,
       ItemAvgLevel: characterInfo.ItemAvgLevel,
       ServerName: characterInfo.ServerName,
-      checkList: missionCheckListData,
+      MissionCheckList: missionCheckListData,
     });
 
     Alert.alert('성공', `${characterInfo.CharacterName}이(가) 추가되었습니다.`);

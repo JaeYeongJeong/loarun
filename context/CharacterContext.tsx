@@ -47,18 +47,17 @@ type Character = {
   SelectedRaids?: Raid[]; // ✅ 선택한 레이드 목록
   SelectedRaidTotalGold?: number; // ✅ 선택한 레이드 총 금액
   ClearedRaidTotalGold?: number; // ✅ 클리어한 레이드 총 금액
-  WeeklyActivity?: Activity[];
   WeeklyRaidTotalGold?: number; // ✅ 주간 레이드 총 금액
-  WeeklyActivityTotalGold?: number; // ✅ 주간 활동 총 금액
-  lastUpdated?: string; // ✅ 마지막 업데이트 날짜
-  addedAt?: string; //추가된 날짜
-  weeklyRaidFolded?: boolean;
-  checkedListFolded?: boolean; // 체크리스트 접기 상태
-  weeklyActivityFolded?: boolean;
-  isBookmarked?: boolean;
-  checkList?: checkListItem[];
-  checkListTotalGold?: number; // 체크리스트에서 획득한 총 골드
-  checkListFolded?: boolean; // 체크리스트 접기 상태
+  OtherActivity?: Activity[];
+  OtherActivityTotalGold?: number; // ✅ 주간 활동 총 금액
+  OtherActivityFolded?: boolean;
+  LastUpdated?: string; // ✅ 마지막 업데이트 날짜
+  AddedAt?: string; //추가된 날짜
+  WeeklyRaidFolded?: boolean;
+  IsBookmarked?: boolean;
+  MissionCheckList?: checkListItem[];
+  MissionCheckListTotalGold?: number; // 체크리스트에서 획득한 총 골드
+  MissionCheckListFolded?: boolean; // 체크리스트 접기 상태
 };
 
 export type SortOrder = 'addedAt' | 'level' | 'server';
@@ -121,7 +120,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       if (parsedCharacters.length > 0 && isAfterWednesday6AM()) {
         const wednesdayDate = getThisWednesday6AM();
         if (!lastReset || new Date(lastReset) < wednesdayDate) {
-          await resetCharacterTask(parsedCharacters);
+          await resetWeeklyCharacterTask(parsedCharacters);
           await AsyncStorage.setItem('lastReset', now.toISOString());
         } else {
           setCharacters(parsedCharacters);
@@ -208,7 +207,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
             CharacterClassName: updatedData.CharacterClassName || '',
             ItemAvgLevel: updatedData.ItemAvgLevel || '',
             ServerName: updatedData.ServerName || '',
-            lastUpdated: new Date().toISOString(),
+            LastUpdated: new Date().toISOString(),
           }
         : char
     );
@@ -223,8 +222,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       // 추가된 순 (오름차순)
       sortedList = [...characters].sort(
         (a, b) =>
-          new Date(a.addedAt || 0).getTime() -
-          new Date(b.addedAt || 0).getTime()
+          new Date(a.AddedAt || 0).getTime() -
+          new Date(b.AddedAt || 0).getTime()
       );
     } else if (order === 'level') {
       // 레벨 높은 순 (문자열 → 숫자 변환)
@@ -267,12 +266,12 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(sortedList);
   };
 
-  const resetCharacterTask = async (targetCharacters: Character[]) => {
+  const resetWeeklyCharacterTask = async (targetCharacters: Character[]) => {
     if (targetCharacters.length === 0) {
       console.log('No characters to reset');
       return;
     } else {
-      console.log('캐릭터 숙제 삭제');
+      console.log('캐릭터 주간 숙제 삭제');
     }
 
     const updated = targetCharacters.map((c) => {
@@ -285,12 +284,20 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         })),
       }));
 
+      const updatedMission = c.MissionCheckList?.map((m) => {
+        return {
+          ...m,
+          checked: m.resetPeriod === 'weekly' ? false : m.checked,
+        };
+      });
+
       return {
         ...c,
         SelectedRaids: updatedRaids,
         WeeklyActivity: [],
         WeeklyActivityTotalGold: 0,
         ClearedRaidTotalGold: 0,
+        missionCheckList: updatedMission,
       };
     });
 

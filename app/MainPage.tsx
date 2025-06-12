@@ -70,7 +70,7 @@ const MainPage: React.FC = () => {
   };
 
   const filteredCharacters = isBookmarkedFilterOn
-    ? characters.filter((character) => character.isBookmarked)
+    ? characters.filter((character) => character.IsBookmarked)
     : characters;
 
   return (

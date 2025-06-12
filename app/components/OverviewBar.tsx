@@ -26,7 +26,7 @@ function OverviewBar() {
     (acc, c) => {
       const clearedGold = c.ClearedRaidTotalGold || 0;
       const raidsGold = c.SelectedRaidTotalGold || 0;
-      const weeklyGold = c.WeeklyActivityTotalGold || 0;
+      const weeklyGold = c.OtherActivityTotalGold || 0;
 
       acc.totalGold += clearedGold + weeklyGold;
       acc.totalRaidsGold += raidsGold;

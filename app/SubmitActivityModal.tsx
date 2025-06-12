@@ -105,7 +105,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     }
 
     if (mode === 'edit' && index !== undefined) {
-      const updated = [...(character.checkList ?? [])];
+      const updated = [...(character.MissionCheckList ?? [])];
       updated[index] = {
         name: activityName || '',
         resetPeriod: resetPeriod,
@@ -115,11 +115,11 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       };
 
       updateCharacter(character.id, {
-        checkList: updated,
+        MissionCheckList: updated,
       });
     } else {
       const newCheckList = [
-        ...(character.checkList ?? []),
+        ...(character.MissionCheckList ?? []),
         {
           name: activityName || '',
           resetPeriod: resetPeriod,
@@ -130,7 +130,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       ];
 
       updateCharacter(character.id, {
-        checkList: newCheckList,
+        MissionCheckList: newCheckList,
       });
     }
 
@@ -146,15 +146,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         style: 'destructive',
         onPress: () => {
           if (index !== undefined) {
-            const updated = [...(character.checkList ?? [])];
+            const updated = [...(character.MissionCheckList ?? [])];
             updated.splice(index, 1);
             const updatedTotalGold = updated.reduce(
               (total, item) => total + (item.gold || 0),
               0
             );
             updateCharacter(character.id, {
-              checkList: updated,
-              checkListTotalGold: updatedTotalGold,
+              MissionCheckList: updated,
+              MissionCheckListTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();

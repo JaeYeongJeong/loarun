@@ -89,20 +89,21 @@ const CharacterActivity: React.FC = () => {
 
   // 📌 접힘 상태
   const [weeklyRaidFolded, setWeeklyRaidFolded] = useState<boolean>(false);
-  const [checkedListFolded, setCheckedListFolded] = useState<boolean>(false);
-  const [weeklyActivityFolded, setWeeklyActivityFolded] =
+  const [missionCheckedListFolded, setMissionCheckedListFolded] =
+    useState<boolean>(false);
+  const [otherActivityFolded, setOtherActivityFolded] =
     useState<boolean>(false);
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
   useEffect(() => {
-    setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
-    setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
-    setCheckedListFolded(character.checkedListFolded ?? false);
-    setBookmarked(character.isBookmarked ?? false);
+    setWeeklyRaidFolded(character.WeeklyRaidFolded ?? false);
+    setOtherActivityFolded(character.OtherActivityFolded ?? false);
+    setMissionCheckedListFolded(character.MissionCheckListFolded ?? false);
+    setBookmarked(character.IsBookmarked ?? false);
 
     const now = Date.now();
-    const lastUpdated = new Date(character.lastUpdated ?? 0).getTime();
+    const lastUpdated = new Date(character.LastUpdated ?? 0).getTime();
     const diff = now - lastUpdated;
 
     if (diff < 60000) {
@@ -185,7 +186,7 @@ const CharacterActivity: React.FC = () => {
   };
 
   const checkedListTotalGold =
-    character.checkList?.reduce(
+    character.MissionCheckList?.reduce(
       (total, item) => total + (item.checked ? item.gold || 0 : 0),
       0
     ) || 0;
@@ -227,12 +228,12 @@ const CharacterActivity: React.FC = () => {
   };
 
   const handleChecklistToggle = (index: number) => {
-    const updatedCheckList = character.checkList?.map((item, i) =>
+    const updatedCheckList = character.MissionCheckList?.map((item, i) =>
       i === index ? { ...item, checked: !item.checked } : item
     );
 
     updateCharacter(character.id, {
-      checkList: updatedCheckList,
+      MissionCheckList: updatedCheckList,
     });
   };
 
@@ -260,7 +261,7 @@ const CharacterActivity: React.FC = () => {
             onPress={() => {
               const next = !bookmarked;
               setBookmarked(next);
-              updateCharacter(character.id, { isBookmarked: next });
+              updateCharacter(character.id, { IsBookmarked: next });
             }}
           >
             {bookmarked ? (
@@ -295,7 +296,7 @@ const CharacterActivity: React.FC = () => {
               source={{
                 uri:
                   character.CharacterPortraitImage +
-                  `?d=${character.lastUpdated}`,
+                  `?d=${character.LastUpdated}`,
               }}
               style={styles.portraitImage}
               resizeMode="cover"
@@ -355,7 +356,7 @@ const CharacterActivity: React.FC = () => {
             onPress={() => {
               const next = !weeklyRaidFolded;
               setWeeklyRaidFolded(next);
-              updateCharacter(character.id, { weeklyRaidFolded: next });
+              updateCharacter(character.id, { WeeklyRaidFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
@@ -514,15 +515,17 @@ const CharacterActivity: React.FC = () => {
         >
           <TouchableOpacity
             onPress={() => {
-              const next = !checkedListFolded;
-              setCheckedListFolded(next);
-              updateCharacter(character.id, { checkedListFolded: next });
+              const next = !missionCheckedListFolded;
+              setMissionCheckedListFolded(next);
+              updateCharacter(character.id, { MissionCheckListFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
                 <Feather
-                  name={checkedListFolded ? 'chevron-down' : 'chevron-up'}
+                  name={
+                    missionCheckedListFolded ? 'chevron-down' : 'chevron-up'
+                  }
                   size={24}
                   color={colors.black}
                 />
@@ -544,10 +547,10 @@ const CharacterActivity: React.FC = () => {
               </CustomText>
             </View>
           </TouchableOpacity>
-          {!checkedListFolded && (
+          {!missionCheckedListFolded && (
             <View>
-              {Array.isArray(character.checkList) &&
-                character.checkList.map((item, index) => (
+              {Array.isArray(character.MissionCheckList) &&
+                character.MissionCheckList.map((item, index) => (
                   <View
                     style={{
                       flexDirection: 'row',
@@ -635,15 +638,15 @@ const CharacterActivity: React.FC = () => {
         >
           <TouchableOpacity
             onPress={() => {
-              const next = !weeklyActivityFolded;
-              setWeeklyActivityFolded(next);
-              updateCharacter(character.id, { weeklyActivityFolded: next });
+              const next = !otherActivityFolded;
+              setOtherActivityFolded(next);
+              updateCharacter(character.id, { OtherActivityFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
                 <Feather
-                  name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  name={otherActivityFolded ? 'chevron-down' : 'chevron-up'}
                   size={24}
                   color={colors.black}
                 />
@@ -656,16 +659,16 @@ const CharacterActivity: React.FC = () => {
               <CustomText
                 style={[
                   styles.totalGoldText,
-                  (character.WeeklyActivityTotalGold || 0) >= 0
+                  (character.OtherActivityTotalGold || 0) >= 0
                     ? { color: colors.black }
                     : { color: colors.warning },
                 ]}
               >
-                {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
+                {character.OtherActivityTotalGold?.toLocaleString() || 0}
               </CustomText>
             </View>
           </TouchableOpacity>
-          {!weeklyActivityFolded && (
+          {!otherActivityFolded && (
             <View>
               <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
@@ -682,8 +685,8 @@ const CharacterActivity: React.FC = () => {
                   </CustomText>
                 </TouchableOpacity>
               </View>
-              {Array.isArray(character.WeeklyActivity) &&
-                character.WeeklyActivity.map((activity, index) => (
+              {Array.isArray(character.OtherActivity) &&
+                character.OtherActivity.map((activity, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
@@ -734,10 +737,10 @@ const CharacterActivity: React.FC = () => {
         positionY={optionsButtonY}
         resetMissions={() => {
           updateCharacter(character.id, {
-            checkList: missionCheckListData,
+            MissionCheckList: missionCheckListData,
           });
           setActivityIndex(null);
-          setCheckedListFolded(false);
+          setMissionCheckedListFolded(false);
         }}
         changeName={() => {
           setOptionsModalVisible(false);
@@ -754,7 +757,7 @@ const CharacterActivity: React.FC = () => {
         index={activityIndex ?? undefined}
         initialActivity={
           activityIndex !== null
-            ? character.checkList?.[activityIndex]
+            ? character.MissionCheckList?.[activityIndex]
             : undefined
         }
       />
@@ -768,7 +771,7 @@ const CharacterActivity: React.FC = () => {
         index={otherActivityIndex ?? undefined}
         initialActivity={
           otherActivityIndex !== null
-            ? character.WeeklyActivity?.[otherActivityIndex]
+            ? character.OtherActivity?.[otherActivityIndex]
             : undefined
         }
       />

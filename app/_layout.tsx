@@ -1,12 +1,11 @@
 import { CharacterProvider } from '@/context/CharacterContext';
 import { AppSettingProvider } from '@/context/AppSettingContext';
-import { SplashScreen, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
-import { useLoadFonts } from '@/hooks/useLoadFonts';
 import { ErrorBoundary } from 'react-error-boundary';
 
 function ErrorFallback({ error }: { error: Error }) {
@@ -33,16 +32,6 @@ export default function RootLayout() {
 
 function RootLayoutWrapper() {
   const { colors, theme } = useTheme();
-  const fontsLoaded = useLoadFonts();
-  const hasHiddenSplash = useRef(false);
-
-  const handleLayout = useCallback(() => {
-    if (fontsLoaded && !hasHiddenSplash.current) {
-      console.log('[RootLayout] Fonts loaded, hiding splash');
-      SplashScreen.hideAsync();
-      hasHiddenSplash.current = true;
-    }
-  }, [fontsLoaded]);
 
   useEffect(() => {
     console.log('[RootLayout] theme:', theme);
@@ -55,7 +44,7 @@ function RootLayoutWrapper() {
         barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor={colors.background}
       />
-      <SafeAreaView style={{ flex: 1 }} edges={[]} onLayout={handleLayout}>
+      <SafeAreaView style={{ flex: 1 }} edges={[]}>
         <CharacterProvider>
           <AppSettingProvider>
             <View style={{ flex: 1 }}>
