@@ -1,10 +1,10 @@
-// // for local development
-import { LOARUN_API_PROXY_URL } from '@/config';
+// // // for local development
+// import { LOARUN_API_PROXY_URL } from '@/config';
 
-// //for Expo preview
-// import Constants from 'expo-constants';
-// const LOARUN_API_PROXY_URL =
-//   Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL;
+//for Expo preview
+import Constants from 'expo-constants';
+const LOARUN_API_PROXY_URL =
+  Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL;
 
 const fetchCharacterInfo = async (characterName: string) => {
   const url = `${LOARUN_API_PROXY_URL}/api/character?name=${encodeURIComponent(
