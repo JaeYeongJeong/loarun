@@ -99,12 +99,19 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         : [];
 
       const now = new Date();
-      const lastReset = await AsyncStorage.getItem('lastReset');
+      const lastDailyReset = await AsyncStorage.getItem('lastDailyReset');
+      const lastWeeklyReset = await AsyncStorage.getItem('lastWeeklyReset');
 
       const isAfterWednesday6AM = () => {
         const day = now.getDay();
         const hour = now.getHours();
         return day > 3 || (day === 3 && hour >= 6);
+      };
+
+      const getToday6AM = () => {
+        const date = new Date(now);
+        date.setHours(6, 0, 0, 0);
+        return date;
       };
 
       const getThisWednesday6AM = () => {
@@ -117,21 +124,34 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return date;
       };
 
-      if (parsedCharacters.length > 0 && isAfterWednesday6AM()) {
+      if (parsedCharacters.length > 0) {
+        const today6AM = getToday6AM();
+        const dailyResetDate = lastDailyReset ? new Date(lastDailyReset) : null;
+        const weeklyResetDate = lastWeeklyReset
+          ? new Date(lastWeeklyReset)
+          : null;
         const wednesdayDate = getThisWednesday6AM();
-        if (!lastReset || new Date(lastReset) < wednesdayDate) {
-          await resetWeeklyCharacterTask(parsedCharacters);
-          await AsyncStorage.setItem('lastReset', now.toISOString());
-        } else {
-          setCharacters(parsedCharacters);
+
+        if (!dailyResetDate || dailyResetDate < today6AM) {
+          await resetCharacterTask(parsedCharacters, 'daily');
+          await AsyncStorage.setItem('lastDailyReset', now.toISOString());
+          console.log('✅ 일일 초기화 완료:', now.toLocaleString());
         }
-      } else {
-        if (parsedCharacters.length > 0) {
-          setCharacters(parsedCharacters);
+
+        if (
+          isAfterWednesday6AM() &&
+          (!weeklyResetDate || weeklyResetDate < wednesdayDate)
+        ) {
+          await resetCharacterTask(parsedCharacters, 'weekly');
+          await AsyncStorage.setItem('lastWeeklyReset', now.toISOString());
+          console.log('✅ 주간 초기화 완료:', now.toLocaleString());
         }
+
+        const updatedCharacters = await AsyncStorage.getItem('characters');
+        setCharacters(updatedCharacters ? JSON.parse(updatedCharacters) : []);
       }
 
-      setIsLoaded(true); // ✅ 로딩과 초기화가 끝난 뒤에 호출
+      setIsLoaded(true);
     };
 
     loadAndMaybeReset();
@@ -266,36 +286,35 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(sortedList);
   };
 
-  const resetWeeklyCharacterTask = async (targetCharacters: Character[]) => {
-    if (targetCharacters.length === 0) {
-      console.log('No characters to reset');
-      return;
-    } else {
-      console.log('캐릭터 주간 숙제 삭제');
-    }
+  const resetCharacterTask = async (
+    targetCharacters: Character[],
+    type: 'daily' | 'weekly'
+  ) => {
+    if (targetCharacters.length === 0) return;
 
     const updated = targetCharacters.map((c) => {
-      const updatedRaids = c.SelectedRaids?.map((r) => ({
-        ...r,
-        cleared: false,
-        stages: r.stages.map((s) => ({
-          ...s,
-          cleared: false,
-        })),
-      }));
+      const updatedRaids =
+        type === 'weekly'
+          ? c.SelectedRaids?.map((r) => ({
+              ...r,
+              cleared: false,
+              stages: r.stages.map((s) => ({
+                ...s,
+                cleared: false,
+              })),
+            }))
+          : c.SelectedRaids;
 
-      const updatedMission = c.MissionCheckList?.map((m) => {
-        return {
-          ...m,
-          checked: m.resetPeriod === 'weekly' ? false : m.checked,
-        };
-      });
+      const updatedMission = c.MissionCheckList?.map((m) => ({
+        ...m,
+        checked: m.resetPeriod === type ? false : m.checked,
+      }));
 
       return {
         ...c,
         SelectedRaids: updatedRaids,
-        WeeklyActivity: [],
-        WeeklyActivityTotalGold: 0,
+        OtherActivity: [],
+        OtherActivityTotalGold: 0,
         ClearedRaidTotalGold: 0,
         missionCheckList: updatedMission,
       };
