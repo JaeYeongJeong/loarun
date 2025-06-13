@@ -12,11 +12,12 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
-import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
+
+type resetPeriodType = 'daily' | 'weekly' | '';
 
 type ActivityModalProps = {
   isVisible: boolean;
@@ -24,7 +25,13 @@ type ActivityModalProps = {
   setIsVisibleFalse: () => void;
   id: string;
   mode?: 'add' | 'edit';
-  initialActivity?: { name: string; gold: number };
+  initialActivity?: {
+    name: string;
+    checked?: boolean;
+    gold?: number;
+    goldChecked?: boolean;
+    resetPeriod?: resetPeriodType;
+  };
   index?: number;
 };
 
@@ -39,8 +46,9 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
 }) => {
   const [activityName, setActivityName] = useState('');
   const [activityGold, setActivityGold] = useState('');
+  const [goldChecked, setGoldChecked] = useState(false);
+  const [resetPeriod, setResetPeriod] = useState<resetPeriodType>('');
   const { characters, updateCharacter } = useCharacter();
-  const { activityHistory, updateActivityHistory } = useAppSetting();
   const character = characters.find((c) => c.id === id);
   const { colors } = useTheme();
 
@@ -51,10 +59,14 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   useEffect(() => {
     if (mode === 'edit' && initialActivity) {
       setActivityName(initialActivity.name);
-      setActivityGold(initialActivity.gold.toLocaleString());
+      setActivityGold(initialActivity.gold?.toLocaleString() || '');
+      setGoldChecked(initialActivity.goldChecked || false);
+      setResetPeriod(initialActivity.resetPeriod || '');
     } else {
       setActivityName('');
       setActivityGold('');
+      setResetPeriod('');
+      setGoldChecked(false);
     }
 
     if (isVisible) {
@@ -93,51 +105,33 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     }
 
     if (mode === 'edit' && index !== undefined) {
-      const updated = [...(character.WeeklyActivity ?? [])];
+      const updated = [...(character.MissionCheckList ?? [])];
       updated[index] = {
         name: activityName || '',
+        resetPeriod: resetPeriod,
+        checked: initialActivity?.checked || false,
+        goldChecked: goldChecked,
         gold: Number(activityGold.replace(/,/g, '')) || 0,
       };
 
       updateCharacter(character.id, {
-        WeeklyActivity: updated,
-        WeeklyActivityTotalGold: updated.reduce(
-          (total, activity) => total + activity.gold,
-          0
-        ),
+        MissionCheckList: updated,
       });
     } else {
-      const newActivity = [
+      const newCheckList = [
+        ...(character.MissionCheckList ?? []),
         {
           name: activityName || '',
+          resetPeriod: resetPeriod,
+          checked: false,
+          goldChecked: goldChecked,
           gold: Number(activityGold.replace(/,/g, '')) || 0,
         },
-        ...(character.WeeklyActivity ?? []), // undefined일 경우 빈 배열로 대체
       ];
 
-      const updatedTotalGold = newActivity.reduce(
-        (total, activity) => total + activity.gold,
-        0
-      );
-
       updateCharacter(character.id, {
-        WeeklyActivity: newActivity,
-        WeeklyActivityTotalGold: updatedTotalGold,
+        MissionCheckList: newCheckList,
       });
-
-      if (activityName.trim() !== '') {
-        const MAX_HISTORY_LENGTH = 8; // 최대 히스토리 길이
-        let updatedHistory = [...activityHistory];
-        const activityHistoryIndex = activityHistory.findIndex(
-          (item) => item === activityName.trim()
-        );
-        if (activityHistoryIndex !== -1) {
-          updatedHistory.splice(activityHistoryIndex, 1); // 기존 히스토리 삭제
-        } else if (updatedHistory.length >= MAX_HISTORY_LENGTH) {
-          updatedHistory.pop(); // 가장 오래된 히스토리 삭제
-        }
-        updateActivityHistory([activityName.trim(), ...updatedHistory]); // 맨 앞으로 삽입
-      }
     }
 
     setIndexNull(); // 인덱스 초기화
@@ -152,15 +146,15 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         style: 'destructive',
         onPress: () => {
           if (index !== undefined) {
-            const updated = [...(character.WeeklyActivity ?? [])];
+            const updated = [...(character.MissionCheckList ?? [])];
             updated.splice(index, 1);
             const updatedTotalGold = updated.reduce(
-              (total, activity) => total + activity.gold,
+              (total, item) => total + (item.gold || 0),
               0
             );
             updateCharacter(character.id, {
-              WeeklyActivity: updated,
-              WeeklyActivityTotalGold: updatedTotalGold,
+              MissionCheckList: updated,
+              MissionCheckListTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();
@@ -233,7 +227,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
-                    {mode === 'edit' ? '활동 수정' : '활동 추가'}
+                    {mode === 'edit' ? '리스트 수정' : '리스트 추가'}
                   </CustomText>
 
                   {mode === 'edit' ? (
@@ -248,31 +242,92 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                     <View style={{ width: 24 }} />
                   )}
                 </View>
-                {activityHistory.length > 0 && (
-                  <View style={styles.activityHistoryContainer}>
-                    {activityHistory.map((item, index) => (
+                <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+                  <View style={styles.checkBlock}>
+                    <CustomText
+                      style={[
+                        styles.checkBlockText,
+                        {
+                          color: colors.black,
+                        },
+                      ]}
+                    >
+                      리셋 주기
+                    </CustomText>
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                      <TouchableOpacity
+                        style={[
+                          styles.historyButton,
+                          {
+                            backgroundColor:
+                              resetPeriod === 'daily'
+                                ? colors.secondary
+                                : colors.grayLight,
+                          },
+                        ]}
+                        onPress={() => {
+                          setResetPeriod((prev) => {
+                            if (prev === 'daily') {
+                              return '';
+                            }
+                            return 'daily';
+                          });
+                        }}
+                      >
+                        <CustomText
+                          style={[
+                            styles.historyButtonText,
+                            {
+                              color:
+                                resetPeriod === 'daily'
+                                  ? colors.white
+                                  : colors.grayDark,
+                            },
+                          ]}
+                        >
+                          일간
+                        </CustomText>
+                      </TouchableOpacity>
                       <TouchableOpacity
                         key={index}
                         style={[
                           styles.historyButton,
-                          { backgroundColor: colors.primary },
+                          {
+                            backgroundColor:
+                              resetPeriod === 'weekly'
+                                ? colors.secondary
+                                : colors.grayLight,
+                          },
                         ]}
-                        onPress={() => setActivityName(item)}
+                        onPress={() => {
+                          setResetPeriod((prev) => {
+                            if (prev === 'weekly') {
+                              return '';
+                            }
+                            return 'weekly';
+                          });
+                        }}
                       >
                         <CustomText
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
                           style={[
                             styles.historyButtonText,
-                            { color: colors.white },
+                            {
+                              color:
+                                resetPeriod === 'weekly'
+                                  ? colors.white
+                                  : colors.grayDark,
+                            },
                           ]}
                         >
-                          {item}
+                          주간
                         </CustomText>
                       </TouchableOpacity>
-                    ))}
+                    </View>
                   </View>
-                )}
+                </TouchableOpacity>
+
                 <TextInput
                   placeholder="활동명 입력"
                   style={[
@@ -284,23 +339,55 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   value={activityName}
                   onChangeText={handleChangeNameInput}
                 />
-                <TextInput
-                  placeholder="획득 골드"
-                  style={[
-                    styles.input,
-                    { backgroundColor: colors.grayLight },
-                    { color: colors.grayDark },
-                  ]}
-                  keyboardType={
-                    Platform.OS === 'ios'
-                      ? 'numbers-and-punctuation'
-                      : 'default'
-                  }
-                  placeholderTextColor={colors.grayDark}
-                  value={activityGold}
-                  onChangeText={handleChangeGoldInput}
-                />
-
+                <TouchableOpacity
+                  onPress={() => {
+                    const temp = !goldChecked;
+                    setGoldChecked(temp);
+                    if (temp === false) {
+                      setActivityGold(''); // 골드 체크 해제 시 입력값 초기화
+                    }
+                  }}
+                >
+                  <View style={styles.checkBlock}>
+                    <CustomText
+                      style={[
+                        styles.checkBlockText,
+                        {
+                          color: colors.black,
+                        },
+                      ]}
+                    >
+                      골드 추가
+                    </CustomText>
+                    <MaterialIcons
+                      name={
+                        goldChecked ? 'check-box' : 'check-box-outline-blank'
+                      }
+                      size={24}
+                      color={
+                        goldChecked ? colors.secondary : colors.grayDark + 80
+                      }
+                    />
+                  </View>
+                </TouchableOpacity>
+                {goldChecked && (
+                  <TextInput
+                    placeholder="획득 골드"
+                    style={[
+                      styles.input,
+                      { backgroundColor: colors.grayLight },
+                      { color: colors.grayDark },
+                    ]}
+                    keyboardType={
+                      Platform.OS === 'ios'
+                        ? 'numbers-and-punctuation'
+                        : 'default'
+                    }
+                    placeholderTextColor={colors.grayDark}
+                    value={activityGold}
+                    onChangeText={handleChangeGoldInput}
+                  />
+                )}
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
                     onPress={handleCloseModal}
@@ -407,10 +494,10 @@ const styles = StyleSheet.create({
   },
 
   historyButton: {
-    paddingVertical: 6,
+    paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 20,
-    marginRight: 4,
+    marginLeft: 4,
     marginBottom: 4,
     maxWidth: 140, // 혹은 원하는 길이
   },
@@ -418,6 +505,18 @@ const styles = StyleSheet.create({
   historyButtonText: {
     fontWeight: '500',
     fontSize: 14,
+  },
+  checkBlock: {
+    width: '100%',
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+  checkBlockText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 

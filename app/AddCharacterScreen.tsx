@@ -16,6 +16,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import CustomText from './components/CustomText';
+import { missionCheckListData } from '@/utils/missionCheckListData';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -52,6 +53,7 @@ const AddCharacterScreen: React.FC = () => {
       CharacterClassName: characterInfo.CharacterClassName,
       ItemAvgLevel: characterInfo.ItemAvgLevel,
       ServerName: characterInfo.ServerName,
+      MissionCheckList: missionCheckListData,
     });
 
     Alert.alert('성공', `${characterInfo.CharacterName}이(가) 추가되었습니다.`);
@@ -70,13 +72,21 @@ const AddCharacterScreen: React.FC = () => {
 
     try {
       const data = await fetchCharacterInfo(characterName);
+
       if (data && data.CharacterName) {
         setCharacterInfo(data);
       } else {
         Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
       }
-    } catch (err) {
-      Alert.alert('오류', '검색 중 문제가 발생했습니다.');
+    } catch (err: any) {
+      if (err.status === 429) {
+        Alert.alert(
+          '오류',
+          'API 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'
+        );
+      } else {
+        Alert.alert('오류', '검색 중 문제가 발생했습니다.');
+      }
     }
 
     setIsLoading(false); // 로딩 종료

@@ -12,13 +12,18 @@ import {
 import ActivityModal from './SubmitActivityModal';
 import { useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import CustomText from './components/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
+import OtherActivityModal from './OtherActivityModal';
+import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
+import { missionCheckListData } from '@/utils/missionCheckListData';
+import CustomPrompt from './CustomPrompt';
+import CustomAlert from './CustomAlert';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -41,9 +46,40 @@ const CharacterActivity: React.FC = () => {
   const [activityIndex, setActivityIndex] = useState<number | null>(null);
   const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
 
+  const [otherActivityModalVisible, setOtherActivityModalVisible] =
+    useState<boolean>(false);
+  const [otherActivityIndex, setOtherActivityIndex] = useState<number | null>(
+    null
+  );
+  const toggleOtherActivityModal = () =>
+    setOtherActivityModalVisible((prev) => !prev);
+
   const [raidModalVisible, setRaidModalVisible] = useState<boolean>(false);
   const [raidIndex, setRaidIndex] = useState<number>(0);
   const toggleRaidModal = () => setRaidModalVisible((prev) => !prev);
+
+  const [optionsModalVisible, setOptionsModalVisible] =
+    useState<boolean>(false);
+  const optionsButtonRef = useRef<View>(null);
+  const [optionsButtonX, setOptionsButtonX] = useState(0);
+  const [optionsButtonY, setOptionsButtonY] = useState(0);
+
+  const toggleOptionsModal = () => {
+    if (optionsButtonRef.current) {
+      optionsButtonRef.current.measureInWindow((x, y, width, height) => {
+        setOptionsButtonX(x);
+        setOptionsButtonY(y + height); // 버튼 아래쪽 위치
+        setOptionsModalVisible((prev) => !prev);
+      });
+    } else {
+      setOptionsModalVisible((prev) => !prev);
+    }
+  };
+
+  const [changeNamePromptVisible, setChangeNamePromptVisible] =
+    useState<boolean>(false);
+
+  const [deleteAlertVisible, setDeleteAlertVisible] = useState<boolean>(false);
 
   // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
@@ -53,18 +89,21 @@ const CharacterActivity: React.FC = () => {
 
   // 📌 접힘 상태
   const [weeklyRaidFolded, setWeeklyRaidFolded] = useState<boolean>(false);
-  const [weeklyActivityFolded, setWeeklyActivityFolded] =
+  const [missionCheckedListFolded, setMissionCheckedListFolded] =
+    useState<boolean>(false);
+  const [otherActivityFolded, setOtherActivityFolded] =
     useState<boolean>(false);
 
   if (!character) return null; // ✅ 없는 캐릭터 방지
 
   useEffect(() => {
-    setWeeklyRaidFolded(character.weeklyRaidFolded ?? false);
-    setWeeklyActivityFolded(character.weeklyActivityFolded ?? false);
-    setBookmarked(character.isBookmarked ?? false);
+    setWeeklyRaidFolded(character.WeeklyRaidFolded ?? false);
+    setOtherActivityFolded(character.OtherActivityFolded ?? false);
+    setMissionCheckedListFolded(character.MissionCheckListFolded ?? false);
+    setBookmarked(character.IsBookmarked ?? false);
 
     const now = Date.now();
-    const lastUpdated = new Date(character.lastUpdated ?? 0).getTime();
+    const lastUpdated = new Date(character.LastUpdated ?? 0).getTime();
     const diff = now - lastUpdated;
 
     if (diff < 60000) {
@@ -146,21 +185,15 @@ const CharacterActivity: React.FC = () => {
     });
   };
 
+  const checkedListTotalGold =
+    character.MissionCheckList?.reduce(
+      (total, item) => total + (item.checked ? item.gold || 0 : 0),
+      0
+    ) || 0;
+
   const handleRemoveCharacter = () => {
-    Alert.alert('캐릭터 삭제', '정말 삭제하시겠어요?', [
-      {
-        text: '취소',
-        style: 'cancel',
-      },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: () => {
-          removeCharacter(character.id);
-          router.back();
-        },
-      },
-    ]);
+    removeCharacter(character.id);
+    router.back();
   };
 
   const handleRefreshCharacter = async () => {
@@ -194,6 +227,16 @@ const CharacterActivity: React.FC = () => {
     }
   };
 
+  const handleChecklistToggle = (index: number) => {
+    const updatedCheckList = character.MissionCheckList?.map((item, i) =>
+      i === index ? { ...item, checked: !item.checked } : item
+    );
+
+    updateCharacter(character.id, {
+      MissionCheckList: updatedCheckList,
+    });
+  };
+
   const Spacer = ({ height = 12 }: { height?: number }) => (
     <View style={{ height }} />
   );
@@ -218,7 +261,7 @@ const CharacterActivity: React.FC = () => {
             onPress={() => {
               const next = !bookmarked;
               setBookmarked(next);
-              updateCharacter(character.id, { isBookmarked: next });
+              updateCharacter(character.id, { IsBookmarked: next });
             }}
           >
             {bookmarked ? (
@@ -227,10 +270,10 @@ const CharacterActivity: React.FC = () => {
               <Feather name="bookmark" size={24} color={colors.iconColor} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleRemoveCharacter}>
+          <TouchableOpacity onPress={() => setDeleteAlertVisible(true)}>
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
             <Feather
               name="more-horizontal"
               size={24}
@@ -253,7 +296,7 @@ const CharacterActivity: React.FC = () => {
               source={{
                 uri:
                   character.CharacterPortraitImage +
-                  `?d=${character.lastUpdated}`,
+                  `?d=${character.LastUpdated}`,
               }}
               style={styles.portraitImage}
               resizeMode="cover"
@@ -313,7 +356,7 @@ const CharacterActivity: React.FC = () => {
             onPress={() => {
               const next = !weeklyRaidFolded;
               setWeeklyRaidFolded(next);
-              updateCharacter(character.id, { weeklyRaidFolded: next });
+              updateCharacter(character.id, { WeeklyRaidFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
@@ -466,71 +509,197 @@ const CharacterActivity: React.FC = () => {
             </View>
           )}
         </View>
-
-        {/* 주간 활동 */}
+        {/* 일일 주간 미션 체크리스트*/}
         <View
           style={[styles.section, { backgroundColor: colors.cardBackground }]}
         >
           <TouchableOpacity
             onPress={() => {
-              const next = !weeklyActivityFolded;
-              setWeeklyActivityFolded(next);
-              updateCharacter(character.id, { weeklyActivityFolded: next });
+              const next = !missionCheckedListFolded;
+              setMissionCheckedListFolded(next);
+              updateCharacter(character.id, { MissionCheckListFolded: next });
             }}
           >
             <View style={styles.sectionHeader}>
               <View style={{ flexDirection: 'row', gap: 4 }}>
                 <Feather
-                  name={weeklyActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  name={
+                    missionCheckedListFolded ? 'chevron-down' : 'chevron-up'
+                  }
                   size={24}
                   color={colors.black}
                 />
                 <CustomText
                   style={[styles.sectionTitle, { color: colors.black }]}
                 >
-                  추가 수입
+                  일일/주간 미션
                 </CustomText>
               </View>
               <CustomText
                 style={[
                   styles.totalGoldText,
-                  (character.WeeklyActivityTotalGold || 0) >= 0
+                  checkedListTotalGold >= 0
                     ? { color: colors.black }
                     : { color: colors.warning },
                 ]}
               >
-                {character.WeeklyActivityTotalGold?.toLocaleString() || 0}
+                {checkedListTotalGold.toLocaleString() || 0}
               </CustomText>
             </View>
           </TouchableOpacity>
-          {!weeklyActivityFolded && (
+          {!missionCheckedListFolded && (
             <View>
-              <View style={styles.addButtonContainer}>
+              {Array.isArray(character.MissionCheckList) &&
+                character.MissionCheckList.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 10,
+                      marginTop: index === 0 ? 16 : 0,
+                    }}
+                    key={index}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.activityItem,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        handleChecklistToggle(index);
+                      }}
+                    >
+                      <View style={styles.activityItemRow}>
+                        <CustomText
+                          style={[
+                            styles.activityNameText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          {item.name}
+                        </CustomText>
+                        <MaterialIcons
+                          name={
+                            item.checked
+                              ? 'check-box'
+                              : 'check-box-outline-blank'
+                          }
+                          size={24}
+                          color={
+                            item.checked
+                              ? colors.secondary
+                              : colors.grayDark + 80
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        paddingLeft: 8,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setActivityIndex(index);
+                        toggleActivityModal();
+                      }}
+                    >
+                      <Feather
+                        name="edit"
+                        size={20}
+                        color={colors.iconColor + 80}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
                   style={[
-                    styles.addButton,
-                    { backgroundColor: colors.secondary },
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
                   ]}
-                  onPress={toggleActivityModal}
+                  onPress={() => {
+                    setActivityIndex(null);
+                    toggleActivityModal();
+                  }}
                 >
                   <CustomText
-                    style={[styles.addButtonText, { color: 'white' }]}
+                    style={[styles.editButtonText, { color: colors.black }]}
                   >
-                    ＋ 추가
+                    미션 추가
                   </CustomText>
                 </TouchableOpacity>
               </View>
-              {Array.isArray(character.WeeklyActivity) &&
-                character.WeeklyActivity.map((activity, index) => (
+            </View>
+          )}
+          {/* 추가 버튼 */}
+        </View>
+        {/* 기타 활동 */}
+        <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              const next = !otherActivityFolded;
+              setOtherActivityFolded(next);
+              updateCharacter(character.id, { OtherActivityFolded: next });
+            }}
+          >
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Feather
+                  name={otherActivityFolded ? 'chevron-down' : 'chevron-up'}
+                  size={24}
+                  color={colors.black}
+                />
+                <CustomText
+                  style={[styles.sectionTitle, { color: colors.black }]}
+                >
+                  기타 활동
+                </CustomText>
+              </View>
+              <CustomText
+                style={[
+                  styles.totalGoldText,
+                  (character.OtherActivityTotalGold || 0) >= 0
+                    ? { color: colors.black }
+                    : { color: colors.warning },
+                ]}
+              >
+                {character.OtherActivityTotalGold?.toLocaleString() || 0}
+              </CustomText>
+            </View>
+          </TouchableOpacity>
+          {!otherActivityFolded && (
+            <View>
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                  onPress={toggleOtherActivityModal}
+                >
+                  <CustomText
+                    style={[styles.editButtonText, { color: colors.black }]}
+                  >
+                    활동 추가
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
+              {Array.isArray(character.OtherActivity) &&
+                character.OtherActivity.map((activity, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
-                      styles.activityItem,
-                      { backgroundColor: colors.grayLight },
+                      styles.otherActivityItem,
+                      {
+                        backgroundColor: colors.grayLight,
+                        marginTop: index === 0 ? 16 : 0,
+                        marginBottom: 10,
+                      },
                     ]}
                     onPress={() => {
-                      setActivityIndex(index);
-                      toggleActivityModal();
+                      setOtherActivityIndex(index);
+                      toggleOtherActivityModal();
                     }}
                   >
                     <View style={styles.activityItemRow}>
@@ -561,6 +730,24 @@ const CharacterActivity: React.FC = () => {
         </View>
       </ScrollView>
 
+      <CharacterActivityOptionsModal
+        isVisible={optionsModalVisible}
+        toggleModal={toggleOptionsModal}
+        positionX={optionsButtonX}
+        positionY={optionsButtonY}
+        resetMissions={() => {
+          updateCharacter(character.id, {
+            MissionCheckList: missionCheckListData,
+          });
+          setActivityIndex(null);
+          setMissionCheckedListFolded(false);
+        }}
+        changeName={() => {
+          setOptionsModalVisible(false);
+          setChangeNamePromptVisible(true);
+        }}
+      />
+
       <ActivityModal
         isVisible={activityModalVisible}
         setIndexNull={() => setActivityIndex(null)}
@@ -570,7 +757,21 @@ const CharacterActivity: React.FC = () => {
         index={activityIndex ?? undefined}
         initialActivity={
           activityIndex !== null
-            ? character.WeeklyActivity?.[activityIndex]
+            ? character.MissionCheckList?.[activityIndex]
+            : undefined
+        }
+      />
+
+      <OtherActivityModal
+        isVisible={otherActivityModalVisible}
+        setIndexNull={() => setOtherActivityIndex(null)}
+        setIsVisibleFalse={() => setOtherActivityModalVisible(false)}
+        id={character.id}
+        mode={otherActivityIndex !== null ? 'edit' : 'add'}
+        index={otherActivityIndex ?? undefined}
+        initialActivity={
+          otherActivityIndex !== null
+            ? character.OtherActivity?.[otherActivityIndex]
             : undefined
         }
       />
@@ -581,6 +782,31 @@ const CharacterActivity: React.FC = () => {
         id={character.id}
         index={raidIndex}
       />
+
+      <CustomPrompt
+        isVisible={changeNamePromptVisible}
+        setIsVisibleFalse={() => setChangeNamePromptVisible(false)}
+        titleText="닉네임 변경"
+        messageText={
+          '변경한 캐릭터 이름을 입력해주세요.\n변경 후 갱신하면 정보가 업데이트 됩니다.'
+        }
+        inputPlaceholder="닉네임 입력"
+        onSubmit={(input) => {
+          if (!input.trim()) {
+            Alert.alert('오류', '닉네임을 입력해주세요.');
+            return;
+          }
+          updateCharacter(character.id, { CharacterName: input });
+          Alert.alert('성공', '닉네임이 변경되었습니다.');
+        }}
+      />
+
+      <CustomAlert
+        isVisible={deleteAlertVisible}
+        setIsVisibleFalse={() => setDeleteAlertVisible(false)}
+        titleText="캐릭터를 삭제하시겠습니까?"
+        onSubmit={handleRemoveCharacter}
+      />
     </View>
   );
 };
@@ -588,11 +814,12 @@ const CharacterActivity: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingVertical: 16,
   },
   scrollView: {
     flex: 1,
-    overflow: 'visible',
+    overflow: 'hidden',
+    paddingHorizontal: 16,
   },
   // ✅ 상단 액션바
   actionBar: {
@@ -600,6 +827,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 8,
+    marginHorizontal: 16,
     marginBottom: 12,
   },
   actionWrapper: {
@@ -617,6 +845,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    marginHorizontal: 16,
     marginBottom: 16,
   },
 
@@ -720,8 +949,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
     borderRadius: 12,
   },
 
@@ -769,12 +998,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   activityItem: {
+    flex: 1,
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    marginBottom: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
-
+  otherActivityItem: {
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
   activityItemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -784,6 +1017,7 @@ const styles = StyleSheet.create({
   activityNameText: {
     fontSize: 14,
     fontWeight: '600',
+    lineHeight: 24,
   },
 
   activityGoldText: {

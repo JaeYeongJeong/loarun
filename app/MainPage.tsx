@@ -16,9 +16,9 @@ import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
 import CustomText from './components/CustomText';
-import OptionsModal from './optionsModal';
 import { useAppSetting } from '@/context/AppSettingContext';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
+import MainPageOptionsModal from './MainPageOptionsModal';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -70,7 +70,7 @@ const MainPage: React.FC = () => {
   };
 
   const filteredCharacters = isBookmarkedFilterOn
-    ? characters.filter((character) => character.isBookmarked)
+    ? characters.filter((character) => character.IsBookmarked)
     : characters;
 
   return (
@@ -109,8 +109,8 @@ const MainPage: React.FC = () => {
               )}
               {isBookmarkedFilterOn && (
                 <BookmarkFilled
-                  width={16}
-                  height={16}
+                  width={normalize(16)}
+                  height={normalize(16)}
                   color={colors.grayDark}
                 />
               )}
@@ -142,7 +142,7 @@ const MainPage: React.FC = () => {
           </TouchableOpacity>
         }
         contentContainerStyle={{
-          paddingTop: normalize(8),
+          paddingTop: normalize(4),
           paddingBottom: normalize(12),
         }}
         showsVerticalScrollIndicator={false}
@@ -157,7 +157,7 @@ const MainPage: React.FC = () => {
       />
 
       {/* ✅ 옵션 모달 */}
-      <OptionsModal
+      <MainPageOptionsModal
         isVisible={optionModalVisible}
         toggleModal={toggleOptionsModal}
         positionX={optionsButtonX}
@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
   sortButtonText: {
     fontSize: normalize(12),
     fontWeight: '600',
+    lineHeight: normalize(16),
   },
   addContainer: {
     height: CHARACTER_BAR_HEIGHT,

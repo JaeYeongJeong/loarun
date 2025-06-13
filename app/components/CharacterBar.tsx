@@ -61,7 +61,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
   const totalGold =
     (character.ClearedRaidTotalGold || 0) +
-    (character.WeeklyActivityTotalGold || 0);
+    (character.OtherActivityTotalGold || 0);
 
   return (
     <TouchableOpacity
@@ -82,7 +82,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           <Image
             source={{
               uri: portraitUri
-                ? `${portraitUri}?d=${character.lastUpdated}`
+                ? `${portraitUri}?d=${character.LastUpdated}`
                 : character.CharacterImage,
             }}
             style={{
@@ -104,7 +104,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
             <CustomText style={[styles.nameText, { color: colors.black }]}>
               {isInfoVisible ?? true ? character.CharacterName : '익명'}
             </CustomText>
-            {character.isBookmarked && (
+            {character.IsBookmarked && (
               <Feather
                 name="bookmark"
                 size={SCREEN_HEIGHT / 64}
@@ -136,7 +136,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
           {totalGold.toLocaleString()}
         </CustomText>
         <CustomText style={[styles.countText, { color: colors.grayDark }]}>
-          주간 {totalCount > 0 ? clearedCount : '-'} /{' '}
+          레이드 {totalCount > 0 ? clearedCount : '-'} /{' '}
           {totalCount > 0 ? totalCount : '-'}
         </CustomText>
       </View>
