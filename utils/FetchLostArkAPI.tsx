@@ -10,7 +10,7 @@ const fetchCharacterInfo = async (characterName: string) => {
   const url = `${LOARUN_API_PROXY_URL}/api/character?name=${encodeURIComponent(
     characterName
   )}`;
-
+  console.log('🧪 EAS BUILD ENV VAR:', process.env.EXPO_LOARUN_API_PROXY_URL);
   console.log('📦 LOARUN_API_PROXY_URL:', LOARUN_API_PROXY_URL);
   console.log(
     '📦 최종 fetch 주소:',
