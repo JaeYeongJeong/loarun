@@ -37,7 +37,7 @@ export default () => ({
       typedRoutes: true
     },
     extra: {
-      EXPO_LOSTARK_API_TOKEN: process.env.EXPO_LOSTARK_API_TOKEN,
+      EXPO_LOARUN_API_PROXY_URL: process.env.EXPO_LOARUN_API_PROXY_URL,
       eas: {
         projectId: "4c38c770-e9bf-493a-bd93-10f47f51463f"
       }
