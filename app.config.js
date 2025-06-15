@@ -1,5 +1,6 @@
 // app.config.js
-export default () => ({
+export default ({ config }) => ({
+  ...config,
   expo: {
     name: "로아런",
     slug: "loarun",
@@ -37,6 +38,7 @@ export default () => ({
       typedRoutes: true
     },
     extra: {
+      ...config.extra,
       EXPO_LOARUN_API_PROXY_URL: process.env.EXPO_LOARUN_API_PROXY_URL,
       eas: {
         projectId: "4c38c770-e9bf-493a-bd93-10f47f51463f"
