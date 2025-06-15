@@ -1,7 +1,3 @@
-import 'dotenv/config';
-
-console.log('🧪 config.js loaded with env:', process.env.EXPO_LOARUN_API_PROXY_URL);
-
 export default {
   expo: {
     name: "로아런",

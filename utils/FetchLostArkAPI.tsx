@@ -1,20 +1,12 @@
 import Constants from 'expo-constants';
 const LOARUN_API_PROXY_URL =
-  Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL;
+  Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL ??
+  'https://loarun.j-jandy.com';
 
 const fetchCharacterInfo = async (characterName: string) => {
   const url = `${LOARUN_API_PROXY_URL}/api/character?name=${encodeURIComponent(
     characterName
   )}`;
-  console.log(
-    '✅ 런타임 확인:',
-    Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL
-  );
-  console.log('📦 LOARUN_API_PROXY_URL:', LOARUN_API_PROXY_URL);
-  console.log(
-    '📦 최종 fetch 주소:',
-    `${LOARUN_API_PROXY_URL}/api/character?...`
-  );
 
   const response = await fetch(url);
 

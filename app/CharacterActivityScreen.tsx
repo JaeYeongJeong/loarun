@@ -543,7 +543,7 @@ const CharacterActivity: React.FC = () => {
                     : { color: colors.warning },
                 ]}
               >
-                {checkedListTotalGold.toLocaleString() || 0}
+                {/* {checkedListTotalGold.toLocaleString() || 0} */}
               </CustomText>
             </View>
           </TouchableOpacity>

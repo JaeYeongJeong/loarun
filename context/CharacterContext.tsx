@@ -150,10 +150,10 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         const updatedCharacters = await AsyncStorage.getItem('characters');
         setCharacters(updatedCharacters ? JSON.parse(updatedCharacters) : []);
       }
-
+      //일일/주간 초기화 테스트
+      // await resetCharacterTask(parsedCharacters, 'weekly');
       setIsLoaded(true);
     };
-
     loadAndMaybeReset();
   }, []);
 
@@ -313,10 +313,12 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       return {
         ...c,
         SelectedRaids: updatedRaids,
-        OtherActivity: [],
-        OtherActivityTotalGold: 0,
-        ClearedRaidTotalGold: 0,
-        missionCheckList: updatedMission,
+        MissionCheckList: updatedMission,
+        ...(type === 'weekly' && {
+          OtherActivity: [],
+          OtherActivityTotalGold: 0,
+          ClearedRaidTotalGold: 0,
+        }),
       };
     });
 

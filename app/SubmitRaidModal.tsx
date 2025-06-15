@@ -326,7 +326,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 16 }}
               style={{ overflow: 'visible' }}
             >
               {raidList.map((raid, raidIdx) => (
@@ -438,9 +437,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
             {/* ✅ 하단 입력 + 버튼 고정 블럭 */}
             <View
               style={{
-                paddingHorizontal: 16,
-                paddingTop: 24,
-                paddingBottom: 12,
+                padding: 24,
                 backgroundColor: colors.modalBackground,
                 borderTopLeftRadius: 32,
                 borderTopRightRadius: 32,
@@ -763,8 +760,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingTop: 8,
   },
   cancelButton: {
     flex: 1,

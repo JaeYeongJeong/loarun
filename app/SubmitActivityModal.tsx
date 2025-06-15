@@ -227,7 +227,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   <CustomText
                     style={[styles.modalText, { color: colors.black }]}
                   >
-                    {mode === 'edit' ? '리스트 수정' : '리스트 추가'}
+                    {mode === 'edit' ? '미션 수정' : '미션 추가'}
                   </CustomText>
 
                   {mode === 'edit' ? (
@@ -339,54 +339,62 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   value={activityName}
                   onChangeText={handleChangeNameInput}
                 />
-                <TouchableOpacity
-                  onPress={() => {
-                    const temp = !goldChecked;
-                    setGoldChecked(temp);
-                    if (temp === false) {
-                      setActivityGold(''); // 골드 체크 해제 시 입력값 초기화
-                    }
-                  }}
-                >
-                  <View style={styles.checkBlock}>
-                    <CustomText
-                      style={[
-                        styles.checkBlockText,
-                        {
-                          color: colors.black,
-                        },
-                      ]}
+                {false && ( //추후 추가할 기능( 일일/ 주간 미션에서 골드 획득 기능, 보완사항 : 골드 획득 로직을 보완해야함)
+                  <>
+                    <TouchableOpacity
+                      onPress={() => {
+                        const temp = !goldChecked;
+                        setGoldChecked(temp);
+                        if (temp === false) {
+                          setActivityGold(''); // 골드 체크 해제 시 입력값 초기화
+                        }
+                      }}
                     >
-                      골드 추가
-                    </CustomText>
-                    <MaterialIcons
-                      name={
-                        goldChecked ? 'check-box' : 'check-box-outline-blank'
-                      }
-                      size={24}
-                      color={
-                        goldChecked ? colors.secondary : colors.grayDark + 80
-                      }
-                    />
-                  </View>
-                </TouchableOpacity>
-                {goldChecked && (
-                  <TextInput
-                    placeholder="획득 골드"
-                    style={[
-                      styles.input,
-                      { backgroundColor: colors.grayLight },
-                      { color: colors.grayDark },
-                    ]}
-                    keyboardType={
-                      Platform.OS === 'ios'
-                        ? 'numbers-and-punctuation'
-                        : 'default'
-                    }
-                    placeholderTextColor={colors.grayDark}
-                    value={activityGold}
-                    onChangeText={handleChangeGoldInput}
-                  />
+                      <View style={styles.checkBlock}>
+                        <CustomText
+                          style={[
+                            styles.checkBlockText,
+                            {
+                              color: colors.black,
+                            },
+                          ]}
+                        >
+                          골드 추가
+                        </CustomText>
+                        <MaterialIcons
+                          name={
+                            goldChecked
+                              ? 'check-box'
+                              : 'check-box-outline-blank'
+                          }
+                          size={24}
+                          color={
+                            goldChecked
+                              ? colors.secondary
+                              : colors.grayDark + 80
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    {goldChecked && (
+                      <TextInput
+                        placeholder="획득 골드"
+                        style={[
+                          styles.input,
+                          { backgroundColor: colors.grayLight },
+                          { color: colors.grayDark },
+                        ]}
+                        keyboardType={
+                          Platform.OS === 'ios'
+                            ? 'numbers-and-punctuation'
+                            : 'default'
+                        }
+                        placeholderTextColor={colors.grayDark}
+                        value={activityGold}
+                        onChangeText={handleChangeGoldInput}
+                      />
+                    )}
+                  </>
                 )}
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
