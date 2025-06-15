@@ -7,7 +7,7 @@ const fetchCharacterInfo = async (characterName: string) => {
     characterName
   )}`;
   console.log(
-    '🧪 EAS BUILD ENV VAR:',
+    '✅ 런타임 확인:',
     Constants.expoConfig?.extra?.EXPO_LOARUN_API_PROXY_URL
   );
   console.log('📦 LOARUN_API_PROXY_URL:', LOARUN_API_PROXY_URL);

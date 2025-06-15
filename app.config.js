@@ -1,6 +1,8 @@
-// app.config.js
-export default ({ config }) => ({
-  ...config,
+import 'dotenv/config';
+
+console.log('🧪 config.js loaded with env:', process.env.EXPO_LOARUN_API_PROXY_URL);
+
+export default {
   expo: {
     name: "로아런",
     slug: "loarun",
@@ -38,11 +40,10 @@ export default ({ config }) => ({
       typedRoutes: true
     },
     extra: {
-      ...config.extra,
       EXPO_LOARUN_API_PROXY_URL: process.env.EXPO_LOARUN_API_PROXY_URL,
       eas: {
         projectId: "4c38c770-e9bf-493a-bd93-10f47f51463f"
       }
     }
   }
-});
+};
