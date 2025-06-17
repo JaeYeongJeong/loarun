@@ -18,6 +18,10 @@
       }
     },
     "production": {
+      "android": {
+        "buildType": "app-bundle",
+        "distribution": "store"
+      },
       "autoIncrement": true,
       "env": {
         "EXPO_LOARUN_API_PROXY_URL": "https://loarun.j-jandy.com"
