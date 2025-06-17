@@ -14,6 +14,7 @@ export default {
       backgroundColor: "#ffffff"
     },
     ios: {
+      bundleIdentifier: "com.jaey0394.loarun",
       buildNumber: "1.0.0",
       supportsTablet: true
     },
