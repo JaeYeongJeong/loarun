@@ -5,11 +5,11 @@ export default {
     scheme: "loarun",
     orientation: "portrait",
     userInterfaceStyle: "automatic",
-    icon: "./assets/images/loarunIcon-1024-removebg.png",
+    icon: "./assets/images/loarunIcon-1024-big-removebg.png",
     version: "1.0.0",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/loarunIcon-splash-2208.png",
+      image: "./assets/images/loarunIcon-1024-big-removebg.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
