@@ -4,6 +4,12 @@ export default {
     slug: "loarun",
     scheme: "loarun",
     orientation: "portrait",
+    "ios": {
+      "supportsTablet": true // iPad 지원은 하되, 회전은 막음
+    },
+    "android": {
+      "orientation": "portrait" // Android에서도 세로 고정
+    },
     userInterfaceStyle: "automatic",
     icon: "./assets/images/loarunIcon-1024-big-removebg.png",
     version: "1.0.0",
