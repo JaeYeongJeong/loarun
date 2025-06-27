@@ -24,6 +24,7 @@ import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
 import { missionCheckListData } from '@/utils/missionCheckListData';
 import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
+import { validateNicknameInput } from '@/utils/validateInput';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -79,7 +80,12 @@ const CharacterActivity: React.FC = () => {
   const [changeNamePromptVisible, setChangeNamePromptVisible] =
     useState<boolean>(false);
 
-  const [deleteAlertVisible, setDeleteAlertVisible] = useState<boolean>(false);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>('');
+  const [alertTitle, setAlertTitle] = useState<string>('알림');
+  const [alertButtonType, setAlertButtonType] = useState<
+    'default' | 'oneButton'
+  >('default');
 
   // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
@@ -199,17 +205,23 @@ const CharacterActivity: React.FC = () => {
       0
     ) || 0;
 
-  const handleRemoveCharacter = () => {
-    removeCharacter(character.id);
-    router.back();
-  };
-
   const handleRefreshCharacter = async () => {
     if (!refreshable) return;
 
+    setRefreshable(false);
     setIsRefreshing(true);
+
+    const resetRefreshUI = (delay = 500) => {
+      timeoutRef.current = setTimeout(() => {
+        setRefreshText('갱신하기');
+        setRefreshable(true);
+        timeoutRef.current = null;
+      }, delay);
+    };
+
     try {
       const data = await fetchCharacterInfo(character.CharacterName);
+
       if (data) {
         refreshCharacter(character.id, {
           CharacterImage: data.CharacterImage,
@@ -218,18 +230,25 @@ const CharacterActivity: React.FC = () => {
           ServerName: data.ServerName,
         });
         setRefreshText('갱신완료');
-        setRefreshable(false);
-
-        timeoutRef.current = setTimeout(() => {
-          setRefreshText('갱신하기');
-          setRefreshable(true);
-          timeoutRef.current = null;
-        }, 60000);
+        setAlertTitle('성공');
+        setAlertMessage('캐릭터 정보를 갱신했습니다.');
+        setAlertButtonType('oneButton');
+        setAlertVisible(true);
+        resetRefreshUI(60000); // 60초 후 갱신 가능
       } else {
-        Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+        setAlertTitle('오류');
+        setAlertMessage('캐릭터 정보를 찾을 수 없습니다.');
+        setAlertButtonType('oneButton');
+        setAlertVisible(true);
+        resetRefreshUI();
       }
     } catch (err) {
-      Alert.alert('오류', '데이터를 불러오는 데 실패했습니다.');
+      console.error('캐릭터 갱신 실패:', err);
+      setAlertTitle('오류');
+      setAlertMessage('데이터를 불러오는 데 실패했습니다.');
+      setAlertButtonType('oneButton');
+      setAlertVisible(true);
+      resetRefreshUI();
     } finally {
       setIsRefreshing(false);
     }
@@ -243,6 +262,20 @@ const CharacterActivity: React.FC = () => {
     updateCharacter(character.id, {
       MissionCheckList: updatedCheckList,
     });
+  };
+
+  const handleDeleteCharacter = () => {
+    Alert.alert('정말 삭제하시겠어요?', undefined, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          removeCharacter(character.id);
+          router.back();
+        },
+      },
+    ]);
   };
 
   const Spacer = ({ height = 12 }: { height?: number }) => (
@@ -278,7 +311,7 @@ const CharacterActivity: React.FC = () => {
               <Feather name="bookmark" size={24} color={colors.iconColor} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setDeleteAlertVisible(true)}>
+          <TouchableOpacity onPress={handleDeleteCharacter}>
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
@@ -800,20 +833,38 @@ const CharacterActivity: React.FC = () => {
         }
         inputPlaceholder="닉네임 입력"
         onSubmit={(input) => {
-          if (!input.trim()) {
-            Alert.alert('오류', '닉네임을 입력해주세요.');
-            return;
+          const validateInput = validateNicknameInput(input);
+
+          switch (validateInput.status) {
+            case 'empty':
+              Alert.alert('오류', '닉네임을 입력해주세요.');
+              return;
+            case 'exceeds-limit':
+              Alert.alert('오류', '닉네임은 12자 이하로 입력해주세요.');
+              return;
+            case 'invalid-nickname':
+              Alert.alert(
+                '오류',
+                '닉네임은 한글, 영문, 숫자만 입력할 수 있습니다.'
+              );
+              return;
+            case 'valid-nickname':
+              updateCharacter(character.id, {
+                CharacterName: validateInput.value,
+              });
+              Alert.alert('성공', '닉네임이 변경되었습니다.');
+              break;
           }
-          updateCharacter(character.id, { CharacterName: input });
-          Alert.alert('성공', '닉네임이 변경되었습니다.');
         }}
       />
 
       <CustomAlert
-        isVisible={deleteAlertVisible}
-        setIsVisibleFalse={() => setDeleteAlertVisible(false)}
-        titleText="캐릭터를 삭제하시겠습니까?"
-        onSubmit={handleRemoveCharacter}
+        isVisible={alertVisible}
+        setIsVisibleFalse={() => setAlertVisible(false)}
+        titleText={alertTitle}
+        messageText={alertMessage}
+        buttonType={alertButtonType}
+        align="center"
       />
     </View>
   );

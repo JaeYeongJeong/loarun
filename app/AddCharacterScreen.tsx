@@ -17,6 +17,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import CustomText from './components/CustomText';
 import { missionCheckListData } from '@/utils/missionCheckListData';
+import { validateNicknameInput } from '@/utils/validateInput';
+import CustomAlert from './CustomAlert';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -25,6 +27,9 @@ const AddCharacterScreen: React.FC = () => {
     any
   > | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('알림');
   const { characters, addCharacter } = useCharacter();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -32,7 +37,9 @@ const AddCharacterScreen: React.FC = () => {
   // ✅ 캐릭터 추가 핸들러
   const handlerAddCharacter = () => {
     if (!characterInfo || !characterInfo.CharacterName) {
-      Alert.alert('오류', '캐릭터 정보가 없습니다.');
+      setAlertTitle('오류');
+      setAlertMessage('캐릭터 정보가 없습니다.');
+      setAlertVisible(true);
       return;
     }
 
@@ -41,7 +48,9 @@ const AddCharacterScreen: React.FC = () => {
         (character) => character.CharacterName === characterInfo.CharacterName
       )
     ) {
-      Alert.alert('오류', '이미 추가된 캐릭터입니다.');
+      setAlertTitle('오류');
+      setAlertMessage('이미 추가된 캐릭터입니다.');
+      setAlertVisible(true);
       return;
     }
 
@@ -55,37 +64,58 @@ const AddCharacterScreen: React.FC = () => {
       ServerName: characterInfo.ServerName,
       MissionCheckList: missionCheckListData,
     });
-
-    Alert.alert('성공', `${characterInfo.CharacterName}이(가) 추가되었습니다.`);
+    setAlertTitle('성공');
+    setAlertMessage(`${characterInfo.CharacterName}이(가) 추가되었습니다.`);
+    setAlertVisible(true);
     setCharacterInfo(null); // ✅ 추가 후 초기화
   };
 
   // ✅ 캐릭터 검색 핸들러
   const handlerSearchCharacter = async () => {
-    if (!characterName.trim()) {
-      Alert.alert('오류', '캐릭터 이름을 입력해주세요.');
-      return;
+    const validateInput = validateNicknameInput(characterName.trim());
+
+    switch (validateInput.status) {
+      case 'empty':
+        setAlertTitle('오류');
+        setAlertMessage('닉네임을 입력해주세요.');
+        setAlertVisible(true);
+        return;
+      case 'exceeds-limit':
+        setAlertTitle('오류');
+        setAlertMessage('닉네임은 12자 이하로 입력해주세요.');
+        setAlertVisible(true);
+        return;
+      case 'invalid-nickname':
+        setAlertTitle('오류');
+        setAlertMessage('닉네임은 한글, 영문, 숫자만 입력할 수 있습니다.');
+        setAlertVisible(true);
+        return;
+      case 'valid-nickname':
+        break;
     }
 
     setCharacterInfo(null);
     setIsLoading(true); // 로딩 시작
 
     try {
-      const data = await fetchCharacterInfo(characterName);
+      const data = await fetchCharacterInfo(characterName.trim());
 
       if (data && data.CharacterName) {
         setCharacterInfo(data);
       } else {
-        Alert.alert('오류', '캐릭터 정보를 찾을 수 없습니다.');
+        setAlertTitle('오류');
+        setAlertMessage('캐릭터 정보를 찾을 수 없습니다.');
+        setAlertVisible(true);
       }
     } catch (err: any) {
       if (err.status === 429) {
-        Alert.alert(
-          '오류',
-          'API 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'
-        );
+        setAlertTitle('오류');
+        setAlertMessage('API 요청이 너무 많습니다. 잠시 후 다시 시도해주세요');
+        setAlertVisible(true);
       } else {
-        Alert.alert('오류', '검색 중 문제가 발생했습니다.');
+        setAlertTitle('오류');
+        setAlertMessage('검색 중 문제가 발생했습니다.');
+        setAlertVisible(true);
       }
     }
 
@@ -94,107 +124,125 @@ const AddCharacterScreen: React.FC = () => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: colors.cardBackground,
-            paddingTop: insets.top,
-          },
-        ]}
-      >
-        {/* 상단: 액션바 */}
-        <View style={styles.actionBar}>
-          <TouchableOpacity onPress={router.back}>
-            <Feather name="chevron-left" size={24} color={colors.grayDark} />
-          </TouchableOpacity>
-        </View>
+    <>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: colors.cardBackground,
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          {/* 상단: 액션바 */}
+          <View style={styles.actionBar}>
+            <TouchableOpacity onPress={router.back}>
+              <Feather name="chevron-left" size={24} color={colors.grayDark} />
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.contentWrapper}>
-          {/* 왼쪽 정렬된 타이틀 */}
-          <CustomText style={[styles.title, { color: colors.black }]}>
-            캐릭터 추가
-          </CustomText>
+          <View style={styles.contentWrapper}>
+            {/* 왼쪽 정렬된 타이틀 */}
+            <CustomText style={[styles.title, { color: colors.black }]}>
+              캐릭터 추가
+            </CustomText>
 
-          {/* 입력 필드 */}
-          <TextInput
-            style={[
-              styles.input,
-              { backgroundColor: colors.grayLight, color: colors.black },
-            ]}
-            placeholder=" 캐릭터 이름"
-            placeholderTextColor={colors.grayDark}
-            value={characterName}
-            maxLength={30}
-            onChangeText={(text) => setCharacterName(text)}
-          />
-
-          {/* 검색 버튼 */}
-          <Pressable
-            style={[
-              styles.button,
-              { backgroundColor: isLoading ? colors.grayDark : colors.primary },
-            ]}
-            onPress={() => {
-              handlerSearchCharacter();
-            }}
-            disabled={isLoading} // 로딩 중 비활성화
-          >
-            {isLoading ? (
-              <Feather name="more-horizontal" size={16} color={colors.white} />
-            ) : (
-              <CustomText style={[styles.buttonText, { color: colors.white }]}>
-                검색
-              </CustomText>
-            )}
-          </Pressable>
-
-          {/* 캐릭터 정보 표시 */}
-          {characterInfo && (
-            <View
+            {/* 입력 필드 */}
+            <TextInput
               style={[
-                styles.infoContainer,
-                { backgroundColor: colors.grayLight },
+                styles.input,
+                { backgroundColor: colors.grayLight, color: colors.black },
               ]}
-            >
-              <View style={styles.infoRow}>
-                {/* 왼쪽: 캐릭터 정보 */}
-                <View style={styles.infoTexts}>
-                  <CustomText
-                    style={[styles.nameText, { color: colors.black }]}
-                  >
-                    {characterInfo.CharacterName}
-                  </CustomText>
-                  <CustomText
-                    style={[styles.infoText, { color: colors.grayDark }]}
-                  >
-                    {characterInfo.ItemAvgLevel}
-                  </CustomText>
-                  <CustomText
-                    style={[styles.infoText, { color: colors.grayDark }]}
-                  >
-                    {characterInfo.CharacterClassName} @{' '}
-                    {characterInfo.ServerName}
-                  </CustomText>
-                </View>
+              placeholder=" 캐릭터 이름"
+              placeholderTextColor={colors.grayDark}
+              value={characterName}
+              maxLength={30}
+              onChangeText={(text) => setCharacterName(text)}
+            />
 
-                {/* 오른쪽: 체크 아이콘 버튼 */}
-                <Pressable
-                  style={[
-                    styles.iconButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={handlerAddCharacter}
+            {/* 검색 버튼 */}
+            <Pressable
+              style={[
+                styles.button,
+                {
+                  backgroundColor: isLoading ? colors.grayDark : colors.primary,
+                },
+              ]}
+              onPress={() => {
+                handlerSearchCharacter();
+              }}
+              disabled={isLoading} // 로딩 중 비활성화
+            >
+              {isLoading ? (
+                <Feather
+                  name="more-horizontal"
+                  size={16}
+                  color={colors.white}
+                />
+              ) : (
+                <CustomText
+                  style={[styles.buttonText, { color: colors.white }]}
                 >
-                  <FontAwesome name="check" size={20} color="white" />
-                </Pressable>
+                  검색
+                </CustomText>
+              )}
+            </Pressable>
+
+            {/* 캐릭터 정보 표시 */}
+            {characterInfo && (
+              <View
+                style={[
+                  styles.infoContainer,
+                  { backgroundColor: colors.grayLight },
+                ]}
+              >
+                <View style={styles.infoRow}>
+                  {/* 왼쪽: 캐릭터 정보 */}
+                  <View style={styles.infoTexts}>
+                    <CustomText
+                      style={[styles.nameText, { color: colors.black }]}
+                    >
+                      {characterInfo.CharacterName}
+                    </CustomText>
+                    <CustomText
+                      style={[styles.infoText, { color: colors.grayDark }]}
+                    >
+                      {characterInfo.ItemAvgLevel}
+                    </CustomText>
+                    <CustomText
+                      style={[styles.infoText, { color: colors.grayDark }]}
+                    >
+                      {characterInfo.CharacterClassName} @{' '}
+                      {characterInfo.ServerName}
+                    </CustomText>
+                  </View>
+
+                  {/* 오른쪽: 체크 아이콘 버튼 */}
+                  <Pressable
+                    style={[
+                      styles.iconButton,
+                      { backgroundColor: colors.primary },
+                    ]}
+                    onPress={handlerAddCharacter}
+                  >
+                    <FontAwesome name="check" size={20} color="white" />
+                  </Pressable>
+                </View>
               </View>
-            </View>
-          )}
+            )}
+          </View>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+      <CustomAlert
+        isVisible={alertVisible}
+        setIsVisibleFalse={() => setAlertVisible(false)}
+        titleText={alertTitle}
+        messageText={alertMessage}
+        buttonType="oneButton"
+        align="center"
+      />
+    </>
   );
 };
 

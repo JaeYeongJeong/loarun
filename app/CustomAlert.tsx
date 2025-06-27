@@ -15,6 +15,8 @@ type CustomAlertProps = {
   titleText?: string;
   messageText?: string;
   onSubmit?: () => void;
+  buttonType?: 'default' | 'oneButton';
+  align?: 'auto' | 'center';
 };
 
 const CustomAlert: React.FC<CustomAlertProps> = ({
@@ -23,6 +25,8 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   titleText,
   messageText,
   onSubmit: submitAction,
+  buttonType = 'default',
+  align = 'auto',
 }) => {
   const { colors } = useTheme();
 
@@ -55,25 +59,33 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
               styles.titleText,
               {
                 color: colors.black,
-                textAlign: messageText ? 'auto' : 'center',
+                textAlign: align,
               },
             ]}
           >
             {titleText}
           </CustomText>
           {messageText && (
-            <CustomText style={[styles.messageText, { color: colors.black }]}>
+            <CustomText
+              style={[
+                styles.messageText,
+                { color: colors.black, textAlign: align },
+              ]}
+            >
               {messageText}
             </CustomText>
           )}
           <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.button} onPress={handleClose}>
-              <CustomText
-                style={[styles.buttonText, { color: colors.secondary }]}
-              >
-                닫기
-              </CustomText>
-            </TouchableOpacity>
+            {buttonType === 'default' ? (
+              <TouchableOpacity style={styles.button} onPress={handleClose}>
+                <CustomText
+                  style={[styles.buttonText, { color: colors.secondary }]}
+                >
+                  닫기
+                </CustomText>
+              </TouchableOpacity>
+            ) : null}
+
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <CustomText
                 style={[styles.buttonText, { color: colors.secondary }]}
@@ -101,7 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   titleText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
 
     marginBottom: 10,

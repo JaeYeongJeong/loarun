@@ -2,21 +2,20 @@ type FormatResult =
   | { status: 'valid'; value: number }
   | { status: 'not-a-number' }
   | { status: 'exceeds-limit'; value: number }
-  | { status: 'empty' };
+  | { status: 'empty' }
+  | { status: 'valid-nickname'; value: string }
+  | { status: 'invalid-nickname' };
 
 export const validateNumberInput = (input: string | number): FormatResult => {
   const raw = String(input).trim();
   if (raw === '') return { status: 'empty' };
 
-  // 숫자와 -만 남기기
   let cleaned = raw.replace(/[^0-9\-]/g, '');
 
-  // -가 여러 개 있는 경우 맨 앞 하나만 허용
   if (cleaned.includes('-')) {
     cleaned = '-' + cleaned.replace(/-/g, '');
   }
 
-  // 사용자가 '-'만 입력했을 경우: 아직 입력 중
   if (cleaned === '-') return { status: 'empty' };
 
   const number = Number(cleaned);
@@ -27,4 +26,20 @@ export const validateNumberInput = (input: string | number): FormatResult => {
   }
 
   return { status: 'valid', value: number };
+};
+
+export const validateNicknameInput = (input: string): FormatResult => {
+  const raw = input.trim();
+  if (raw === '') return { status: 'empty' };
+
+  if (raw.length > 12) {
+    return { status: 'exceeds-limit', value: raw.length };
+  }
+
+  const nicknameRegex = /^[a-zA-Z0-9가-힣]+$/;
+  if (!nicknameRegex.test(raw)) {
+    return { status: 'invalid-nickname' };
+  }
+
+  return { status: 'valid-nickname', value: raw };
 };
