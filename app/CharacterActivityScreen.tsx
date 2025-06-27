@@ -130,29 +130,37 @@ const CharacterActivity: React.FC = () => {
 
   useEffect(() => {
     const updatedRaids = [...(character.SelectedRaids || [])];
-    const updatedClearedRaidTotalGold =
-      updatedRaids.reduce((total, raid) => {
-        const stageSum = raid.stages.reduce((sum, stage) => {
-          return stage.cleared
-            ? sum +
-                (raid.goldChecked ? stage.gold : 0) -
-                (stage.selectedChestCost ? stage.chestCost || 0 : 0)
-            : sum;
-        }, 0);
+    let updatedClearedRaidTotalGold = 0;
+    let updatedSelectedRaidTotalGold = 0;
 
-        const additionalGold = raid.cleared
-          ? Number(raid.additionalGold?.replace(/,/g, ''))
-          : 0;
+    for (const raid of updatedRaids) {
+      let stageSum = 0;
+      let selectedGold = 0;
+      let selectedChestCost = 0;
 
-        return total + stageSum + additionalGold;
-      }, 0) || 0;
+      for (const stage of raid.stages) {
+        if (raid.goldChecked) selectedGold += stage.gold;
+        if (raid.chestCostChecked && stage.selectedChestCost) {
+          selectedChestCost += stage.chestCost || 0;
+        }
 
-    const updatedSelectedRaidTotalGold =
-      updatedRaids.reduce(
-        (sum, raid) =>
-          sum + raid.totalGold + Number(raid.additionalGold?.replace(/,/g, '')),
-        0
-      ) || 0;
+        if (stage.cleared) {
+          stageSum +=
+            (raid.goldChecked ? stage.gold : 0) -
+            (stage.selectedChestCost ? stage.chestCost || 0 : 0);
+        }
+      }
+
+      const additionalGold = Number(
+        raid.additionalGold?.replace(/,/g, '') || 0
+      );
+
+      updatedClearedRaidTotalGold +=
+        stageSum + (raid.cleared ? additionalGold : 0);
+
+      updatedSelectedRaidTotalGold +=
+        selectedGold - selectedChestCost + additionalGold;
+    }
 
     updateCharacter(character.id, {
       ClearedRaidTotalGold: updatedClearedRaidTotalGold,

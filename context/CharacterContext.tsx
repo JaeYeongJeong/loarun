@@ -22,10 +22,9 @@ export type RaidStage = {
 export type Raid = {
   name: string;
   stages: RaidStage[]; // 레이드 단계별 정보
-  totalGold: number;
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
   goldChecked?: boolean;
-  additionalGoldCheked?: boolean;
+  additionalGoldCheked?: boolean; //추가 골드 선택 여부
   additionalGold?: string;
   chestCostChecked?: boolean;
 };

@@ -196,7 +196,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
       newSelectedRaids[index] = {
         name: '', // 이름도 초기화할지 유지할지 선택 가능
         stages: [],
-        totalGold: 0,
       };
     } else if (index >= 0 && selectedStages.length > 0) {
       // 선택이 있는 경우 해당 레이드 데이터로 설정
@@ -210,13 +209,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
           selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
-        totalGold: selectedStages.reduce(
-          (total, s) =>
-            total +
-            (goldChecked ? s.gold : 0) -
-            (s.selectedChestCost ? s.chestCost || 0 : 0),
-          0
-        ),
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
@@ -234,13 +226,6 @@ const RaidModal: React.FC<RaidModalProps> = ({
           selectedChestCost: s.selectedChestCost,
           cleared: false,
         })),
-        totalGold: selectedStages.reduce(
-          (total, s) =>
-            total +
-            (goldChecked ? s.gold : 0) -
-            (s.selectedChestCost ? s.chestCost || 0 : 0),
-          0
-        ),
         goldChecked: goldChecked,
         additionalGoldCheked: additionalGoldChecked,
         additionalGold: additionalGoldChecked ? additinalGold : '',
