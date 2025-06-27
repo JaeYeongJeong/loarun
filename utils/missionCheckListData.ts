@@ -19,8 +19,8 @@ export const missionCheckListData: checkListItem[] = [
     resetPeriod: 'daily',
   },
   {
-    name: '에포나 의뢰',
+    name: '주간 의뢰',
     checked: false,
-    resetPeriod: 'daily',
+    resetPeriod: 'weekly',
   },
 ];
