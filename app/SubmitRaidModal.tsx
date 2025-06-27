@@ -341,95 +341,107 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   >
                     {raid.name}
                   </CustomText>
-                  {raid.difficulties.map((difficultyObj, stageIdx) => (
-                    <View key={stageIdx} style={styles.difficultyBlock}>
-                      <View style={styles.difficultyHeader}>
-                        <CustomText
-                          style={[
-                            styles.difficultyText,
-                            { color: colors.black },
-                            difficultyObj.difficulty === '노말'
-                              ? { color: colors.info }
-                              : {},
-                            difficultyObj.difficulty === '하드'
-                              ? { color: colors.danger }
-                              : {},
-                          ]}
-                        >
-                          {difficultyObj.difficulty}
-                        </CustomText>
-                        <CustomText
-                          style={[
-                            styles.totalGoldText,
-                            { color: colors.grayDark },
-                          ]}
-                        >
-                          {difficultyObj.totalGold}
-                        </CustomText>
-                      </View>
-
-                      <View
-                        style={[
-                          styles.stageContainer,
-                          { backgroundColor: colors.grayLight },
-                        ]}
-                      >
-                        {difficultyObj.stages.map((stage) => (
-                          <TouchableOpacity
-                            key={stage.stage}
+                  {raid.difficulties.map((difficultyObj, stageIdx) => {
+                    const totalGold = difficultyObj.stages.reduce(
+                      (total, stage) => total + stage.gold,
+                      0
+                    );
+                    const totalBoundGold = difficultyObj.stages.reduce(
+                      (total, stage) => total + (stage.boundGold ?? 0),
+                      0
+                    );
+                    return (
+                      <View key={stageIdx} style={styles.difficultyBlock}>
+                        <View style={styles.difficultyHeader}>
+                          <CustomText
                             style={[
-                              styles.stageBox,
-                              isSelected(
-                                raid.name,
-                                difficultyObj.difficulty,
-                                stage.stage
-                              ) && { backgroundColor: colors.primary },
+                              styles.difficultyText,
+                              { color: colors.black },
+                              difficultyObj.difficulty === '노말'
+                                ? { color: colors.info }
+                                : {},
+                              difficultyObj.difficulty === '하드'
+                                ? { color: colors.danger }
+                                : {},
                             ]}
-                            onPress={() => {
-                              handleSelectStages(
-                                raid,
-                                difficultyObj.difficulty,
-                                stage.stage
-                              );
-                            }}
                           >
-                            <CustomText
+                            {difficultyObj.difficulty}
+                          </CustomText>
+                          <CustomText
+                            style={[
+                              styles.totalGoldText,
+                              { color: colors.grayDark },
+                            ]}
+                          >
+                            {totalBoundGold > 0
+                              ? `${totalGold} (${totalBoundGold})`
+                              : totalGold}
+                          </CustomText>
+                        </View>
+
+                        <View
+                          style={[
+                            styles.stageContainer,
+                            { backgroundColor: colors.grayLight },
+                          ]}
+                        >
+                          {difficultyObj.stages.map((stage) => (
+                            <TouchableOpacity
+                              key={stage.stage}
                               style={[
-                                styles.stageLabelText,
-                                {
-                                  color: isSelected(
-                                    raid.name,
-                                    difficultyObj.difficulty,
-                                    stage.stage
-                                  )
-                                    ? colors.white
-                                    : colors.grayDark,
-                                },
+                                styles.stageBox,
+                                isSelected(
+                                  raid.name,
+                                  difficultyObj.difficulty,
+                                  stage.stage
+                                ) && { backgroundColor: colors.primary },
                               ]}
+                              onPress={() => {
+                                handleSelectStages(
+                                  raid,
+                                  difficultyObj.difficulty,
+                                  stage.stage
+                                );
+                              }}
                             >
-                              {stage.stage}관문
-                            </CustomText>
-                            <CustomText
-                              style={[
-                                styles.stageGold,
-                                {
-                                  color: isSelected(
-                                    raid.name,
-                                    difficultyObj.difficulty,
-                                    stage.stage
-                                  )
-                                    ? colors.white
-                                    : colors.grayDark,
-                                },
-                              ]}
-                            >
-                              {stage.gold}
-                            </CustomText>
-                          </TouchableOpacity>
-                        ))}
+                              <CustomText
+                                style={[
+                                  styles.stageLabelText,
+                                  {
+                                    color: isSelected(
+                                      raid.name,
+                                      difficultyObj.difficulty,
+                                      stage.stage
+                                    )
+                                      ? colors.white
+                                      : colors.grayDark,
+                                  },
+                                ]}
+                              >
+                                {stage.stage}관문
+                              </CustomText>
+                              <CustomText
+                                style={[
+                                  styles.stageGold,
+                                  {
+                                    color: isSelected(
+                                      raid.name,
+                                      difficultyObj.difficulty,
+                                      stage.stage
+                                    )
+                                      ? colors.white
+                                      : colors.grayDark,
+                                  },
+                                ]}
+                              >
+                                {stage.gold}
+                              </CustomText>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
                       </View>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               ))}
             </ScrollView>
