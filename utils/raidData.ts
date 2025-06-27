@@ -10,7 +10,6 @@ export type RaidStage = {
 export type RaidDifficulty = {
   difficulty: Difficulty;
   stages: RaidStage[]; // 관문별 정보
-  totalGold: number;
   requiredItemLevel: number;
 };
 
@@ -31,7 +30,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 9500, chestCost: 3200 },
           { stage: 3, gold: 12500, chestCost: 4200 },
         ],
-        totalGold: 28000,
       },
       {
         difficulty: '하드',
@@ -41,7 +39,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 11000, chestCost: 4100 },
           { stage: 3, gold: 20000, chestCost: 5800 },
         ],
-        totalGold: 38000,
       },
     ],
   },
@@ -55,7 +52,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 7250, chestCost: 3240 },
           { stage: 2, gold: 14250, chestCost: 4830 },
         ],
-        totalGold: 21500,
       },
       {
         difficulty: '하드',
@@ -64,7 +60,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 10000, chestCost: 4500 },
           { stage: 2, gold: 20500, chestCost: 7200 },
         ],
-        totalGold: 30500,
       },
     ],
   },
@@ -78,7 +73,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 4750, boundGold: 2375, chestCost: 1030 },
           { stage: 2, gold: 10750, boundGold: 5375, chestCost: 2400 },
         ],
-        totalGold: 15500,
       },
       {
         difficulty: '노말',
@@ -87,7 +81,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 4750, chestCost: 1030 },
           { stage: 2, gold: 10750, chestCost: 2400 },
         ],
-        totalGold: 15500,
       },
       {
         difficulty: '하드',
@@ -96,7 +89,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 8000, chestCost: 3640 },
           { stage: 2, gold: 16500, chestCost: 5880 },
         ],
-        totalGold: 24500,
       },
     ],
   },
@@ -110,7 +102,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 2800, chestCost: 920 },
           { stage: 2, gold: 6000, chestCost: 1960 },
         ],
-        totalGold: 8800,
       },
     ],
   },
@@ -124,7 +115,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 2300, boundGold: 1150, chestCost: 380 },
           { stage: 2, gold: 5000, boundGold: 2500, chestCost: 840 },
         ],
-        totalGold: 7300,
       },
       {
         difficulty: '노말',
@@ -133,7 +123,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 2300, boundGold: 1150, chestCost: 380 },
           { stage: 2, gold: 5000, boundGold: 2500, chestCost: 840 },
         ],
-        totalGold: 7300,
       },
       {
         difficulty: '하드',
@@ -142,7 +131,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 2800, chestCost: 920 },
           { stage: 2, gold: 6000, chestCost: 1960 },
         ],
-        totalGold: 8800,
       },
     ],
   },
@@ -157,7 +145,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 2000, boundGold: 1000, chestCost: 440 },
           { stage: 3, gold: 2800, boundGold: 1400, chestCost: 640 },
         ],
-        totalGold: 6400,
       },
       {
         difficulty: '노말',
@@ -167,7 +154,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 2000, boundGold: 1000, chestCost: 440 },
           { stage: 3, gold: 2800, boundGold: 1400, chestCost: 640 },
         ],
-        totalGold: 6400,
       },
       {
         difficulty: '하드',
@@ -178,7 +164,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 3, gold: 3600, boundGold: 1800, chestCost: 900 },
           { stage: 4, gold: 5000, boundGold: 2500, chestCost: 1250 },
         ],
-        totalGold: 13000,
       },
     ],
   },
@@ -193,7 +178,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1600, boundGold: 800, chestCost: 220 },
           { stage: 3, gold: 2400, boundGold: 1200, chestCost: 300 },
         ],
-        totalGold: 5200,
       },
       {
         difficulty: '노말',
@@ -203,7 +187,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1600, boundGold: 800, chestCost: 220 },
           { stage: 3, gold: 2400, boundGold: 1200, chestCost: 300 },
         ],
-        totalGold: 5200,
       },
       {
         difficulty: '하드',
@@ -213,7 +196,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 2000, boundGold: 1000, chestCost: 500 },
           { stage: 3, gold: 3800, boundGold: 1900, chestCost: 950 },
         ],
-        totalGold: 7200,
       },
     ],
   },
@@ -228,7 +210,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1550, boundGold: 775, chestCost: 230 },
           { stage: 3, gold: 2300, boundGold: 1150, chestCost: 330 },
         ],
-        totalGold: 4700,
       },
       {
         difficulty: '노말',
@@ -238,7 +219,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1550, boundGold: 775, chestCost: 230 },
           { stage: 3, gold: 2300, boundGold: 1150, chestCost: 330 },
         ],
-        totalGold: 4700,
       },
       {
         difficulty: '하드',
@@ -248,7 +228,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 2000, boundGold: 1000, chestCost: 500 },
           { stage: 3, gold: 2800, boundGold: 1400, chestCost: 700 },
         ],
-        totalGold: 6000,
       },
     ],
   },
@@ -263,7 +242,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1100, boundGold: 550, chestCost: 200 },
           { stage: 3, gold: 1450, boundGold: 725, chestCost: 270 },
         ],
-        totalGold: 3300,
       },
       {
         difficulty: '노말',
@@ -273,7 +251,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1100, boundGold: 550, chestCost: 200 },
           { stage: 3, gold: 1450, boundGold: 725, chestCost: 270 },
         ],
-        totalGold: 3300,
       },
       {
         difficulty: '하드',
@@ -283,7 +260,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 1400, boundGold: 700, chestCost: 350 },
           { stage: 3, gold: 2000, boundGold: 1000, chestCost: 500 },
         ],
-        totalGold: 4300,
       },
     ],
   },
@@ -299,7 +275,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 3, gold: 1000, boundGold: 500, chestCost: 200 },
           { stage: 4, gold: 1600, boundGold: 800, chestCost: 375 },
         ],
-        totalGold: 4600,
       },
       {
         difficulty: '노말',
@@ -310,7 +285,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 3, gold: 1000, boundGold: 500, chestCost: 200 },
           { stage: 4, gold: 1600, boundGold: 800, chestCost: 375 },
         ],
-        totalGold: 4600,
       },
       {
         difficulty: '하드',
@@ -321,7 +295,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 3, gold: 1200, boundGold: 600, chestCost: 300 },
           { stage: 4, gold: 2000, boundGold: 1000, chestCost: 500 },
         ],
-        totalGold: 5600,
       },
     ],
   },
@@ -336,7 +309,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 900, boundGold: 450, chestCost: 150 },
           { stage: 3, gold: 1500, boundGold: 750, chestCost: 200 },
         ],
-        totalGold: 3000,
       },
       {
         difficulty: '노말',
@@ -346,7 +318,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 900, boundGold: 450, chestCost: 150 },
           { stage: 3, gold: 1500, boundGold: 750, chestCost: 200 },
         ],
-        totalGold: 3000,
       },
     ],
   },
@@ -360,7 +331,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 600, boundGold: 300, chestCost: 100 },
           { stage: 2, gold: 1000, boundGold: 500, chestCost: 150 },
         ],
-        totalGold: 1600,
       },
       {
         difficulty: '노말',
@@ -369,7 +339,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 600, boundGold: 300, chestCost: 100 },
           { stage: 2, gold: 1000, boundGold: 500, chestCost: 150 },
         ],
-        totalGold: 1600,
       },
       {
         difficulty: '하드',
@@ -378,7 +347,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 900, boundGold: 450, chestCost: 225 },
           { stage: 2, gold: 1500, boundGold: 750, chestCost: 375 },
         ],
-        totalGold: 2400,
       },
     ],
   },
@@ -392,7 +360,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 500, boundGold: 250, chestCost: 75 },
           { stage: 2, gold: 700, boundGold: 350, chestCost: 100 },
         ],
-        totalGold: 1200,
       },
       {
         difficulty: '노말',
@@ -401,7 +368,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 500, boundGold: 250, chestCost: 75 },
           { stage: 2, gold: 700, boundGold: 350, chestCost: 100 },
         ],
-        totalGold: 1200,
       },
       {
         difficulty: '하드',
@@ -410,7 +376,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 1, gold: 700, boundGold: 350, chestCost: 175 },
           { stage: 2, gold: 1100, boundGold: 550, chestCost: 275 },
         ],
-        totalGold: 1800,
       },
     ],
   },
@@ -425,7 +390,6 @@ export const RAID_LIST: RaidData[] = [
           { stage: 2, gold: 300, boundGold: 150, chestCost: 150 },
           { stage: 3, gold: 400, boundGold: 200, chestCost: 150 },
         ],
-        totalGold: 1000,
       },
     ],
   },

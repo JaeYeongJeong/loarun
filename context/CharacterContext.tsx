@@ -6,6 +6,7 @@ import {
 } from '../utils/PortraitImage';
 import uuid from 'react-native-uuid';
 import { checkListItem } from '@/utils/missionCheckListData';
+import { RAID_LIST } from '@/utils/raidData';
 
 export type RaidDifficulty = '싱글' | '노말' | '하드';
 
@@ -90,8 +91,23 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // ✅ 초기화 및 캐릭터 로드
   useEffect(() => {
-    const loadAndMaybeReset = async () => {
+    // 캐릭터 로드 함수
+    const loadCharacters = async () => {
+      try {
+        const storedCharacters = await AsyncStorage.getItem('characters');
+        if (storedCharacters) {
+          setCharacters(JSON.parse(storedCharacters));
+        } else {
+          setCharacters([]); // 초기값 설정
+        }
+      } catch (err) {
+        console.error('캐릭터 로드 실패:', err);
+      }
+    };
+    // ✅ 일일/주간 초기화 함수
+    const maybeReset = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
       const parsedCharacters = storedCharacters
         ? JSON.parse(storedCharacters)
@@ -145,15 +161,49 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           await AsyncStorage.setItem('lastWeeklyReset', now.toISOString());
           console.log('✅ 주간 초기화 완료:', now.toLocaleString());
         }
-
-        const updatedCharacters = await AsyncStorage.getItem('characters');
-        setCharacters(updatedCharacters ? JSON.parse(updatedCharacters) : []);
       }
       //일일/주간 초기화 테스트
       // await resetCharacterTask(parsedCharacters, 'weekly');
+    };
+    // ✅ 선택한 레이드 데이터 업데이트 함수
+    const updateSelectedRaidData = async () => {
+      const storedCharacters = await AsyncStorage.getItem('characters');
+      const parsedCharacters = storedCharacters
+        ? JSON.parse(storedCharacters)
+        : [];
+
+      parsedCharacters.forEach((char: Character) => {
+        char.SelectedRaids?.forEach((raid) => {
+          const raidData = RAID_LIST.find((r) => r.name === raid.name);
+          if (!raidData) return;
+
+          raid.stages.forEach((stage) => {
+            const stageData = raidData.difficulties.find(
+              (d) => d.difficulty === stage.difficulty
+            );
+
+            const matchedStage = stageData?.stages.find(
+              (s) => s.stage === stage.stage
+            );
+
+            if (matchedStage) {
+              stage.gold = matchedStage.gold;
+              stage.chestCost = matchedStage.chestCost;
+            }
+          });
+        });
+      });
+      saveCharacters(parsedCharacters);
+    };
+    // ✅ 초기화 함수 실행
+    const initialize = async () => {
+      await loadCharacters();
+      await maybeReset();
+      await updateSelectedRaidData();
       setIsLoaded(true);
     };
-    loadAndMaybeReset();
+
+    initialize();
   }, []);
 
   const saveCharacters = async (data: Character[]) => {
