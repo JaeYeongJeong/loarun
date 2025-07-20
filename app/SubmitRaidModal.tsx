@@ -348,6 +348,10 @@ const RaidModal: React.FC<RaidModalProps> = ({
                               difficultyObj.difficulty === '하드'
                                 ? { color: colors.danger }
                                 : {},
+                              difficultyObj.difficulty === '익스트림 노말' ||
+                              difficultyObj.difficulty === '익스트림 하드'
+                                ? { color: colors.extreme }
+                                : {},
                             ]}
                           >
                             {difficultyObj.difficulty}
@@ -359,7 +363,9 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             ]}
                           >
                             {totalBoundGold > 0
-                              ? `${totalGold} (${totalBoundGold})`
+                              ? `${
+                                  totalGold - totalBoundGold
+                                } / ${totalBoundGold}(귀속)`
                               : totalGold}
                           </CustomText>
                         </View>

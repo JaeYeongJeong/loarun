@@ -14,6 +14,7 @@ type ColorTheme = {
   info: string; // 난이도 노말 색상 (파랑)
   warning: string; // 난이도 하드 색상 (빨강)
   gold: string; // 골드 색상 (노랑)
+  extreme: string; // 난이도 익스트림 색상(보라)
 };
 
 const lightColors: ColorTheme = {
@@ -26,30 +27,32 @@ const lightColors: ColorTheme = {
   black: '#212529',
   white: '#f8f9fa',
   iconColor: '#212529',
-  primary: '#4CAF50', // 메인 버튼색 (초록)
-  secondary: '#007BFF', // 추가버튼 색상 (파랑)
-  danger: '#f44336', // 삭제 버튼 색상 (빨강)
-  info: '#1E88E5', // 난이도 노말 색상 (파랑)
-  warning: '#e74c3c', // 난이도 하드 색상 (빨강)
+  primary: '#4CAF50',
+  secondary: '#007BFF',
+  danger: '#f44336',
+  info: '#1E88E5',
+  warning: '#e74c3c',
   gold: '#E67E22',
+  extreme: '#6f42c1',
 };
 
 const darkColors: ColorTheme = {
-  background: '#121212', // 다크 배경
-  cardBackground: '#1e1e1e', // 카드용 약간 밝은 회색
+  background: '#121212',
+  cardBackground: '#1e1e1e',
   modalBackground: '#2a2a2a',
   alertBackground: '#1e1e1e',
-  grayLight: '#2c2c2c', // 버튼 배경 같은 곳에
-  grayDark: '#aaaaaa', // 텍스트용 밝은 회색
-  black: '#f8f9fa', // 다크에서는 흰색이 메인 텍스트가 됨
-  white: '#212529', // 반대 (필요한 경우)
-  iconColor: '#dee2e6', // 아이콘 색상 (다크에서는 흰색)
-  primary: '#2ecc71', // 메인 버튼 초록은 유지 (잘 보임)
-  secondary: '#339CFF', // 추가버튼 색상 (파랑 약간 밝게)
-  danger: '#FF6B6B', // 삭제 버튼 빨강을 다크에 맞게 톤 업
-  info: '#5DADE2', // 난이도 노말 색 (밝은 블루)
-  warning: '#EC7063', // 난이도 하드 색 (살짝 더 밝은 레드)
+  grayLight: '#2c2c2c',
+  grayDark: '#aaaaaa',
+  black: '#f8f9fa',
+  white: '#212529',
+  iconColor: '#dee2e6',
+  primary: '#2ecc71',
+  secondary: '#339CFF',
+  danger: '#FF6B6B',
+  info: '#5DADE2',
+  warning: '#EC7063',
   gold: '#E67E22',
+  extreme: '#9b59b6',
 };
 
 export { lightColors, darkColors };

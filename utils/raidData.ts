@@ -1,9 +1,14 @@
-export type Difficulty = '싱글' | '노말' | '하드';
+export type Difficulty =
+  | '싱글'
+  | '노말'
+  | '하드'
+  | '익스트림 노말'
+  | '익스트림 하드';
 
 export type RaidStage = {
   stage: number; // 관문 번호 (1, 2, 3...)
   gold: number; // 해당 관문에서 획득하는 골드
-  chestCost: number;
+  chestCost?: number;
   boundGold?: number; //귀속 골드
 };
 
@@ -165,6 +170,16 @@ export const RAID_LIST: RaidData[] = [
           { stage: 4, gold: 5000, boundGold: 2500, chestCost: 1250 },
         ],
       },
+      {
+        difficulty: '익스트림 노말',
+        requiredItemLevel: 1690,
+        stages: [{ stage: 1, gold: 15000 }],
+      },
+      {
+        difficulty: '익스트림 하드',
+        requiredItemLevel: 1720,
+        stages: [{ stage: 1, gold: 30000 }],
+      },
     ],
   },
   {
@@ -256,7 +271,7 @@ export const RAID_LIST: RaidData[] = [
         difficulty: '하드',
         requiredItemLevel: 1580,
         stages: [
-          { stage: 1, gold: 1400, boundGold: 450, chestCost: 250 },
+          { stage: 1, gold: 900, boundGold: 450, chestCost: 250 },
           { stage: 2, gold: 1400, boundGold: 700, chestCost: 350 },
           { stage: 3, gold: 2000, boundGold: 1000, chestCost: 500 },
         ],

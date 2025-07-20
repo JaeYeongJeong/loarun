@@ -7,8 +7,9 @@ import {
 import uuid from 'react-native-uuid';
 import { checkListItem } from '@/utils/missionCheckListData';
 import { RAID_LIST } from '@/utils/raidData';
+import { Difficulty as RaidDifficulty } from '@/utils/raidData';
 
-export type RaidDifficulty = '싱글' | '노말' | '하드';
+export { RaidDifficulty };
 
 export type RaidStage = {
   difficulty: RaidDifficulty; // 레이드 난이도 (싱글, 노말, 하드)
@@ -231,8 +232,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         ...newCharacter,
         id,
         CharacterPortraitImage: portraitImage,
-        lastUpdated: new Date().toISOString(),
-        addedAt: new Date().toISOString(),
+        LastUpdated: new Date().toISOString(),
+        AddedAt: new Date().toISOString(),
       },
     ];
 
