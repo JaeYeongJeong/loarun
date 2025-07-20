@@ -1,12 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCharacter } from '@/context/CharacterContext';
 
 type AppSettingContextType = {
   activityHistory: string[];
   updateActivityHistory: (history: string[]) => void;
   isInfoVisible: boolean;
   toggleInfoVisibility: () => void;
+  characterSortOrder: SortOrder; // 정렬 기준
+  updateCharacterSortOrder: (sortOrder: SortOrder) => void;
 };
+
+export type SortOrder = 'addedAt' | 'level' | 'server';
 
 const AppSettingContext = createContext<AppSettingContextType | undefined>(
   undefined
@@ -17,10 +22,14 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [activityHistory, setActivityHistory] = useState<string[]>([]);
   const [isInfoVisible, setIsInfoVisible] = useState<boolean>(true);
+  const [characterSortOrder, setCharacterSortOrder] =
+    useState<SortOrder>('addedAt');
+  const { sortCharacter } = useCharacter();
 
   useEffect(() => {
     loadIsInfoVisible();
     loadActivityHistory();
+    loadCharacterSortOrder();
   }, []);
 
   useEffect(() => {
@@ -69,6 +78,29 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateCharacterSortOrder = async (sortOrder: SortOrder) => {
+    try {
+      await AsyncStorage.setItem('characterSortOrder', sortOrder);
+      setCharacterSortOrder(sortOrder); // ✅ 이 줄이 핵심!
+      sortCharacter(sortOrder);
+    } catch (err) {
+      console.error('캐릭터 정렬 기준 저장 실패:', err);
+    }
+  };
+
+  const loadCharacterSortOrder = async () => {
+    try {
+      const savedSortOrder = await AsyncStorage.getItem('characterSortOrder');
+      if (savedSortOrder) {
+        setCharacterSortOrder(savedSortOrder as SortOrder);
+      } else {
+        setCharacterSortOrder('addedAt'); // 기본값은 'addedAt'
+      }
+    } catch (err) {
+      console.error('캐릭터 정렬 기준 로드 실패:', err);
+    }
+  };
+
   return (
     <AppSettingContext.Provider
       value={{
@@ -76,6 +108,8 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
         updateActivityHistory,
         isInfoVisible,
         toggleInfoVisibility,
+        characterSortOrder,
+        updateCharacterSortOrder,
       }}
     >
       {children}

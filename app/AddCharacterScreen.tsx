@@ -4,7 +4,6 @@ import {
   TextInput,
   View,
   Pressable,
-  Alert,
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
@@ -19,6 +18,7 @@ import CustomText from './components/CustomText';
 import { missionCheckListData } from '@/utils/missionCheckListData';
 import { validateNicknameInput } from '@/utils/validateInput';
 import CustomAlert from './CustomAlert';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -31,11 +31,12 @@ const AddCharacterScreen: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertTitle, setAlertTitle] = useState('알림');
   const { characters, addCharacter } = useCharacter();
+  const { characterSortOrder } = useAppSetting();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   // ✅ 캐릭터 추가 핸들러
-  const handlerAddCharacter = () => {
+  const handlerAddCharacter = async () => {
     if (!characterInfo || !characterInfo.CharacterName) {
       setAlertTitle('오류');
       setAlertMessage('캐릭터 정보가 없습니다.');
@@ -54,16 +55,20 @@ const AddCharacterScreen: React.FC = () => {
       return;
     }
 
-    addCharacter({
-      id: characterInfo.id,
-      CharacterImage: characterInfo.CharacterImage || '',
-      CharacterPortraitImage: characterInfo.CharacterFaceImage || '',
-      CharacterName: characterInfo.CharacterName,
-      CharacterClassName: characterInfo.CharacterClassName,
-      ItemAvgLevel: characterInfo.ItemAvgLevel,
-      ServerName: characterInfo.ServerName,
-      MissionCheckList: missionCheckListData,
-    });
+    addCharacter(
+      {
+        id: characterInfo.id,
+        CharacterImage: characterInfo.CharacterImage || '',
+        CharacterPortraitImage: characterInfo.CharacterFaceImage || '',
+        CharacterName: characterInfo.CharacterName,
+        CharacterClassName: characterInfo.CharacterClassName,
+        ItemAvgLevel: characterInfo.ItemAvgLevel,
+        ServerName: characterInfo.ServerName,
+        MissionCheckList: missionCheckListData,
+      },
+      characterSortOrder
+    );
+
     setAlertTitle('성공');
     setAlertMessage(`${characterInfo.CharacterName}이(가) 추가되었습니다.`);
     setAlertVisible(true);

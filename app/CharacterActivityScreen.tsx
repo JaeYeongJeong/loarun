@@ -25,6 +25,7 @@ import { missionCheckListData } from '@/utils/missionCheckListData';
 import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
+import { getPortraitImage } from '@/utils/PortraitImage';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -40,6 +41,7 @@ const CharacterActivity: React.FC = () => {
   const character = characters.find((c) => c.id === id);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const { isInfoVisible } = useAppSetting();
+  const [portraitUrl, setPortraitUri] = useState<string | null>(null);
 
   // 📌 모달 상태 및 관련 인덱스
   const [activityModalVisible, setActivityModalVisible] =
@@ -133,6 +135,19 @@ const CharacterActivity: React.FC = () => {
       }
     };
   }, []);
+
+  // 📌 캐릭터 이미지 로드
+  useEffect(() => {
+    const loadImage = async () => {
+      const portraitUri = await getPortraitImage(character.id);
+      if (portraitUri) {
+        setPortraitUri(portraitUri);
+      } else {
+        setPortraitUri(null);
+      }
+    };
+    loadImage();
+  }, [character.LastUpdated, character.CharacterPortraitImage]);
 
   useEffect(() => {
     const updatedRaids = [...(character.SelectedRaids || [])];

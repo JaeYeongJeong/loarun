@@ -14,8 +14,7 @@ import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import CustomText from './components/CustomText';
 
-const version =
-  Constants.expoConfig?.version ?? Constants.manifest?.version ?? 'unknown';
+const version = Constants.expoConfig?.version ?? 'unknown';
 
 const AddCharacterScreen: React.FC = () => {
   const { colors } = useTheme();

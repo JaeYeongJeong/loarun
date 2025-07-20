@@ -8,6 +8,7 @@ import uuid from 'react-native-uuid';
 import { checkListItem } from '@/utils/missionCheckListData';
 import { RAID_LIST } from '@/utils/raidData';
 import { Difficulty as RaidDifficulty } from '@/utils/raidData';
+import { SortOrder } from '@/context/AppSettingContext';
 
 export { RaidDifficulty };
 
@@ -61,12 +62,13 @@ type Character = {
   MissionCheckListFolded?: boolean; // 체크리스트 접기 상태
 };
 
-export type SortOrder = 'addedAt' | 'level' | 'server';
-
 // ✅ Context에서 제공할 기능 정의
 type CharacterContextType = {
   characters: Character[];
-  addCharacter: (newCharacter: Character) => Promise<void>;
+  addCharacter: (
+    newCharacter: Character,
+    sortOrder: SortOrder
+  ) => Promise<void>;
   removeCharacter: (id: string) => Promise<void>;
   updateCharacter: (
     id: string,
@@ -124,8 +126,11 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return day > 3 || (day === 3 && hour >= 6);
       };
 
-      const getToday6AM = () => {
+      const getLast6AM = () => {
         const date = new Date(now);
+        if (now.getHours() < 6) {
+          date.setDate(date.getDate() - 1); // 전날로 보냄
+        }
         date.setHours(6, 0, 0, 0);
         return date;
       };
@@ -141,16 +146,20 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       if (parsedCharacters.length > 0) {
-        const today6AM = getToday6AM();
+        const last6AM = getLast6AM();
         const dailyResetDate = lastDailyReset ? new Date(lastDailyReset) : null;
         const weeklyResetDate = lastWeeklyReset
           ? new Date(lastWeeklyReset)
           : null;
         const wednesdayDate = getThisWednesday6AM();
 
-        if (!dailyResetDate || dailyResetDate < today6AM) {
+        if (!dailyResetDate || dailyResetDate < last6AM) {
           await resetCharacterTask(parsedCharacters, 'daily');
           await AsyncStorage.setItem('lastDailyReset', now.toISOString());
+          console.log(
+            dailyResetDate?.toLocaleString(),
+            last6AM.toLocaleString()
+          );
           console.log('✅ 일일 초기화 완료:', now.toLocaleString());
         }
 
@@ -218,7 +227,10 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // ✅ 캐릭터 추가
-  const addCharacter = async (newCharacter: Character) => {
+  const addCharacter = async (
+    newCharacter: Character,
+    sortOrder: SortOrder
+  ) => {
     const id = uuid.v4().toString(); // UUID 생성
     const portraitImage = (await cropAndSavePortraitImage(
       newCharacter.CharacterImage || '', // 캐릭터 이미지
@@ -236,8 +248,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         AddedAt: new Date().toISOString(),
       },
     ];
-
-    await saveCharacters(updated);
+    await sortCharacter(sortOrder, updated);
   };
 
   // ✅ 캐릭터 삭제
@@ -285,28 +296,32 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
-  const sortCharacter = async (order: SortOrder) => {
+  const sortCharacter = async (
+    order: SortOrder,
+    inputCharacters?: Character[] // 두 번째 인자가 있으면 그것을 사용
+  ) => {
+    const target = inputCharacters ?? characters; // 인자가 없으면 현재 상태 사용
     let sortedList: Character[] = [];
 
     if (order === 'addedAt') {
       // 추가된 순 (오름차순)
-      sortedList = [...characters].sort(
+      sortedList = [...target].sort(
         (a, b) =>
           new Date(a.AddedAt || 0).getTime() -
           new Date(b.AddedAt || 0).getTime()
       );
     } else if (order === 'level') {
-      // 레벨 높은 순 (문자열 → 숫자 변환)
-      sortedList = [...characters].sort(
+      // 레벨 높은 순
+      sortedList = [...target].sort(
         (a, b) =>
           parseFloat(b.ItemAvgLevel.replace(/,/g, '')) -
           parseFloat(a.ItemAvgLevel.replace(/,/g, ''))
       );
     } else if (order === 'server') {
       // 서버별 최고 레벨 기준 정렬
-
       const serverMap: Record<string, Character[]> = {};
-      for (const char of characters) {
+
+      for (const char of target) {
         const server = char.ServerName || 'unknown';
         if (!serverMap[server]) serverMap[server] = [];
         serverMap[server].push(char);

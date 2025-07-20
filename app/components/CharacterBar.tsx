@@ -8,12 +8,12 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import * as FileSystem from 'expo-file-system';
 import { useTheme } from '@/context/ThemeContext';
 import { normalize } from '@/utils/nomalize';
 import { Feather } from '@expo/vector-icons';
 import CustomText from './CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
+import { getPortraitImage } from '@/utils/PortraitImage';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
@@ -32,18 +32,18 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
   if (!character) return; // 캐릭터가 없으면 아무것도 하지 않음
 
+  // 📌 캐릭터 이미지 로드
   useEffect(() => {
     const loadImage = async () => {
-      const uri = FileSystem.documentDirectory + `${id}_portrait.png`;
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-      if (fileInfo.exists) {
-        setPortraitUri(uri);
+      const portraitUri = await getPortraitImage(character.id);
+      if (portraitUri) {
+        setPortraitUri(portraitUri);
       } else {
         setPortraitUri(null);
       }
     };
     loadImage();
-  }, []);
+  }, [character.LastUpdated, character.CharacterPortraitImage]);
 
   const handlerCharacterActivity = () => {
     router.push({

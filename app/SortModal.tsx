@@ -1,7 +1,6 @@
-import { SortOrder, useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Modal,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import CustomText from './components/CustomText';
+import { useAppSetting } from '@/context/AppSettingContext';
 
 type SortModalProps = {
   isVisible: boolean;
@@ -26,28 +26,24 @@ const SortModal: React.FC<SortModalProps> = ({
   positionY,
 }) => {
   const { colors } = useTheme();
-  const { sortCharacter } = useCharacter();
-  const [selectedOption, setSelectedOption] = useState<SortOrder>('addedAt');
+  const { characterSortOrder, updateCharacterSortOrder } = useAppSetting();
 
   const handleCloseModal = () => {
     toggleModal();
   };
 
   const sortByDateAdded = () => {
-    setSelectedOption('addedAt');
-    sortCharacter('addedAt');
+    updateCharacterSortOrder('addedAt');
     toggleModal();
   };
 
   const sortByLevel = () => {
-    setSelectedOption('level');
-    sortCharacter('level');
+    updateCharacterSortOrder('level');
     toggleModal();
   };
 
   const sortByServer = () => {
-    setSelectedOption('server');
-    sortCharacter('server');
+    updateCharacterSortOrder('server');
     toggleModal();
   };
 
@@ -74,7 +70,7 @@ const SortModal: React.FC<SortModalProps> = ({
                   >
                     추가 순
                   </CustomText>
-                  {selectedOption === 'addedAt' && (
+                  {characterSortOrder === 'addedAt' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
                 </View>
@@ -86,7 +82,7 @@ const SortModal: React.FC<SortModalProps> = ({
                   >
                     서버 순
                   </CustomText>
-                  {selectedOption === 'server' && (
+                  {characterSortOrder === 'server' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
                 </View>
@@ -98,7 +94,7 @@ const SortModal: React.FC<SortModalProps> = ({
                   >
                     레벨 높은 순
                   </CustomText>
-                  {selectedOption === 'level' && (
+                  {characterSortOrder === 'level' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
                 </View>
