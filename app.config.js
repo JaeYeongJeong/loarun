@@ -12,7 +12,7 @@ export default {
     },
     userInterfaceStyle: "automatic",
     icon: "./assets/images/loarunIcon-1024-big-removebg.png",
-    version: "1.0.2",
+    version: "1.0.3",
     newArchEnabled: true,
     splash: {
       image: "./assets/images/loarunIcon-1024-big-removebg.png",
