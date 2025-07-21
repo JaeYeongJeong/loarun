@@ -41,7 +41,7 @@ const CharacterActivity: React.FC = () => {
   const character = characters.find((c) => c.id === id);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const { isInfoVisible } = useAppSetting();
-  const [portraitUrl, setPortraitUri] = useState<string | null>(null);
+  const [portraitUri, setPortraitUri] = useState<string | null>(null);
 
   // 📌 모달 상태 및 관련 인덱스
   const [activityModalVisible, setActivityModalVisible] =
@@ -350,9 +350,9 @@ const CharacterActivity: React.FC = () => {
           {
             <Image
               source={{
-                uri:
-                  character.CharacterPortraitImage +
-                  `?d=${character.LastUpdated}`,
+                uri: portraitUri
+                  ? `${portraitUri}?d=${character.LastUpdated}`
+                  : character.CharacterImage,
               }}
               style={styles.portraitImage}
               resizeMode="cover"
