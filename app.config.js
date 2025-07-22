@@ -12,7 +12,7 @@ export default {
     },
     userInterfaceStyle: "automatic",
     icon: "./assets/images/loarunIcon-1024-big-removebg.png",
-    version: "1.0.3",
+    version: "1.0.4",
     newArchEnabled: true,
     splash: {
       image: "./assets/images/loarunIcon-1024-big-removebg.png",
@@ -21,7 +21,6 @@ export default {
     },
     ios: {
       bundleIdentifier: "com.jaey0394.loarun",
-      buildNumber: "1.0.1",
       supportsTablet: true
     },
     android: {

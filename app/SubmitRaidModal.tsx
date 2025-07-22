@@ -558,7 +558,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                           },
                         ]}
                       >
-                        {`-${stage.chestCost}`}
+                        {`-${stage.chestCost || 0}`}
                       </CustomText>
                     </TouchableOpacity>
                   ))}
