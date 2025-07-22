@@ -101,10 +101,6 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
 
       updateCharacter(character.id, {
         OtherActivity: updated,
-        OtherActivityTotalGold: updated.reduce(
-          (total, activity) => total + activity.gold,
-          0
-        ),
       });
     } else {
       const newActivity = [
@@ -115,14 +111,8 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
         ...(character.OtherActivity ?? []), // undefined일 경우 빈 배열로 대체
       ];
 
-      const updatedTotalGold = newActivity.reduce(
-        (total, activity) => total + activity.gold,
-        0
-      );
-
       updateCharacter(character.id, {
         OtherActivity: newActivity,
-        OtherActivityTotalGold: updatedTotalGold,
       });
 
       if (activityName.trim() !== '') {
@@ -160,7 +150,6 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
             );
             updateCharacter(character.id, {
               OtherActivity: updated,
-              OtherActivityTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();

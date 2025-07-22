@@ -47,18 +47,13 @@ type Character = {
   ItemAvgLevel: string;
   ServerName: string;
   SelectedRaids?: Raid[]; // ✅ 선택한 레이드 목록
-  SelectedRaidTotalGold?: number; // ✅ 선택한 레이드 총 금액
-  ClearedRaidTotalGold?: number; // ✅ 클리어한 레이드 총 금액
-  WeeklyRaidTotalGold?: number; // ✅ 주간 레이드 총 금액
   OtherActivity?: Activity[];
-  OtherActivityTotalGold?: number; // ✅ 주간 활동 총 금액
   OtherActivityFolded?: boolean;
   LastUpdated?: string; // ✅ 마지막 업데이트 날짜
   AddedAt?: string; //추가된 날짜
   WeeklyRaidFolded?: boolean;
   IsBookmarked?: boolean;
   MissionCheckList?: checkListItem[];
-  MissionCheckListTotalGold?: number; // 체크리스트에서 획득한 총 골드
   MissionCheckListFolded?: boolean; // 체크리스트 접기 상태
 };
 

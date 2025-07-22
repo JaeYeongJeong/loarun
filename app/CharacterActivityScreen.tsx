@@ -149,45 +149,44 @@ const CharacterActivity: React.FC = () => {
     loadImage();
   }, [character.LastUpdated, character.CharacterPortraitImage]);
 
-  useEffect(() => {
-    const updatedRaids = [...(character.SelectedRaids || [])];
-    let updatedClearedRaidTotalGold = 0;
-    let updatedSelectedRaidTotalGold = 0;
+  // 📌 클리어한 레이드와 선택한 레이드 총 골드 계산
+  const updatedRaids = [...(character.SelectedRaids || [])];
+  let updatedClearedRaidTotalGold = 0;
+  let updatedSelectedRaidTotalGold = 0;
 
-    for (const raid of updatedRaids) {
-      let stageSum = 0;
-      let selectedGold = 0;
-      let selectedChestCost = 0;
+  for (const raid of updatedRaids) {
+    let stageSum = 0;
+    let selectedGold = 0;
+    let selectedChestCost = 0;
 
-      for (const stage of raid.stages) {
-        if (raid.goldChecked) selectedGold += stage.gold;
-        if (raid.chestCostChecked && stage.selectedChestCost) {
-          selectedChestCost += stage.chestCost || 0;
-        }
-
-        if (stage.cleared) {
-          stageSum +=
-            (raid.goldChecked ? stage.gold : 0) -
-            (stage.selectedChestCost ? stage.chestCost || 0 : 0);
-        }
+    for (const stage of raid.stages) {
+      if (raid.goldChecked) selectedGold += stage.gold;
+      if (raid.chestCostChecked && stage.selectedChestCost) {
+        selectedChestCost += stage.chestCost || 0;
       }
 
-      const additionalGold = Number(
-        raid.additionalGold?.replace(/,/g, '') || 0
-      );
-
-      updatedClearedRaidTotalGold +=
-        stageSum + (raid.cleared ? additionalGold : 0);
-
-      updatedSelectedRaidTotalGold +=
-        selectedGold - selectedChestCost + additionalGold;
+      if (stage.cleared) {
+        stageSum +=
+          (raid.goldChecked ? stage.gold : 0) -
+          (stage.selectedChestCost ? stage.chestCost || 0 : 0);
+      }
     }
 
-    updateCharacter(character.id, {
-      ClearedRaidTotalGold: updatedClearedRaidTotalGold,
-      SelectedRaidTotalGold: updatedSelectedRaidTotalGold,
-    });
-  }, [character.SelectedRaids]);
+    const additionalGold = Number(raid.additionalGold?.replace(/,/g, '') || 0);
+
+    updatedClearedRaidTotalGold +=
+      stageSum + (raid.cleared ? additionalGold : 0);
+
+    updatedSelectedRaidTotalGold +=
+      selectedGold - selectedChestCost + additionalGold;
+  }
+
+  const clearedRaidTotalGold = updatedClearedRaidTotalGold;
+  const selectedRaidTotalGold = updatedSelectedRaidTotalGold;
+  const OtherActivityTotalGold = character.OtherActivity?.reduce(
+    (total, activity) => total + (activity.gold || 0),
+    0
+  );
 
   const handleSelectStage = (index: number, stageIndex: number) => {
     const selectedRaid = character.SelectedRaids?.[index];
@@ -431,8 +430,8 @@ const CharacterActivity: React.FC = () => {
               <CustomText
                 style={[styles.totalGoldText, { color: colors.black }]}
               >
-                {character.ClearedRaidTotalGold?.toLocaleString() || 0} /{' '}
-                {character.SelectedRaidTotalGold?.toLocaleString() || 0}
+                {clearedRaidTotalGold?.toLocaleString() || 0} /{' '}
+                {selectedRaidTotalGold?.toLocaleString() || 0}
               </CustomText>
             </View>
           </TouchableOpacity>
@@ -719,12 +718,12 @@ const CharacterActivity: React.FC = () => {
               <CustomText
                 style={[
                   styles.totalGoldText,
-                  (character.OtherActivityTotalGold || 0) >= 0
+                  (OtherActivityTotalGold || 0) >= 0
                     ? { color: colors.black }
                     : { color: colors.warning },
                 ]}
               >
-                {character.OtherActivityTotalGold?.toLocaleString() || 0}
+                {OtherActivityTotalGold?.toLocaleString() || 0}
               </CustomText>
             </View>
           </TouchableOpacity>

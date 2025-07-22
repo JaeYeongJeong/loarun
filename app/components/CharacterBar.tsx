@@ -52,6 +52,29 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
     });
   };
 
+  // 📌 클리어한 레이드 총 골드 계산
+  const updatedRaids = [...(character.SelectedRaids || [])];
+  let updatedClearedRaidTotalGold = 0;
+
+  for (const raid of updatedRaids) {
+    let stageSum = 0;
+
+    for (const stage of raid.stages) {
+      if (stage.cleared) {
+        stageSum +=
+          (raid.goldChecked ? stage.gold : 0) -
+          (stage.selectedChestCost ? stage.chestCost || 0 : 0);
+      }
+    }
+
+    const additionalGold = Number(raid.additionalGold?.replace(/,/g, '') || 0);
+
+    updatedClearedRaidTotalGold +=
+      stageSum + (raid.cleared ? additionalGold : 0);
+  }
+
+  const clearedRaidTotalGold = updatedClearedRaidTotalGold || 0;
+
   const clearedCount =
     character.SelectedRaids?.filter((raid) => raid.cleared).length || 0;
 
@@ -59,9 +82,12 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
     character.SelectedRaids?.filter((raid) => raid.stages.length > 0).length ||
     0;
 
-  const totalGold =
-    (character.ClearedRaidTotalGold || 0) +
-    (character.OtherActivityTotalGold || 0);
+  const OtherActivityTotalGold = character.OtherActivity?.reduce(
+    (total, activity) => total + (activity.gold || 0),
+    0
+  );
+
+  const totalGold = (clearedRaidTotalGold || 0) + (OtherActivityTotalGold || 0);
 
   return (
     <TouchableOpacity

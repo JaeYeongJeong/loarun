@@ -154,7 +154,6 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
             );
             updateCharacter(character.id, {
               MissionCheckList: updated,
-              MissionCheckListTotalGold: updatedTotalGold,
             });
           }
           setIndexNull();

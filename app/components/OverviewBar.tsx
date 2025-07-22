@@ -23,10 +23,51 @@ function OverviewBar() {
     totalClearedRaidsGold,
     totalWeeklyActivityGold,
   } = characters.reduce(
-    (acc, c) => {
-      const clearedGold = c.ClearedRaidTotalGold || 0;
-      const raidsGold = c.SelectedRaidTotalGold || 0;
-      const weeklyGold = c.OtherActivityTotalGold || 0;
+    (acc, character) => {
+      // 📌 클리어한 레이드와 선택한 레이드 총 골드 계산
+      const updatedRaids = [...(character.SelectedRaids || [])];
+      let updatedClearedRaidTotalGold = 0;
+      let updatedSelectedRaidTotalGold = 0;
+
+      for (const raid of updatedRaids) {
+        let stageSum = 0;
+        let selectedGold = 0;
+        let selectedChestCost = 0;
+
+        for (const stage of raid.stages) {
+          if (raid.goldChecked) selectedGold += stage.gold;
+          if (raid.chestCostChecked && stage.selectedChestCost) {
+            selectedChestCost += stage.chestCost || 0;
+          }
+
+          if (stage.cleared) {
+            stageSum +=
+              (raid.goldChecked ? stage.gold : 0) -
+              (stage.selectedChestCost ? stage.chestCost || 0 : 0);
+          }
+        }
+
+        const additionalGold = Number(
+          raid.additionalGold?.replace(/,/g, '') || 0
+        );
+
+        updatedClearedRaidTotalGold +=
+          stageSum + (raid.cleared ? additionalGold : 0);
+
+        updatedSelectedRaidTotalGold +=
+          selectedGold - selectedChestCost + additionalGold;
+      }
+
+      const clearedRaidTotalGold = updatedClearedRaidTotalGold;
+      const selectedRaidTotalGold = updatedSelectedRaidTotalGold;
+      const otherActivityTotalGold = character.OtherActivity?.reduce(
+        (total, activity) => total + (activity.gold || 0),
+        0
+      );
+
+      const clearedGold = clearedRaidTotalGold || 0;
+      const raidsGold = selectedRaidTotalGold || 0;
+      const weeklyGold = otherActivityTotalGold || 0;
 
       acc.totalGold += clearedGold + weeklyGold;
       acc.totalRaidsGold += raidsGold;
