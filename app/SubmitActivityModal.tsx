@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Animated,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -16,6 +15,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
+import CustomTextInput from './components/CustomTextInput';
 
 type resetPeriodType = 'daily' | 'weekly' | '';
 
@@ -328,7 +328,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                   </View>
                 </TouchableOpacity>
 
-                <TextInput
+                <CustomTextInput
                   placeholder="활동명 입력"
                   style={[
                     styles.input,
@@ -377,7 +377,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
                       </View>
                     </TouchableOpacity>
                     {goldChecked && (
-                      <TextInput
+                      <CustomTextInput
                         placeholder="획득 골드"
                         style={[
                           styles.input,
@@ -458,6 +458,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   input: {
+    fontSize: 14,
     width: '100%',
     paddingVertical: 10,
     paddingHorizontal: 18,

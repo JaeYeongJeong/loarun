@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Animated,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   Alert,
@@ -17,6 +16,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
+import CustomTextInput from './components/CustomTextInput';
 
 type OtherActivityModalProps = {
   isVisible: boolean;
@@ -274,7 +274,7 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
                       ))}
                     </View>
                   )}
-                  <TextInput
+                  <CustomTextInput
                     placeholder="활동명 입력"
                     style={[
                       styles.input,
@@ -285,7 +285,7 @@ const OtherActivityModal: React.FC<OtherActivityModalProps> = ({
                     value={activityName}
                     onChangeText={handleChangeNameInput}
                   />
-                  <TextInput
+                  <CustomTextInput
                     placeholder="획득 골드"
                     style={[
                       styles.input,
@@ -365,6 +365,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   input: {
+    fontSize: 14,
     width: '100%',
     paddingVertical: 10,
     paddingHorizontal: 18,

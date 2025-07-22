@@ -24,6 +24,7 @@ export default {
       supportsTablet: true
     },
     android: {
+      softwareKeyboardLayoutMode: 'resize',
       adaptiveIcon: {
         foregroundImage: "./assets/images/loarunIcon-1024-removebg.png",
         backgroundColor: "#ffffff"

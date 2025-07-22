@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
@@ -19,6 +21,7 @@ import { missionCheckListData } from '@/utils/missionCheckListData';
 import { validateNicknameInput } from '@/utils/validateInput';
 import CustomAlert from './CustomAlert';
 import { useAppSetting } from '@/context/AppSettingContext';
+import CustomTextInput from './components/CustomTextInput';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');
@@ -130,123 +133,134 @@ const AddCharacterScreen: React.FC = () => {
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          style={[
-            styles.container,
-            {
-              backgroundColor: colors.cardBackground,
-              paddingTop: insets.top,
-            },
-          ]}
-        >
-          {/* 상단: 액션바 */}
-          <View style={styles.actionBar}>
-            <TouchableOpacity onPress={router.back}>
-              <Feather name="chevron-left" size={24} color={colors.grayDark} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.contentWrapper}>
-            {/* 왼쪽 정렬된 타이틀 */}
-            <CustomText style={[styles.title, { color: colors.black }]}>
-              캐릭터 추가
-            </CustomText>
-
-            {/* 입력 필드 */}
-            <TextInput
-              style={[
-                styles.input,
-                { backgroundColor: colors.grayLight, color: colors.black },
-              ]}
-              placeholder=" 캐릭터 이름"
-              placeholderTextColor={colors.grayDark}
-              value={characterName}
-              maxLength={30}
-              onChangeText={(text) => setCharacterName(text)}
-            />
-
-            {/* 검색 버튼 */}
-            <Pressable
-              style={[
-                styles.button,
-                {
-                  backgroundColor: isLoading ? colors.grayDark : colors.primary,
-                },
-              ]}
-              onPress={() => {
-                handlerSearchCharacter();
-              }}
-              disabled={isLoading} // 로딩 중 비활성화
-            >
-              {isLoading ? (
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // ios는 padding, android는 height
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View
+            style={[
+              styles.container,
+              {
+                backgroundColor: colors.cardBackground,
+                paddingTop: insets.top,
+              },
+            ]}
+          >
+            {/* 상단: 액션바 */}
+            <View style={styles.actionBar}>
+              <TouchableOpacity onPress={router.back}>
                 <Feather
-                  name="more-horizontal"
-                  size={16}
-                  color={colors.white}
+                  name="chevron-left"
+                  size={24}
+                  color={colors.grayDark}
                 />
-              ) : (
-                <CustomText
-                  style={[styles.buttonText, { color: colors.white }]}
-                >
-                  검색
-                </CustomText>
-              )}
-            </Pressable>
+              </TouchableOpacity>
+            </View>
 
-            {/* 캐릭터 정보 표시 */}
-            {characterInfo && (
-              <View
+            <View style={styles.contentWrapper}>
+              {/* 왼쪽 정렬된 타이틀 */}
+              <CustomText style={[styles.title, { color: colors.black }]}>
+                캐릭터 추가
+              </CustomText>
+
+              {/* 입력 필드 */}
+              <CustomTextInput
                 style={[
-                  styles.infoContainer,
-                  { backgroundColor: colors.grayLight },
+                  styles.input,
+                  { backgroundColor: colors.grayLight, color: colors.black },
                 ]}
-              >
-                <View style={styles.infoRow}>
-                  {/* 왼쪽: 캐릭터 정보 */}
-                  <View style={styles.infoTexts}>
-                    <CustomText
-                      style={[styles.nameText, { color: colors.black }]}
-                    >
-                      {characterInfo.CharacterName}
-                    </CustomText>
-                    <CustomText
-                      style={[styles.infoText, { color: colors.grayDark }]}
-                    >
-                      {characterInfo.ItemAvgLevel}
-                    </CustomText>
-                    <CustomText
-                      style={[styles.infoText, { color: colors.grayDark }]}
-                    >
-                      {characterInfo.CharacterClassName} @{' '}
-                      {characterInfo.ServerName}
-                    </CustomText>
-                  </View>
+                placeholder=" 캐릭터 이름"
+                placeholderTextColor={colors.grayDark}
+                value={characterName}
+                maxLength={30}
+                onChangeText={(text) => setCharacterName(text)}
+              />
 
-                  {/* 오른쪽: 체크 아이콘 버튼 */}
-                  <Pressable
-                    style={[
-                      styles.iconButton,
-                      { backgroundColor: colors.primary },
-                    ]}
-                    onPress={handlerAddCharacter}
+              {/* 검색 버튼 */}
+              <Pressable
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: isLoading
+                      ? colors.grayDark
+                      : colors.primary,
+                  },
+                ]}
+                onPress={() => {
+                  handlerSearchCharacter();
+                }}
+                disabled={isLoading} // 로딩 중 비활성화
+              >
+                {isLoading ? (
+                  <Feather
+                    name="more-horizontal"
+                    size={16}
+                    color={colors.white}
+                  />
+                ) : (
+                  <CustomText
+                    style={[styles.buttonText, { color: colors.white }]}
                   >
-                    <FontAwesome name="check" size={20} color="white" />
-                  </Pressable>
+                    검색
+                  </CustomText>
+                )}
+              </Pressable>
+
+              {/* 캐릭터 정보 표시 */}
+              {characterInfo && (
+                <View
+                  style={[
+                    styles.infoContainer,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                >
+                  <View style={styles.infoRow}>
+                    {/* 왼쪽: 캐릭터 정보 */}
+                    <View style={styles.infoTexts}>
+                      <CustomText
+                        style={[styles.nameText, { color: colors.black }]}
+                      >
+                        {characterInfo.CharacterName}
+                      </CustomText>
+                      <CustomText
+                        style={[styles.infoText, { color: colors.grayDark }]}
+                      >
+                        {characterInfo.ItemAvgLevel}
+                      </CustomText>
+                      <CustomText
+                        style={[styles.infoText, { color: colors.grayDark }]}
+                      >
+                        {characterInfo.CharacterClassName} @{' '}
+                        {characterInfo.ServerName}
+                      </CustomText>
+                    </View>
+
+                    {/* 오른쪽: 체크 아이콘 버튼 */}
+                    <Pressable
+                      style={[
+                        styles.iconButton,
+                        { backgroundColor: colors.primary },
+                      ]}
+                      onPress={handlerAddCharacter}
+                    >
+                      <FontAwesome name="check" size={20} color="white" />
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-      <CustomAlert
-        isVisible={alertVisible}
-        setIsVisibleFalse={() => setAlertVisible(false)}
-        titleText={alertTitle}
-        messageText={alertMessage}
-        buttonType="oneButton"
-        align="center"
-      />
+        </TouchableWithoutFeedback>
+        <CustomAlert
+          isVisible={alertVisible}
+          setIsVisibleFalse={() => setAlertVisible(false)}
+          titleText={alertTitle}
+          messageText={alertMessage}
+          buttonType="oneButton"
+          align="center"
+        />
+      </KeyboardAvoidingView>
     </>
   );
 };
@@ -281,6 +295,7 @@ const styles = StyleSheet.create({
     paddingLeft: '13%',
   },
   input: {
+    fontSize: 14,
     width: '80%',
     padding: 10,
     borderRadius: 15,

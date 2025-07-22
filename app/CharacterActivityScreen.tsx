@@ -375,7 +375,7 @@ const CharacterActivity: React.FC = () => {
             {isInfoVisible ?? true ? character.ServerName : '서버'}
           </CustomText>
           <CustomText
-            style={(styles.characterInfo, { color: colors.grayDark })}
+            style={[styles.characterInfo, { color: colors.grayDark }]}
           >
             Lv.
             {isInfoVisible ?? true ? character.ItemAvgLevel : '-'}
@@ -928,8 +928,8 @@ const styles = StyleSheet.create({
   },
 
   portraitContainer: {
-    width: 100,
-    height: 100,
+    aspectRatio: 1,
+    height: 'auto',
     borderRadius: 12,
     overflow: 'hidden',
     justifyContent: 'center',

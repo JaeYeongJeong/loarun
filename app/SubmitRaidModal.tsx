@@ -6,7 +6,6 @@ import {
   Animated,
   TouchableOpacity,
   ScrollView,
-  TextInput,
   Platform,
   Alert,
   KeyboardAvoidingView,
@@ -18,6 +17,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
+import CustomTextInput from './components/CustomTextInput';
 
 type SelectedStage = {
   raidName: string;
@@ -596,7 +596,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               </TouchableOpacity>
               {/* 추가 골드 입력 */}
               {additionalGoldChecked && (
-                <TextInput
+                <CustomTextInput
                   placeholder="추가 골드"
                   style={[
                     styles.input,
@@ -752,6 +752,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   input: {
+    fontSize: 14,
     width: '100%',
     paddingVertical: 10,
     paddingHorizontal: 18,

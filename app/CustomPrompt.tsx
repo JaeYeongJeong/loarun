@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import CustomText from './components/CustomText';
 import { useTheme } from '@/context/ThemeContext';
+import CustomTextInput from './components/CustomTextInput';
 
 type CustomPromptProps = {
   isVisible: boolean;
@@ -57,7 +58,7 @@ const CustomPrompt: React.FC<CustomPromptProps> = ({
           <CustomText style={[styles.messageText, { color: colors.black }]}>
             {messageText}
           </CustomText>
-          <TextInput
+          <CustomTextInput
             value={input}
             onChangeText={setInput}
             placeholder={inputPlaceholder}

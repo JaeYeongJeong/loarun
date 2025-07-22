@@ -1,27 +1,23 @@
 import React from 'react';
-import { Text, TextProps, TextStyle } from 'react-native';
-import { getFont, FontWeight, FontName } from '@/utils/getFont';
+import { TextInput, TextInputProps, TextStyle, Platform } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
-import { Platform } from 'react-native';
+import { getFont, FontWeight, FontName } from '@/utils/getFont';
 
-type CustomTextProps = Omit<TextProps, 'style' | 'fontWeight'> & {
+type CustomTextInputProps = Omit<TextInputProps, 'style' | 'fontWeight'> & {
   fontWeight?: FontWeight;
   font?: FontName;
   style?: TextStyle | TextStyle[];
 };
 
-export default function CustomText({
+export default function CustomTextInput({
   fontWeight = '400',
   font = 'Suit',
   style,
   ...props
-}: CustomTextProps) {
+}: CustomTextInputProps) {
   const fontStyle = getFont(fontWeight, font);
-
-  // style 배열로 변환
   const styleArray = Array.isArray(style) ? style : [style];
 
-  // fontSize를 RFValue로 변환
   const responsiveStyle = styleArray.map((s) => {
     if (s && typeof s.fontSize === 'number') {
       const scale = Platform.OS === 'ios' ? 1 : 0.62;
@@ -30,5 +26,11 @@ export default function CustomText({
     return s;
   });
 
-  return <Text {...props} style={[fontStyle, ...responsiveStyle]} />;
+  return (
+    <TextInput
+      {...props}
+      style={[fontStyle, ...responsiveStyle]}
+      placeholderTextColor={props.placeholderTextColor ?? '#999'} // default color fallback
+    />
+  );
 }
