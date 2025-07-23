@@ -148,16 +148,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           : null;
         const wednesdayDate = getThisWednesday6AM();
 
-        if (!dailyResetDate || dailyResetDate < last6AM) {
-          await resetCharacterTask(parsedCharacters, 'daily');
-          await AsyncStorage.setItem('lastDailyReset', now.toISOString());
-          console.log(
-            dailyResetDate?.toLocaleString(),
-            last6AM.toLocaleString()
-          );
-          console.log('✅ 일일 초기화 완료:', now.toLocaleString());
-        }
-
         if (
           isAfterWednesday6AM() &&
           (!weeklyResetDate || weeklyResetDate < wednesdayDate)
@@ -165,11 +155,17 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           await resetCharacterTask(parsedCharacters, 'weekly');
           await AsyncStorage.setItem('lastWeeklyReset', now.toISOString());
           console.log('✅ 주간 초기화 완료:', now.toLocaleString());
+        } else if (!dailyResetDate || dailyResetDate < last6AM) {
+          await resetCharacterTask(parsedCharacters, 'daily');
+          await AsyncStorage.setItem('lastDailyReset', now.toISOString());
+          console.log('✅ 일일 초기화 완료:', now.toLocaleString());
         }
       }
       //일일/주간 초기화 테스트
+      // await resetCharacterTask(parsedCharacters, 'daily');
       // await resetCharacterTask(parsedCharacters, 'weekly');
     };
+
     // ✅ 선택한 레이드 데이터 업데이트 함수
     const updateSelectedRaidData = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
@@ -200,6 +196,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       saveCharacters(parsedCharacters);
     };
+
     // ✅ 초기화 함수 실행
     const initialize = async () => {
       await loadCharacters();
@@ -365,10 +362,17 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
             }))
           : c.SelectedRaids;
 
-      const updatedMission = c.MissionCheckList?.map((m) => ({
-        ...m,
-        checked: m.resetPeriod === type ? false : m.checked,
-      }));
+      const updatedMission = c.MissionCheckList?.map((m) => {
+        const shouldReset =
+          type === 'weekly'
+            ? m.resetPeriod === 'daily' || m.resetPeriod === 'weekly'
+            : m.resetPeriod === 'daily';
+
+        return {
+          ...m,
+          checked: shouldReset ? false : m.checked,
+        };
+      });
 
       return {
         ...c,
@@ -383,6 +387,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     await saveCharacters(updated);
+    return updated;
   };
 
   return (
