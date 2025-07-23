@@ -192,9 +192,9 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(4),
   },
   sortButtonText: {
-    fontSize: normalize(12),
+    fontSize: 12,
     fontWeight: '600',
-    lineHeight: normalize(16),
+    lineHeight: 16,
   },
   addContainer: {
     height: CHARACTER_BAR_HEIGHT,
