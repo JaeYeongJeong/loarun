@@ -8,7 +8,7 @@ import { normalize } from '@/utils/nomalize';
 import CustomText from './CustomText';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-
+const textWeight = Math.sqrt(SCREEN_WIDTH / 400); // 화면 너비에 따라 텍스트 크기 조정
 function OverviewBar() {
   const [modalVisible, setModalVisible] = React.useState(false);
   const { characters } = useCharacter();
@@ -250,23 +250,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleText: {
-    fontSize: SCREEN_WIDTH / 26,
+    fontSize: 14 * textWeight,
     fontWeight: '600',
     textAlign: 'center',
   },
   valueText: {
     marginTop: normalize(2),
-    fontSize: SCREEN_WIDTH / 28,
+    fontSize: 14 * textWeight,
     fontWeight: '600',
     textAlign: 'center',
   },
   label: {
-    fontSize: SCREEN_WIDTH / 20,
+    fontSize: 18 * textWeight,
     fontWeight: '600',
     paddingBottom: '3%',
   },
   goldText: {
-    fontSize: SCREEN_WIDTH / 20,
+    fontSize: 18 * textWeight,
     fontWeight: '600',
     paddingTop: '10%',
     textAlign: 'right',

@@ -197,16 +197,16 @@ const styles = StyleSheet.create({
     paddingLeft: normalize(12),
   },
   nameText: {
-    fontSize: SCREEN_HEIGHT / 56,
+    fontSize: 15,
     fontWeight: '600',
     color: '#333',
     paddingBottom: normalize(2),
   },
   infoText: {
-    fontSize: SCREEN_HEIGHT / 62,
+    fontSize: 13,
   },
   levelText: {
-    fontSize: SCREEN_HEIGHT / 62,
+    fontSize: 13,
   },
   rightContainer: {
     alignItems: 'flex-end',
@@ -214,12 +214,12 @@ const styles = StyleSheet.create({
     paddingLeft: normalize(12),
   },
   goldText: {
-    fontSize: SCREEN_HEIGHT / 62,
+    fontSize: 14,
     fontWeight: '600',
     paddingBottom: normalize(2),
   },
   countText: {
-    fontSize: SCREEN_HEIGHT / 62,
+    fontSize: 14,
   },
 });
 
