@@ -38,7 +38,7 @@ type Activity = {
 };
 
 // ✅ `Character` 타입 정의 (CharacterImage 추가됨)
-type Character = {
+export type Character = {
   id: string;
   CharacterImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
   CharacterPortraitImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가

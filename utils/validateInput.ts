@@ -10,8 +10,13 @@ export const validateNumberInput = (input: string | number): FormatResult => {
   const raw = String(input).trim();
   if (raw === '') return { status: 'empty' };
 
-  let cleaned = raw.replace(/[^0-9\-]/g, '');
+  // 유효하지 않은 문자 포함 시 바로 실패
+  if (!/^[-\d,]+$/.test(raw)) {
+    return { status: 'not-a-number' };
+  }
 
+  // 숫자 문자만 정리
+  let cleaned = raw.replace(/[^0-9\-]/g, '');
   if (cleaned.includes('-')) {
     cleaned = '-' + cleaned.replace(/-/g, '');
   }
@@ -27,6 +32,7 @@ export const validateNumberInput = (input: string | number): FormatResult => {
 
   return { status: 'valid', value: number };
 };
+
 
 export const validateNicknameInput = (input: string): FormatResult => {
   const raw = input.trim();
