@@ -20,8 +20,12 @@ export default function CustomTextInput({
 
   const responsiveStyle = styleArray.map((s) => {
     if (s && typeof s.fontSize === 'number') {
-      const scale = Platform.OS === 'ios' ? 1 : 0.8;
-      return { ...s, fontSize: moderateScale(s.fontSize * scale) };
+      const scale = Platform.OS === 'ios' ? 1 : 0.9;
+      return {
+        ...s,
+        fontSize: moderateScale(s.fontSize * scale),
+        lineHeight: moderateScale((s.lineHeight || s.fontSize * 1.2) * scale),
+      };
     }
     return s;
   });

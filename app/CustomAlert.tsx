@@ -108,7 +108,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    width: 280,
+    width: '80%',
+    maxWidth: 400,
     padding: 20,
     borderRadius: 10,
   },
