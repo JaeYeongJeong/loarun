@@ -159,7 +159,7 @@ const CharacterActivity: React.FC = () => {
     let selectedGold = 0;
     let selectedChestCost = 0;
 
-    for (const stage of raid.difficulties) {
+    for (const stage of raid.stages) {
       if (raid.goldChecked) selectedGold += stage.gold;
       if (raid.chestCostChecked && stage.selectedChestCost) {
         selectedChestCost += stage.chestCost || 0;
@@ -193,10 +193,9 @@ const CharacterActivity: React.FC = () => {
     if (!selectedRaid) return;
 
     const isSameAsLastCleared =
-      selectedRaid.difficulties.findLast((s) => s.cleared)?.stage ===
-      stageIndex + 1;
+      selectedRaid.stages.findLast((s) => s.cleared)?.stage === stageIndex + 1;
 
-    const updatedStages = selectedRaid.difficulties.map((stage, i) => ({
+    const updatedStages = selectedRaid.stages.map((stage, i) => ({
       ...stage,
       cleared: isSameAsLastCleared ? false : i <= stageIndex,
       lastClearedStage: isSameAsLastCleared ? 0 : stageIndex,
@@ -205,7 +204,7 @@ const CharacterActivity: React.FC = () => {
     const updatedRaids = [...(character.SelectedRaids || [])];
     updatedRaids[index] = {
       ...selectedRaid,
-      difficulties: updatedStages,
+      stages: updatedStages,
       cleared: updatedStages.every((s) => s.cleared),
     };
 
@@ -471,7 +470,7 @@ const CharacterActivity: React.FC = () => {
                     ]}
                   >
                     {raid.name ? (
-                      raid.difficulties.map((stage, stageIndex) => (
+                      raid.stages.map((stage, stageIndex) => (
                         <Pressable
                           key={stageIndex}
                           style={[

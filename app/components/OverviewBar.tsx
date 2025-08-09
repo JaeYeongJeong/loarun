@@ -34,7 +34,7 @@ function OverviewBar() {
         let selectedGold = 0;
         let selectedChestCost = 0;
 
-        for (const stage of raid.difficulties) {
+        for (const stage of raid.stages) {
           if (raid.goldChecked) selectedGold += stage.gold;
           if (raid.chestCostChecked && stage.selectedChestCost) {
             selectedChestCost += stage.chestCost || 0;

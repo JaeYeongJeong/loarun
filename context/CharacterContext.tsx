@@ -1,43 +1,38 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   cropAndSavePortraitImage,
   deletePortraitImage,
-} from '../utils/PortraitImage';
+} from '@/utils/PortraitImage';
 import uuid from 'react-native-uuid';
 import { checkListItem } from '@/utils/missionCheckListData';
-import { RAID_LIST } from '@/utils/raidData';
 import { SortOrder } from '@/context/AppSettingContext';
+import { useRaid, RaidDifficulty } from '@/context/RaidContext';
 
-export type RaidDifficulty =
-  | '싱글'
-  | '노말'
-  | '하드'
-  | '익스트림 노말'
-  | '익스트림 하드';
-
-export type RaidStage = {
-  stage: number; // 관문 번호 (1, 2, 3...)
-  gold: number; // 해당 관문에서 획득하는 골드
-  chestCost?: number; // 더보기 골드
-  boundGold?: number; // 귀속 골드
-  selectedChestCost?: boolean; // 더보기 선택 여부
-  cleared?: boolean; // ✅ 클리어 여부 (true/false)
-  lastClearedStage?: number; // 마지막 클리어 관문 번호 (1, 2, 3...)
-};
-
-export type Difficulty = {
+type SelectedRaidStage = {
   difficulty: RaidDifficulty;
-  stages: RaidStage[];
-  requiredItemLevel: number;
+  stage: number;
+  gold: number;
+  chestCost?: number;
+  boundGold?: number;
+  selectedChestCost?: boolean;
+  cleared?: boolean;
+  lastClearedStage?: number;
 };
 
-export type Raid = {
+type SelectedRaid = {
   name: string;
-  difficulties: Difficulty[]; // 레이드 단계별 정보
-  cleared?: boolean; // ✅ 클리어 여부 (true/false)
+  stages: SelectedRaidStage[];
+  cleared?: boolean;
   goldChecked?: boolean;
-  additionalGoldCheked?: boolean; //추가 골드 선택 여부
+  additionalGoldCheked?: boolean;
   additionalGold?: string;
   chestCostChecked?: boolean;
 };
@@ -47,27 +42,27 @@ type Activity = {
   gold: number;
 };
 
-// ✅ `Character` 타입 정의 (CharacterImage 추가됨)
 export type Character = {
   id: string;
-  CharacterImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
-  CharacterPortraitImage?: string; // ✅ API에서 이미지가 제공되지 않을 수도 있으므로 `?` 추가
+  CharacterImage?: string;
+  CharacterPortraitImage?: string;
   CharacterName: string;
   CharacterClassName: string;
   ItemAvgLevel: string;
   ServerName: string;
-  SelectedRaids?: Raid[]; // ✅ 선택한 레이드 목록
+  SelectedRaids?: SelectedRaid[];
   OtherActivity?: Activity[];
   OtherActivityFolded?: boolean;
-  LastUpdated?: string; // ✅ 마지막 업데이트 날짜
-  AddedAt?: string; //추가된 날짜
+  LastUpdated?: string;
+  AddedAt?: string;
   WeeklyRaidFolded?: boolean;
   IsBookmarked?: boolean;
   MissionCheckList?: checkListItem[];
-  MissionCheckListFolded?: boolean; // 체크리스트 접기 상태
+  MissionCheckListFolded?: boolean;
+  OtherActivityTotalGold?: number;
+  ClearedRaidTotalGold?: number;
 };
 
-// ✅ Context에서 제공할 기능 정의
 type CharacterContextType = {
   characters: Character[];
   addCharacter: (
@@ -83,43 +78,57 @@ type CharacterContextType = {
     id: string,
     updatedData: Partial<Character>
   ) => Promise<void>;
-  sortCharacter: (order: SortOrder) => Promise<void>;
+  // ⚠️ addCharacter에서 정렬 대상 배열을 넘겨 쓰므로 선택 인자 허용
+  sortCharacter: (
+    order: SortOrder,
+    inputCharacters?: Character[]
+  ) => Promise<void>;
   isLoaded: boolean;
 };
 
-// ✅ Context 생성
 const CharacterContext = createContext<CharacterContextType | undefined>(
   undefined
 );
 
-// ✅ Provider 컴포넌트
 export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { raids, getTopRaidsByItemLevel } = useRaid();
 
-  // ✅ 초기화 및 캐릭터 로드
+  // stable saver
+  const saveCharacters = useCallback(async (data: Character[]) => {
+    setCharacters(data);
+    await AsyncStorage.setItem('characters', JSON.stringify(data));
+  }, []);
+
+  // 1) 캐릭터 로드 (마운트 1회)
   useEffect(() => {
-    // 캐릭터 로드 함수
-    const loadCharacters = async () => {
+    (async () => {
       try {
-        const storedCharacters = await AsyncStorage.getItem('characters');
-        if (storedCharacters) {
-          setCharacters(JSON.parse(storedCharacters));
-        } else {
-          setCharacters([]); // 초기값 설정
-        }
+        const stored = await AsyncStorage.getItem('characters');
+        setCharacters(stored ? JSON.parse(stored) : []);
       } catch (err) {
         console.error('캐릭터 로드 실패:', err);
+        setCharacters([]);
+      } finally {
+        setIsLoaded(true);
       }
-    };
-    // ✅ 일일/주간 초기화 함수
+    })();
+  }, []);
+
+  // 2) 일일/주간 초기화 (로드 끝난 뒤 1회)
+  useEffect(() => {
+    if (!isLoaded) return;
+
     const maybeReset = async () => {
       const storedCharacters = await AsyncStorage.getItem('characters');
-      const parsedCharacters = storedCharacters
+      const parsedCharacters: Character[] = storedCharacters
         ? JSON.parse(storedCharacters)
         : [];
+
+      if (parsedCharacters.length === 0) return;
 
       const now = new Date();
       const lastDailyReset = await AsyncStorage.getItem('lastDailyReset');
@@ -133,9 +142,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const getLast6AM = () => {
         const date = new Date(now);
-        if (now.getHours() < 6) {
-          date.setDate(date.getDate() - 1); // 전날로 보냄
-        }
+        if (now.getHours() < 6) date.setDate(date.getDate() - 1);
         date.setHours(6, 0, 0, 0);
         return date;
       };
@@ -150,97 +157,132 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return date;
       };
 
-      if (parsedCharacters.length > 0) {
-        const last6AM = getLast6AM();
-        const dailyResetDate = lastDailyReset ? new Date(lastDailyReset) : null;
-        const weeklyResetDate = lastWeeklyReset
-          ? new Date(lastWeeklyReset)
-          : null;
-        const wednesdayDate = getThisWednesday6AM();
+      const last6AM = getLast6AM();
+      const dailyResetDate = lastDailyReset ? new Date(lastDailyReset) : null;
+      const weeklyResetDate = lastWeeklyReset
+        ? new Date(lastWeeklyReset)
+        : null;
+      const wednesdayDate = getThisWednesday6AM();
 
-        if (
-          isAfterWednesday6AM() &&
-          (!weeklyResetDate || weeklyResetDate < wednesdayDate)
-        ) {
-          await resetCharacterTask(parsedCharacters, 'weekly');
+      if (
+        isAfterWednesday6AM() &&
+        (!weeklyResetDate || weeklyResetDate < wednesdayDate)
+      ) {
+        const updated = await resetCharacterTask(parsedCharacters, 'weekly');
+        if (updated)
           await AsyncStorage.setItem('lastWeeklyReset', now.toISOString());
-          console.log('✅ 주간 초기화 완료:', now.toLocaleString());
-        } else if (!dailyResetDate || dailyResetDate < last6AM) {
-          await resetCharacterTask(parsedCharacters, 'daily');
+        console.log('✅ 주간 초기화 완료:', now.toLocaleString());
+      } else if (!dailyResetDate || dailyResetDate < last6AM) {
+        const updated = await resetCharacterTask(parsedCharacters, 'daily');
+        if (updated)
           await AsyncStorage.setItem('lastDailyReset', now.toISOString());
-          console.log('✅ 일일 초기화 완료:', now.toLocaleString());
-        }
+        console.log('✅ 일일 초기화 완료:', now.toLocaleString());
       }
-      //일일/주간 초기화 테스트
       // await resetCharacterTask(parsedCharacters, 'daily');
       // await resetCharacterTask(parsedCharacters, 'weekly');
     };
 
-    // ✅ 선택한 레이드 데이터 업데이트 함수
-    // const updateSelectedRaidData = async () => {
-    //   const storedCharacters = await AsyncStorage.getItem('characters');
-    //   const parsedCharacters = storedCharacters
-    //     ? JSON.parse(storedCharacters)
-    //     : [];
+    maybeReset().catch((e) => console.error('초기화 체크 실패:', e));
+  }, [isLoaded]); // 의존성: isLoaded 만
 
-    //   parsedCharacters.forEach((char: Character) => {
-    //     char.SelectedRaids?.forEach((raid) => {
-    //       const raidData = RAID_LIST.find((r) => r.name === raid.name);
-    //       if (!raidData) return;
+  // 3) 선택 레이드 금액 동기화 (변경 있을 때만 저장 + 한 번만)
+  const equalStage = (a: SelectedRaidStage, b: SelectedRaidStage) =>
+    a.gold === b.gold && a.chestCost === b.chestCost;
 
-    //       raid.difficulties.forEach((stage) => {
-    //         const stageData = raidData.difficulties.find(
-    //           (d) => d.difficulty === stage.difficulty
-    //         );
+  const syncedRef = useRef(false);
 
-    //         const matchedStage = stageData?.stages.find(
-    //           (s) => s.stage === stage.stages.
-    //         );
+  const syncSelectedRaidData = useCallback(async () => {
+    if (!isLoaded || raids.length === 0 || syncedRef.current) return;
 
-    //         if (matchedStage) {
-    //           stage.gold = matchedStage.gold;
-    //           stage.chestCost = matchedStage.chestCost;
-    //         }
-    //       });
-    //     });
-    //   });
-    //   saveCharacters(parsedCharacters);
-    // };
+    let changed = false;
 
-    // ✅ 초기화 함수 실행
-    const initialize = async () => {
-      await loadCharacters();
-      await maybeReset();
-      // await updateSelectedRaidData();
-      setIsLoaded(true);
-    };
+    const updated = characters.map((char) => {
+      if (!char.SelectedRaids) return char;
 
-    initialize();
-  }, []);
+      const nextSelected = char.SelectedRaids.map((selectedRaid) => {
+        const raidData = raids.find((r) => r.name === selectedRaid.name);
+        if (!raidData) return selectedRaid;
 
-  const saveCharacters = async (data: Character[]) => {
-    try {
-      setCharacters(data);
-      await AsyncStorage.setItem('characters', JSON.stringify(data));
-    } catch (err) {
-      console.error('캐릭터 저장 실패:', err);
-      throw err;
+        const nextStages = selectedRaid.stages.map((stage) => {
+          const stageData = raidData.difficulties.find(
+            (d) => d.difficulty === stage.difficulty
+          );
+          const matchedStage = stageData?.stages.find(
+            (s) => s.stage === stage.stage
+          );
+          if (!matchedStage) return stage;
+
+          const next = {
+            ...stage,
+            gold: matchedStage.gold,
+            chestCost: matchedStage.chestCost,
+          };
+          if (!equalStage(stage, next)) changed = true;
+          return next;
+        });
+
+        return { ...selectedRaid, stages: nextStages };
+      });
+
+      return { ...char, SelectedRaids: nextSelected };
+    });
+
+    if (changed) {
+      await saveCharacters(updated);
     }
-  };
+    syncedRef.current = true; // 재실행 방지
+  }, [isLoaded, raids, characters, saveCharacters]);
 
-  // ✅ 캐릭터 추가
+  useEffect(() => {
+    syncSelectedRaidData();
+  }, [syncSelectedRaidData]);
+
+  // CRUD & helpers
   const addCharacter = async (
     newCharacter: Character,
     sortOrder: SortOrder
   ) => {
-    const id = uuid.v4().toString(); // UUID 생성
+    const id = uuid.v4().toString();
+
     const portraitImage = (await cropAndSavePortraitImage(
-      newCharacter.CharacterImage || '', // 캐릭터 이미지
+      newCharacter.CharacterImage || '',
       id,
-      newCharacter.CharacterClassName || '' // 캐릭터 클래스 이름
+      newCharacter.CharacterClassName || ''
     )) as string;
 
-    const updated = [
+    // raids가 아직 안 로드된 경우 대비
+    let defaultSelectedRaids: SelectedRaid[] = [];
+
+    if (typeof getTopRaidsByItemLevel === 'function' && raids.length > 0) {
+      const top3 = getTopRaidsByItemLevel(
+        parseFloat(newCharacter.ItemAvgLevel.replace(/,/g, '')),
+        3
+      );
+
+      defaultSelectedRaids = top3.map((raid) => {
+        const diff = raid.difficulties[0];
+        return {
+          name: raid.name,
+          stages: diff.stages.map((s) => ({
+            difficulty: diff.difficulty,
+            stage: s.stage,
+            gold: s.gold,
+            chestCost: s.chestCost,
+            boundGold: s.boundGold,
+            selectedChestCost: false,
+            cleared: false,
+            lastClearedStage: 0,
+          })),
+          cleared: false,
+          goldChecked: true,
+          additionalGoldCheked: false,
+          additionalGold: '',
+          chestCostChecked: false,
+        };
+      });
+    }
+
+    const next = [
       ...characters,
       {
         ...newCharacter,
@@ -248,19 +290,19 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         CharacterPortraitImage: portraitImage,
         LastUpdated: new Date().toISOString(),
         AddedAt: new Date().toISOString(),
+        SelectedRaids: defaultSelectedRaids, // ✅ 복수형으로 저장
       },
     ];
-    await sortCharacter(sortOrder, updated);
+
+    await sortCharacter(sortOrder, next);
   };
 
-  // ✅ 캐릭터 삭제
   const removeCharacter = async (id: string) => {
     const updated = characters.filter((c) => c.id !== id);
     await deletePortraitImage(id);
     await saveCharacters(updated);
   };
 
-  // ✅ 캐릭터 정보 업데이트
   const updateCharacter = async (
     id: string,
     updatedData: Partial<Character>
@@ -271,15 +313,14 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     await saveCharacters(updated);
   };
 
-  // ✅ 캐릭터 갱신 이미지 포함
   const refreshCharacter = async (
     id: string,
     updatedData: Partial<Character>
   ) => {
     const portraitImage = (await cropAndSavePortraitImage(
-      updatedData.CharacterImage || '', // 캐릭터 이미지
+      updatedData.CharacterImage || '',
       id,
-      updatedData.CharacterClassName || '' // 캐릭터 클래스 이름
+      updatedData.CharacterClassName || ''
     )) as string;
 
     const updated = characters.map((char) =>
@@ -287,9 +328,10 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         ? {
             ...char,
             CharacterPortraitImage: portraitImage,
-            CharacterClassName: updatedData.CharacterClassName || '',
-            ItemAvgLevel: updatedData.ItemAvgLevel || '',
-            ServerName: updatedData.ServerName || '',
+            CharacterClassName:
+              updatedData.CharacterClassName || char.CharacterClassName,
+            ItemAvgLevel: updatedData.ItemAvgLevel || char.ItemAvgLevel,
+            ServerName: updatedData.ServerName || char.ServerName,
             LastUpdated: new Date().toISOString(),
           }
         : char
@@ -300,29 +342,25 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const sortCharacter = async (
     order: SortOrder,
-    inputCharacters?: Character[] // 두 번째 인자가 있으면 그것을 사용
+    inputCharacters?: Character[]
   ) => {
-    const target = inputCharacters ?? characters; // 인자가 없으면 현재 상태 사용
+    const target = inputCharacters ?? characters;
     let sortedList: Character[] = [];
 
     if (order === 'addedAt') {
-      // 추가된 순 (오름차순)
       sortedList = [...target].sort(
         (a, b) =>
           new Date(a.AddedAt || 0).getTime() -
           new Date(b.AddedAt || 0).getTime()
       );
     } else if (order === 'level') {
-      // 레벨 높은 순
       sortedList = [...target].sort(
         (a, b) =>
           parseFloat(b.ItemAvgLevel.replace(/,/g, '')) -
           parseFloat(a.ItemAvgLevel.replace(/,/g, ''))
       );
     } else if (order === 'server') {
-      // 서버별 최고 레벨 기준 정렬
       const serverMap: Record<string, Character[]> = {};
-
       for (const char of target) {
         const server = char.ServerName || 'unknown';
         if (!serverMap[server]) serverMap[server] = [];
@@ -365,10 +403,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           ? c.SelectedRaids?.map((r) => ({
               ...r,
               cleared: false,
-              stages: r.difficulties.map((s) => ({
-                ...s,
-                cleared: false,
-              })),
+              stages: r.stages.map((s) => ({ ...s, cleared: false })),
             }))
           : c.SelectedRaids;
 
@@ -377,11 +412,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           type === 'weekly'
             ? m.resetPeriod === 'daily' || m.resetPeriod === 'weekly'
             : m.resetPeriod === 'daily';
-
-        return {
-          ...m,
-          checked: shouldReset ? false : m.checked,
-        };
+        return { ...m, checked: shouldReset ? false : m.checked };
       });
 
       return {
@@ -417,7 +448,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// ✅ 쉽게 접근할 수 있는 커스텀 훅
 export const useCharacter = () => {
   const context = useContext(CharacterContext);
   if (!context) {

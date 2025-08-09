@@ -7,6 +7,7 @@ import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
 import { ErrorBoundary } from 'react-error-boundary';
+import { RaidProvider } from '@/context/RaidContext';
 
 function ErrorFallback({ error }: { error: Error }) {
   return (
@@ -45,6 +46,7 @@ function RootLayoutWrapper() {
         backgroundColor={colors.background}
       />
       <SafeAreaView style={{ flex: 1 }} edges={[]}>
+        <RaidProvider>
         <CharacterProvider>
           <AppSettingProvider>
             <View style={{ flex: 1 }}>
@@ -56,7 +58,8 @@ function RootLayoutWrapper() {
               />
             </View>
           </AppSettingProvider>
-        </CharacterProvider>
+          </CharacterProvider>
+          </RaidProvider>
       </SafeAreaView>
     </>
   );

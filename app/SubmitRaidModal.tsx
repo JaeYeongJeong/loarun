@@ -11,8 +11,8 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
-import { Difficulty, useCharacter } from '@/context/CharacterContext';
-import { getAvailableRaidsByItemLevel, RaidData } from '@/utils/raidData';
+import { useCharacter } from '@/context/CharacterContext';
+import { useRaid, RaidDifficulty, Raid } from '@/context/RaidContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { validateNumberInput } from '@/utils/validateInput';
@@ -21,7 +21,7 @@ import CustomTextInput from './components/CustomTextInput';
 
 type SelectedStage = {
   raidName: string;
-  difficulty: Difficulty;
+  difficulty: RaidDifficulty;
   stage: number;
   gold: number;
   chestCost?: number;
@@ -43,6 +43,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
 }) => {
   const { characters, updateCharacter } = useCharacter();
   const character = characters.find((c) => c.id === id);
+  const { raids, getAvailableRaidsByItemLevel } = useRaid();
   const [selectedStages, setSelectedStages] = useState<SelectedStage[]>([]);
   const [goldChecked, setGoldChecked] = useState(true);
   const [additionalGoldChecked, setAdditionalGoldChecked] = useState(false);
@@ -61,7 +62,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
     const initialRaidValue = character.SelectedRaids?.[index];
     const raidName = initialRaidValue?.name || '';
     const setValue =
-      initialRaidValue?.difficulties.map((stage) => ({
+      initialRaidValue?.stages.map((stage) => ({
         raidName,
         difficulty: stage.difficulty,
         stage: stage.stage,
@@ -87,7 +88,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
 
   const isSelected = (
     raidName: string,
-    difficulty: Difficulty,
+    difficulty: RaidDifficulty,
     stage: number
   ) =>
     selectedStages.some(
@@ -98,12 +99,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
     );
 
   const handleSelectStages = (
-    raidData: RaidData,
-    difficulty: Difficulty,
+    raidData: Raid,
+    difficulty: RaidDifficulty,
     stage: number
   ) => {
     setSelectedStages((prev) => {
-      const getStageData = (difficulty: Difficulty, stage: number) => {
+      const getStageData = (difficulty: RaidDifficulty, stage: number) => {
         return raidData.difficulties
           .find((diff) => diff.difficulty === difficulty)
           ?.stages.find((s) => s.stage === stage);
@@ -195,13 +196,13 @@ const RaidModal: React.FC<RaidModalProps> = ({
       // 선택이 없는 경우 빈 배열로 초기화
       newSelectedRaids[index] = {
         name: '', // 이름도 초기화할지 유지할지 선택 가능
-        difficulties: [],
+        stages: [],
       };
     } else if (index >= 0 && selectedStages.length > 0) {
       // 선택이 있는 경우 해당 레이드 데이터로 설정
       newSelectedRaids[index] = {
         name: selectedStages[0].raidName,
-        difficulties: selectedStages.map((s) => ({
+        stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
           gold: s.gold,
@@ -218,7 +219,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
       //index = -1인 경우
       newSelectedRaids.push({
         name: selectedStages[0].raidName,
-        difficulties: selectedStages.map((s) => ({
+        stages: selectedStages.map((s) => ({
           difficulty: s.difficulty,
           stage: s.stage,
           gold: s.gold,
