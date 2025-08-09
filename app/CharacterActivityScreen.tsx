@@ -9,7 +9,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import ActivityModal from './SubmitActivityModal';
+import MissionModal from './SubmitMissionModal';
 import { useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -21,7 +21,10 @@ import CustomText from './components/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import OtherActivityModal from './OtherActivityModal';
 import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
-import { missionCheckListData } from '@/utils/missionCheckListData';
+import {
+  defaultMissions,
+  defaultAccountMissions,
+} from '@/utils/defaultMissions';
 import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
@@ -36,18 +39,26 @@ const CharacterActivity: React.FC = () => {
   const insets = useSafeAreaInsets(); // ✅ 상단 여백
 
   // 📌 캐릭터 관련 컨텍스트
-  const { characters, updateCharacter, removeCharacter, refreshCharacter } =
-    useCharacter();
+  const {
+    characters,
+    updateCharacter,
+    updateAllCharacters,
+    removeCharacter,
+    refreshCharacter,
+  } = useCharacter();
   const character = characters.find((c) => c.id === id);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
   const { isInfoVisible } = useAppSetting();
   const [portraitUri, setPortraitUri] = useState<string | null>(null);
 
   // 📌 모달 상태 및 관련 인덱스
-  const [activityModalVisible, setActivityModalVisible] =
+  const [missionScope, setMissionScope] = useState<'character' | 'account'>(
+    'character'
+  );
+  const [missionModalVisible, setMissionModalVisible] =
     useState<boolean>(false);
-  const [activityIndex, setActivityIndex] = useState<number | null>(null);
-  const toggleActivityModal = () => setActivityModalVisible((prev) => !prev);
+  const [missionIndex, setMissionIndex] = useState<number | null>(null);
+  const toggleActivityModal = () => setMissionModalVisible((prev) => !prev);
 
   const [otherActivityModalVisible, setOtherActivityModalVisible] =
     useState<boolean>(false);
@@ -99,6 +110,8 @@ const CharacterActivity: React.FC = () => {
   const [weeklyRaidFolded, setWeeklyRaidFolded] = useState<boolean>(false);
   const [missionCheckedListFolded, setMissionCheckedListFolded] =
     useState<boolean>(false);
+  const [accountMissionCheckedListFolded, setAccountMissionCheckedListFolded] =
+    useState<boolean>(false);
   const [otherActivityFolded, setOtherActivityFolded] =
     useState<boolean>(false);
 
@@ -108,6 +121,9 @@ const CharacterActivity: React.FC = () => {
     setWeeklyRaidFolded(character.WeeklyRaidFolded ?? false);
     setOtherActivityFolded(character.OtherActivityFolded ?? false);
     setMissionCheckedListFolded(character.MissionCheckListFolded ?? false);
+    setAccountMissionCheckedListFolded(
+      character.AccountMissionCheckListFolded ?? false
+    );
     setBookmarked(character.IsBookmarked ?? false);
 
     const now = Date.now();
@@ -275,6 +291,16 @@ const CharacterActivity: React.FC = () => {
 
     updateCharacter(character.id, {
       MissionCheckList: updatedCheckList,
+    });
+  };
+
+  const handleAccountChecklistToggle = (index: number) => {
+    const updatedCheckList = character.AccountMissionCheckList?.map((item, i) =>
+      i === index ? { ...item, checked: !item.checked } : item
+    );
+
+    updateAllCharacters({
+      AccountMissionCheckList: updatedCheckList,
     });
   };
 
@@ -657,7 +683,8 @@ const CharacterActivity: React.FC = () => {
                         justifyContent: 'center',
                       }}
                       onPress={() => {
-                        setActivityIndex(index);
+                        setMissionIndex(index);
+                        setMissionScope('character');
                         toggleActivityModal();
                       }}
                     >
@@ -676,7 +703,8 @@ const CharacterActivity: React.FC = () => {
                     { backgroundColor: colors.grayLight },
                   ]}
                   onPress={() => {
-                    setActivityIndex(null);
+                    setMissionIndex(null);
+                    setMissionScope('character');
                     toggleActivityModal();
                   }}
                 >
@@ -689,7 +717,134 @@ const CharacterActivity: React.FC = () => {
               </View>
             </View>
           )}
-          {/* 추가 버튼 */}
+        </View>
+        {/* 계정 일일 주간 미션 체크리스트*/}
+        <View
+          style={[styles.section, { backgroundColor: colors.cardBackground }]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              const next = !accountMissionCheckedListFolded;
+              setAccountMissionCheckedListFolded(next);
+              updateCharacter(character.id, {
+                AccountMissionCheckListFolded: next,
+              });
+            }}
+          >
+            <View style={styles.sectionHeader}>
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Feather
+                  name={
+                    accountMissionCheckedListFolded
+                      ? 'chevron-down'
+                      : 'chevron-up'
+                  }
+                  size={24}
+                  color={colors.black}
+                />
+                <CustomText
+                  style={[styles.sectionTitle, { color: colors.black }]}
+                >
+                  원정대 미션
+                </CustomText>
+              </View>
+              <CustomText
+                style={[
+                  styles.totalGoldText,
+                  checkedListTotalGold >= 0
+                    ? { color: colors.black }
+                    : { color: colors.warning },
+                ]}
+              >
+                {/* {checkedListTotalGold.toLocaleString() || 0} */}
+              </CustomText>
+            </View>
+          </TouchableOpacity>
+          {!accountMissionCheckedListFolded && (
+            <View>
+              {Array.isArray(character.AccountMissionCheckList) &&
+                character.AccountMissionCheckList.map((item, index) => (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 10,
+                      marginTop: index === 0 ? 16 : 0,
+                    }}
+                    key={index}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.activityItem,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        handleAccountChecklistToggle(index);
+                      }}
+                    >
+                      <View style={styles.activityItemRow}>
+                        <CustomText
+                          style={[
+                            styles.activityNameText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          {item.name}
+                        </CustomText>
+                        <MaterialIcons
+                          name={
+                            item.checked
+                              ? 'check-box'
+                              : 'check-box-outline-blank'
+                          }
+                          size={24}
+                          color={
+                            item.checked
+                              ? colors.secondary
+                              : colors.grayDark + 80
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        paddingLeft: 8,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setMissionIndex(index);
+                        setMissionScope('account');
+                        toggleActivityModal();
+                      }}
+                    >
+                      <Feather
+                        name="edit"
+                        size={20}
+                        color={colors.iconColor + 80}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.editButton,
+                    { backgroundColor: colors.grayLight },
+                  ]}
+                  onPress={() => {
+                    setMissionIndex(null);
+                    setMissionScope('account');
+                    toggleActivityModal();
+                  }}
+                >
+                  <CustomText
+                    style={[styles.editButtonText, { color: colors.black }]}
+                  >
+                    미션 추가
+                  </CustomText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
         {/* 기타 활동 */}
         <View
@@ -796,10 +951,17 @@ const CharacterActivity: React.FC = () => {
         positionY={optionsButtonY}
         resetMissions={() => {
           updateCharacter(character.id, {
-            MissionCheckList: missionCheckListData,
+            MissionCheckList: defaultMissions,
           });
-          setActivityIndex(null);
+          setMissionIndex(null);
           setMissionCheckedListFolded(false);
+        }}
+        resetAccountMissions={() => {
+          updateAllCharacters({
+            AccountMissionCheckList: defaultAccountMissions,
+          });
+          setMissionIndex(null);
+          setAccountMissionCheckedListFolded(false);
         }}
         changeName={() => {
           setOptionsModalVisible(false);
@@ -807,18 +969,30 @@ const CharacterActivity: React.FC = () => {
         }}
       />
 
-      <ActivityModal
-        isVisible={activityModalVisible}
-        setIndexNull={() => setActivityIndex(null)}
-        setIsVisibleFalse={() => setActivityModalVisible(false)}
+      <MissionModal
+        isVisible={missionModalVisible}
+        setIndexNull={() => setMissionIndex(null)}
+        setIsVisibleFalse={() => setMissionModalVisible(false)}
         id={character.id}
-        mode={activityIndex !== null ? 'edit' : 'add'}
-        index={activityIndex ?? undefined}
-        initialActivity={
-          activityIndex !== null
-            ? character.MissionCheckList?.[activityIndex]
-            : undefined
-        }
+        mode={missionIndex != null ? 'edit' : 'add'}
+        index={missionIndex != null ? missionIndex : undefined}
+        scope={missionScope}
+        initialActivity={(() => {
+          const list =
+            missionScope === 'character'
+              ? character.MissionCheckList
+              : character.AccountMissionCheckList;
+
+          if (
+            missionIndex == null ||
+            !list ||
+            missionIndex < 0 ||
+            missionIndex >= list.length
+          ) {
+            return undefined;
+          }
+          return list[missionIndex];
+        })()}
       />
 
       <OtherActivityModal

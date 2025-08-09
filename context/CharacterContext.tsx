@@ -12,7 +12,11 @@ import {
   deletePortraitImage,
 } from '@/utils/PortraitImage';
 import uuid from 'react-native-uuid';
-import { checkListItem } from '@/utils/missionCheckListData';
+import {
+  mission,
+  defaultMissions,
+  defaultAccountMissions,
+} from '@/utils/defaultMissions';
 import { SortOrder } from '@/context/AppSettingContext';
 import { useRaid, RaidDifficulty } from '@/context/RaidContext';
 
@@ -57,8 +61,10 @@ export type Character = {
   AddedAt?: string;
   WeeklyRaidFolded?: boolean;
   IsBookmarked?: boolean;
-  MissionCheckList?: checkListItem[];
+  MissionCheckList?: mission[];
   MissionCheckListFolded?: boolean;
+  AccountMissionCheckList?: mission[];
+  AccountMissionCheckListFolded?: boolean;
   OtherActivityTotalGold?: number;
   ClearedRaidTotalGold?: number;
 };
@@ -74,6 +80,7 @@ type CharacterContextType = {
     id: string,
     updatedData: Partial<Character>
   ) => Promise<void>;
+  updateAllCharacters: (updatedData: Partial<Character>) => Promise<void>;
   refreshCharacter: (
     id: string,
     updatedData: Partial<Character>
@@ -290,7 +297,12 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         CharacterPortraitImage: portraitImage,
         LastUpdated: new Date().toISOString(),
         AddedAt: new Date().toISOString(),
-        SelectedRaids: defaultSelectedRaids, // ✅ 복수형으로 저장
+        SelectedRaids: defaultSelectedRaids,
+        MissionCheckList: defaultMissions,
+        AccountMissionCheckList:
+          characters.length === 0
+            ? defaultAccountMissions
+            : characters[0].AccountMissionCheckList,
       },
     ];
 
@@ -310,6 +322,11 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     const updated = characters.map((char) =>
       char.id === id ? { ...char, ...updatedData } : char
     );
+    await saveCharacters(updated);
+  };
+
+  const updateAllCharacters = async (updatedData: Partial<Character>) => {
+    const updated = characters.map((char) => ({ ...char, ...updatedData }));
     await saveCharacters(updated);
   };
 
@@ -415,10 +432,19 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return { ...m, checked: shouldReset ? false : m.checked };
       });
 
+      const updatedAccountMission = c.AccountMissionCheckList?.map((m) => {
+        const shouldReset =
+          type === 'weekly'
+            ? m.resetPeriod === 'daily' || m.resetPeriod === 'weekly'
+            : m.resetPeriod === 'daily';
+        return { ...m, checked: shouldReset ? false : m.checked };
+      });
+
       return {
         ...c,
         SelectedRaids: updatedRaids,
         MissionCheckList: updatedMission,
+        AccountMissionCheckList: updatedAccountMission,
         ...(type === 'weekly' && {
           OtherActivity: [],
           OtherActivityTotalGold: 0,
@@ -438,6 +464,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         addCharacter,
         removeCharacter,
         updateCharacter,
+        updateAllCharacters,
         refreshCharacter,
         sortCharacter,
         isLoaded,

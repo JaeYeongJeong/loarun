@@ -17,6 +17,7 @@ type CharacterActivityOptionsModalProps = {
   positionX: number;
   positionY: number;
   resetMissions: () => void;
+  resetAccountMissions: () => void;
   changeName: () => void;
 };
 
@@ -28,10 +29,13 @@ const CharacterActivityOptionsModal: React.FC<
   positionX,
   positionY,
   resetMissions,
+  resetAccountMissions,
   changeName,
 }) => {
-  const [resetAlertVisible, setResetAlertVisible] = React.useState(false);
-
+  const [resetMissionAlertVisible, setResetMissionAlertVisible] =
+    React.useState(false);
+  const [resetAccountMissionAlertVisible, setResetAccountMissionAlertVisible] =
+    React.useState(false);
   const { colors } = useTheme();
 
   const handleCloseModal = () => {
@@ -66,7 +70,7 @@ const CharacterActivityOptionsModal: React.FC<
                 <TouchableOpacity
                   onPress={() => {
                     toggleModal();
-                    setResetAlertVisible(true);
+                    setResetMissionAlertVisible(true);
                   }}
                 >
                   <View style={styles.optionContainer}>
@@ -77,17 +81,38 @@ const CharacterActivityOptionsModal: React.FC<
                     </CustomText>
                   </View>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleModal();
+                    setResetAccountMissionAlertVisible(true);
+                  }}
+                >
+                  <View style={styles.optionContainer}>
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      원정대 미션 초기화
+                    </CustomText>
+                  </View>
+                </TouchableOpacity>
               </Animated.View>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
       <CustomAlert
-        isVisible={resetAlertVisible}
-        setIsVisibleFalse={() => setResetAlertVisible(false)}
+        isVisible={resetMissionAlertVisible}
+        setIsVisibleFalse={() => setResetMissionAlertVisible(false)}
         titleText="미션 초기화"
-        messageText="일일/주간 미션을 초기화하시겠습니까?"
+        messageText="일일/주간 미션을 기본값으로 초기화하시겠습니까?"
         onSubmit={resetMissions}
+      />
+      <CustomAlert
+        isVisible={resetAccountMissionAlertVisible}
+        setIsVisibleFalse={() => setResetAccountMissionAlertVisible(false)}
+        titleText="계정 미션 초기화"
+        messageText="계정 미션을 기본값으로 초기화하시겠습니까?"
+        onSubmit={resetAccountMissions}
       />
     </>
   );

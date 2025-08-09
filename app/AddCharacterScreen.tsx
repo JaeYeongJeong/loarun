@@ -17,7 +17,6 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import CustomText from './components/CustomText';
-import { missionCheckListData } from '@/utils/missionCheckListData';
 import { validateNicknameInput } from '@/utils/validateInput';
 import CustomAlert from './CustomAlert';
 import { useAppSetting } from '@/context/AppSettingContext';
@@ -67,7 +66,6 @@ const AddCharacterScreen: React.FC = () => {
         CharacterClassName: characterInfo.CharacterClassName,
         ItemAvgLevel: characterInfo.ItemAvgLevel,
         ServerName: characterInfo.ServerName,
-        MissionCheckList: missionCheckListData,
       },
       characterSortOrder
     );
@@ -100,6 +98,17 @@ const AddCharacterScreen: React.FC = () => {
         return;
       case 'valid-nickname':
         break;
+    }
+
+    if (
+      characters.some(
+        (character) => character.CharacterName === characterName.trim()
+      )
+    ) {
+      setAlertTitle('오류');
+      setAlertMessage('이미 추가된 캐릭터입니다.');
+      setAlertVisible(true);
+      return;
     }
 
     setCharacterInfo(null);

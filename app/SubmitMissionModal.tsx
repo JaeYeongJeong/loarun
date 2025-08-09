@@ -16,15 +16,17 @@ import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
 import CustomText from './components/CustomText';
 import CustomTextInput from './components/CustomTextInput';
+import { mission } from '@/utils/defaultMissions';
 
 type resetPeriodType = 'daily' | 'weekly' | '';
 
-type ActivityModalProps = {
+type MissionModalProps = {
   isVisible: boolean;
   setIndexNull: () => void;
   setIsVisibleFalse: () => void;
   id: string;
   mode?: 'add' | 'edit';
+  scope?: 'character' | 'account';
   initialActivity?: {
     name: string;
     checked?: boolean;
@@ -35,12 +37,13 @@ type ActivityModalProps = {
   index?: number;
 };
 
-const ActivityModal: React.FC<ActivityModalProps> = ({
+const MissionModal: React.FC<MissionModalProps> = ({
   isVisible,
   setIndexNull,
   setIsVisibleFalse,
   id,
-  mode,
+  mode = 'add',
+  scope = 'character',
   initialActivity,
   index,
 }) => {
@@ -48,7 +51,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const [activityGold, setActivityGold] = useState('');
   const [goldChecked, setGoldChecked] = useState(false);
   const [resetPeriod, setResetPeriod] = useState<resetPeriodType>('');
-  const { characters, updateCharacter } = useCharacter();
+  const { characters, updateCharacter, updateAllCharacters } = useCharacter();
   const character = characters.find((c) => c.id === id);
   const { colors } = useTheme();
 
@@ -76,7 +79,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
         useNativeDriver: true,
       }).start();
     }
-  }, [isVisible]);
+  }, [isVisible, mode, initialActivity]);
 
   const handleCloseModal = () => {
     Animated.timing(translateY, {
@@ -89,73 +92,80 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     });
   };
 
-  const handleSubmit = () => {
+  const listKey =
+    scope === 'character'
+      ? 'MissionCheckList'
+      : ('AccountMissionCheckList' as const);
+
+  const currentList: mission[] = character[listKey] ?? [];
+
+  const handleSubmit = async () => {
     if (isNaN(Number(activityGold.replace(/,/g, '')))) {
       Alert.alert('입력 오류', '골드를 정확히 입력해주세요.');
       return;
     }
-
     if (activityName.length > 30) {
-      Alert.alert('입력 초과', '활동명을 30글자 이하로 입력해주세요. ');
+      Alert.alert('입력 초과', '활동명을 30글자 이하로 입력해주세요.');
+      return;
     }
-
     if (!activityName.trim() && !activityGold.trim()) {
       handleCloseModal();
       return;
     }
 
-    if (mode === 'edit' && index !== undefined) {
-      const updated = [...(character.MissionCheckList ?? [])];
-      updated[index] = {
-        name: activityName || '',
-        resetPeriod: resetPeriod,
-        checked: initialActivity?.checked || false,
-        goldChecked: goldChecked,
-        gold: Number(activityGold.replace(/,/g, '')) || 0,
-      };
+    const payload: mission = {
+      name: activityName || '',
+      resetPeriod,
+      checked: initialActivity?.checked ?? false,
+      goldChecked,
+      gold: Number(activityGold.replace(/,/g, '')) || 0,
+    };
 
-      updateCharacter(character.id, {
-        MissionCheckList: updated,
-      });
+    const updatedList =
+      mode === 'edit' && index !== undefined
+        ? (() => {
+            const arr = [...currentList];
+            if (index >= 0 && index < arr.length) arr[index] = payload;
+            return arr;
+          })()
+        : [...currentList, { ...payload, checked: false }];
+
+    if (scope === 'account') {
+      // ✅ 계정 전체 업데이트
+      await updateAllCharacters({ [listKey]: updatedList });
     } else {
-      const newCheckList = [
-        ...(character.MissionCheckList ?? []),
-        {
-          name: activityName || '',
-          resetPeriod: resetPeriod,
-          checked: false,
-          goldChecked: goldChecked,
-          gold: Number(activityGold.replace(/,/g, '')) || 0,
-        },
-      ];
-
-      updateCharacter(character.id, {
-        MissionCheckList: newCheckList,
-      });
+      // ✅ 특정 캐릭터만 업데이트
+      await updateCharacter(character.id, { [listKey]: updatedList });
     }
 
-    setIndexNull(); // 인덱스 초기화
+    setIndexNull();
     handleCloseModal();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     Alert.alert('정말 삭제하시겠어요?', undefined, [
       { text: '취소', style: 'cancel' },
       {
         text: '삭제',
         style: 'destructive',
-        onPress: () => {
-          if (index !== undefined) {
-            const updated = [...(character.MissionCheckList ?? [])];
-            updated.splice(index, 1);
-            const updatedTotalGold = updated.reduce(
-              (total, item) => total + (item.gold || 0),
-              0
-            );
-            updateCharacter(character.id, {
-              MissionCheckList: updated,
-            });
+        onPress: async () => {
+          if (index === undefined) {
+            setIndexNull();
+            handleCloseModal();
+            return;
           }
+
+          const updatedList = [...currentList];
+          if (index >= 0 && index < updatedList.length) {
+            updatedList.splice(index, 1);
+          }
+
+          if (scope === 'account') {
+            await updateAllCharacters({ [listKey]: updatedList });
+          } else {
+            await updateCharacter(character.id, { [listKey]: updatedList });
+          }
+
           setIndexNull();
           handleCloseModal();
         },
@@ -528,4 +538,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ActivityModal;
+export default MissionModal;
