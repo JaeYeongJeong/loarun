@@ -24,4 +24,23 @@ const fetchCharacterInfo = async (characterName: string) => {
   return data;
 };
 
-export { fetchCharacterInfo };
+const fetchRaidData = async () => {
+  const url = `${LOARUN_API_PROXY_URL}/api/raid`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const error = new Error(
+      `HTTP Error! Status: ${response.status}`
+    ) as Error & {
+      status?: number;
+    };
+    error.status = response.status;
+    throw error;
+  }
+
+  const data = await response.json();
+  return data;
+};
+
+export { fetchCharacterInfo, fetchRaidData };
