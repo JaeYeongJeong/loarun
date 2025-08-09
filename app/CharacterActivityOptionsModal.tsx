@@ -104,14 +104,14 @@ const CharacterActivityOptionsModal: React.FC<
         isVisible={resetMissionAlertVisible}
         setIsVisibleFalse={() => setResetMissionAlertVisible(false)}
         titleText="미션 초기화"
-        messageText="일일/주간 미션을 기본값으로 초기화하시겠습니까?"
+        messageText="일일/주간 미션을 기본값으로 초기화합니다."
         onSubmit={resetMissions}
       />
       <CustomAlert
         isVisible={resetAccountMissionAlertVisible}
         setIsVisibleFalse={() => setResetAccountMissionAlertVisible(false)}
-        titleText="계정 미션 초기화"
-        messageText="계정 미션을 기본값으로 초기화하시겠습니까?"
+        titleText="원정대 미션 초기화"
+        messageText="원정대 미션을 기본값으로 초기화합니다."
         onSubmit={resetAccountMissions}
       />
     </>
