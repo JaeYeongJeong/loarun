@@ -1,29 +1,6 @@
-export type Difficulty =
-  | '싱글'
-  | '노말'
-  | '하드'
-  | '익스트림 노말'
-  | '익스트림 하드';
+import { Raid } from '@/context/CharacterContext';
 
-export type RaidStage = {
-  stage: number; // 관문 번호 (1, 2, 3...)
-  gold: number; // 해당 관문에서 획득하는 골드
-  chestCost?: number;
-  boundGold?: number; //귀속 골드
-};
-
-export type RaidDifficulty = {
-  difficulty: Difficulty;
-  stages: RaidStage[]; // 관문별 정보
-  requiredItemLevel: number;
-};
-
-export type RaidData = {
-  name: string;
-  difficulties: RaidDifficulty[]; // 난이도별 구성
-};
-
-export const RAID_LIST: RaidData[] = [
+export const RAID_LIST: Raid[] = [
   {
     name: '3막 모르둠',
     difficulties: [
@@ -411,7 +388,7 @@ export const RAID_LIST: RaidData[] = [
 ];
 export function getAvailableRaidsByItemLevel(
   itemLevelInput: number | string
-): RaidData[] {
+): Raid[] {
   const itemLevel =
     typeof itemLevelInput === 'string'
       ? parseFloat(itemLevelInput.replace(/,/g, ''))
@@ -428,5 +405,5 @@ export function getAvailableRaidsByItemLevel(
       ...raid,
       difficulties: availableDifficulties,
     };
-  }).filter((raid): raid is RaidData => raid !== null);
+  }).filter((raid): raid is Raid => raid !== null);
 }

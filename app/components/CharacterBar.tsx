@@ -59,7 +59,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
   for (const raid of updatedRaids) {
     let stageSum = 0;
 
-    for (const stage of raid.stages) {
+    for (const stage of raid.difficulties) {
       if (stage.cleared) {
         stageSum +=
           (raid.goldChecked ? stage.gold : 0) -
@@ -79,8 +79,8 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
     character.SelectedRaids?.filter((raid) => raid.cleared).length || 0;
 
   const totalCount =
-    character.SelectedRaids?.filter((raid) => raid.stages.length > 0).length ||
-    0;
+    character.SelectedRaids?.filter((raid) => raid.difficulties.length > 0)
+      .length || 0;
 
   const OtherActivityTotalGold = character.OtherActivity?.reduce(
     (total, activity) => total + (activity.gold || 0),

@@ -7,24 +7,34 @@ import {
 import uuid from 'react-native-uuid';
 import { checkListItem } from '@/utils/missionCheckListData';
 import { RAID_LIST } from '@/utils/raidData';
-import { Difficulty as RaidDifficulty } from '@/utils/raidData';
 import { SortOrder } from '@/context/AppSettingContext';
 
-export { RaidDifficulty };
+export type RaidDifficulty =
+  | '싱글'
+  | '노말'
+  | '하드'
+  | '익스트림 노말'
+  | '익스트림 하드';
 
 export type RaidStage = {
-  difficulty: RaidDifficulty; // 레이드 난이도 (싱글, 노말, 하드)
   stage: number; // 관문 번호 (1, 2, 3...)
   gold: number; // 해당 관문에서 획득하는 골드
   chestCost?: number; // 더보기 골드
+  boundGold?: number; // 귀속 골드
   selectedChestCost?: boolean; // 더보기 선택 여부
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
   lastClearedStage?: number; // 마지막 클리어 관문 번호 (1, 2, 3...)
 };
 
+export type Difficulty = {
+  difficulty: RaidDifficulty;
+  stages: RaidStage[];
+  requiredItemLevel: number;
+};
+
 export type Raid = {
   name: string;
-  stages: RaidStage[]; // 레이드 단계별 정보
+  difficulties: Difficulty[]; // 레이드 단계별 정보
   cleared?: boolean; // ✅ 클리어 여부 (true/false)
   goldChecked?: boolean;
   additionalGoldCheked?: boolean; //추가 골드 선택 여부
@@ -167,41 +177,41 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     // ✅ 선택한 레이드 데이터 업데이트 함수
-    const updateSelectedRaidData = async () => {
-      const storedCharacters = await AsyncStorage.getItem('characters');
-      const parsedCharacters = storedCharacters
-        ? JSON.parse(storedCharacters)
-        : [];
+    // const updateSelectedRaidData = async () => {
+    //   const storedCharacters = await AsyncStorage.getItem('characters');
+    //   const parsedCharacters = storedCharacters
+    //     ? JSON.parse(storedCharacters)
+    //     : [];
 
-      parsedCharacters.forEach((char: Character) => {
-        char.SelectedRaids?.forEach((raid) => {
-          const raidData = RAID_LIST.find((r) => r.name === raid.name);
-          if (!raidData) return;
+    //   parsedCharacters.forEach((char: Character) => {
+    //     char.SelectedRaids?.forEach((raid) => {
+    //       const raidData = RAID_LIST.find((r) => r.name === raid.name);
+    //       if (!raidData) return;
 
-          raid.stages.forEach((stage) => {
-            const stageData = raidData.difficulties.find(
-              (d) => d.difficulty === stage.difficulty
-            );
+    //       raid.difficulties.forEach((stage) => {
+    //         const stageData = raidData.difficulties.find(
+    //           (d) => d.difficulty === stage.difficulty
+    //         );
 
-            const matchedStage = stageData?.stages.find(
-              (s) => s.stage === stage.stage
-            );
+    //         const matchedStage = stageData?.stages.find(
+    //           (s) => s.stage === stage.stages.
+    //         );
 
-            if (matchedStage) {
-              stage.gold = matchedStage.gold;
-              stage.chestCost = matchedStage.chestCost;
-            }
-          });
-        });
-      });
-      saveCharacters(parsedCharacters);
-    };
+    //         if (matchedStage) {
+    //           stage.gold = matchedStage.gold;
+    //           stage.chestCost = matchedStage.chestCost;
+    //         }
+    //       });
+    //     });
+    //   });
+    //   saveCharacters(parsedCharacters);
+    // };
 
     // ✅ 초기화 함수 실행
     const initialize = async () => {
       await loadCharacters();
       await maybeReset();
-      await updateSelectedRaidData();
+      // await updateSelectedRaidData();
       setIsLoaded(true);
     };
 
@@ -355,7 +365,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           ? c.SelectedRaids?.map((r) => ({
               ...r,
               cleared: false,
-              stages: r.stages.map((s) => ({
+              stages: r.difficulties.map((s) => ({
                 ...s,
                 cleared: false,
               })),
