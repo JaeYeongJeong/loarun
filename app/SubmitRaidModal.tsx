@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import {
   StyleSheet,
   Modal,
@@ -9,6 +15,7 @@ import {
   Platform,
   Alert,
   KeyboardAvoidingView,
+  Pressable,
 } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useCharacter } from '@/context/CharacterContext';
@@ -26,6 +33,8 @@ type SelectedStage = {
   gold: number;
   chestCost?: number;
   selectedChestCost?: boolean;
+  borderLeftRadius?: number;
+  borderRightRadius?: number;
 };
 
 type RaidModalProps = {
@@ -35,6 +44,8 @@ type RaidModalProps = {
   index: number;
 };
 
+const STAGE_RADIUS = 12;
+
 const RaidModal: React.FC<RaidModalProps> = ({
   isVisible,
   setIsVisibleFalse,
@@ -43,39 +54,98 @@ const RaidModal: React.FC<RaidModalProps> = ({
 }) => {
   const { characters, updateCharacter } = useCharacter();
   const character = characters.find((c) => c.id === id);
-  const { raids, getAvailableRaidsByItemLevel } = useRaid();
-  const [selectedStages, setSelectedStages] = useState<SelectedStage[]>([]);
-  const [goldChecked, setGoldChecked] = useState(true);
-  const [additionalGoldChecked, setAdditionalGoldChecked] = useState(false);
-  const [additinalGold, setAdditionalGold] = useState('');
-  const [chestCostChecked, setChestCostChecked] = useState(false);
+  const { getAvailableRaidsByItemLevel } = useRaid();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-
-  if (!character) return null; // 캐릭터가 없으면 모달을 렌더링하지 않음
-
-  const raidList = getAvailableRaidsByItemLevel(character.ItemAvgLevel);
-
   const translateY = useRef(new Animated.Value(500)).current;
 
+  const [selectedStages, setSelectedStages] = useState<SelectedStage[]>([]);
+  const [isGoldChecked, setIsGoldChecked] = useState(true);
+  const [isAdditionalGoldChecked, setIsAdditionalGoldChecked] = useState(false);
+  const [additionalGold, setAdditionalGold] = useState('');
+  const [isChestCostChecked, setIsChestCostChecked] = useState(false);
+
+  if (!character) return null;
+
+  // 안전하게 의존성 기반으로 레이드 리스트 메모
+  const raidList = useMemo(
+    () => getAvailableRaidsByItemLevel(character.ItemAvgLevel),
+    [getAvailableRaidsByItemLevel, character.ItemAvgLevel]
+  );
+
+  // 숫자 인풋 포맷터
+  const formatNumberInput = useCallback((inputText: string) => {
+    const result = validateNumberInput(inputText);
+    switch (result.status) {
+      case 'valid':
+        setAdditionalGold(result.value.toLocaleString());
+        break;
+      case 'not-a-number':
+        Alert.alert('입력 오류', '숫자만 입력할 수 있습니다.');
+        break;
+      case 'exceeds-limit':
+        Alert.alert('범위 초과', '±100억 이하로 입력해주세요.');
+        break;
+      case 'empty':
+        setAdditionalGold(inputText);
+        break;
+    }
+  }, []);
+
+  // 선택 라운딩 규칙(난이도 & 연속 관문 기준)
+  const applySelectionRadii = useCallback((stages: SelectedStage[]) => {
+    if (!stages?.length) return stages;
+
+    const s = [...stages].sort((a, b) => a.stage - b.stage);
+    for (const item of s) {
+      item.borderLeftRadius = 0;
+      item.borderRightRadius = 0;
+    }
+
+    let start = 0;
+    while (start < s.length) {
+      let end = start;
+      while (
+        end + 1 < s.length &&
+        s[end + 1].difficulty === s[end].difficulty &&
+        s[end + 1].stage === s[end].stage + 1
+      ) {
+        end++;
+      }
+
+      if (start === end) {
+        s[start].borderLeftRadius = STAGE_RADIUS;
+        s[start].borderRightRadius = STAGE_RADIUS;
+      } else {
+        s[start].borderLeftRadius = STAGE_RADIUS;
+        s[end].borderRightRadius = STAGE_RADIUS;
+      }
+
+      start = end + 1;
+    }
+
+    return s;
+  }, []);
+
+  // 초기 로드 & 모달 애니메이션
   useEffect(() => {
-    const initialRaidValue = character.SelectedRaids?.[index];
-    const raidName = initialRaidValue?.name || '';
-    const setValue =
-      initialRaidValue?.stages.map((stage) => ({
+    const initial = character.SelectedRaids?.[index];
+    const raidName = initial?.name || '';
+    const initialStages: SelectedStage[] =
+      initial?.stages.map((st) => ({
         raidName,
-        difficulty: stage.difficulty,
-        stage: stage.stage,
-        gold: stage.gold,
-        chestCost: stage.chestCost,
-        selectedChestCost: stage.selectedChestCost,
+        difficulty: st.difficulty,
+        stage: st.stage,
+        gold: st.gold,
+        chestCost: st.chestCost,
+        selectedChestCost: st.selectedChestCost,
       })) ?? [];
 
-    setSelectedStages(setValue);
-    setGoldChecked(initialRaidValue?.goldChecked ?? true);
-    setAdditionalGoldChecked(initialRaidValue?.additionalGoldCheked ?? false);
-    setAdditionalGold(initialRaidValue?.additionalGold ?? '');
-    setChestCostChecked(initialRaidValue?.chestCostChecked ?? false);
+    setSelectedStages(applySelectionRadii(initialStages));
+    setIsGoldChecked(initial?.goldChecked ?? true);
+    setIsAdditionalGoldChecked(initial?.additionalGoldCheked ?? false); // 호환 유지
+    setAdditionalGold(initial?.additionalGold ?? '');
+    setIsChestCostChecked(initial?.chestCostChecked ?? false);
 
     if (isVisible) {
       Animated.timing(translateY, {
@@ -84,94 +154,111 @@ const RaidModal: React.FC<RaidModalProps> = ({
         useNativeDriver: true,
       }).start();
     }
-  }, [isVisible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]); // 모달 열릴 때마다 초기화
 
-  const isSelected = (
-    raidName: string,
-    difficulty: RaidDifficulty,
-    stage: number
-  ) =>
-    selectedStages.some(
-      (s) =>
-        s.raidName === raidName &&
-        s.difficulty === difficulty &&
-        s.stage === stage
-    );
-
-  const handleSelectStages = (
-    raidData: Raid,
-    difficulty: RaidDifficulty,
-    stage: number
-  ) => {
-    setSelectedStages((prev) => {
-      const getStageData = (difficulty: RaidDifficulty, stage: number) => {
-        return raidData.difficulties
-          .find((diff) => diff.difficulty === difficulty)
-          ?.stages.find((s) => s.stage === stage);
-      };
-      const isSelected = prev.some(
+  // 도우미
+  const findSelectedStage = useCallback(
+    (raidName: string, difficulty: RaidDifficulty, stage: number) =>
+      selectedStages.find(
         (s) =>
-          s.raidName === raidData.name &&
-          s.stage === stage &&
-          s.difficulty === difficulty
-      );
+          s.raidName === raidName &&
+          s.difficulty === difficulty &&
+          s.stage === stage
+      ),
+    [selectedStages]
+  );
 
-      // 이미 선택된 관문이라면 => 해당 관문 이후 단계 제거
-      if (isSelected) {
-        return prev.filter(
-          (s) => !(s.raidName === raidData.name && s.stage >= stage)
+  const getStageData = useCallback(
+    (raid: Raid, difficulty: RaidDifficulty, stage: number) => {
+      return raid.difficulties
+        .find((d) => d.difficulty === difficulty)
+        ?.stages.find((s) => s.stage === stage);
+    },
+    []
+  );
+
+  // 관문 선택/해제
+  const handleSelectStages = useCallback(
+    (raid: Raid, difficulty: RaidDifficulty, stage: number) => {
+      setSelectedStages((prev) => {
+        const alreadySelected = prev.some(
+          (s) =>
+            s.raidName === raid.name &&
+            s.stage === stage &&
+            s.difficulty === difficulty
         );
-      }
 
-      const isSingle = difficulty === '싱글';
-      const hasSingle = prev.length > 0 && prev[0].difficulty === '싱글';
-      const hasOtherRaid =
-        prev.length > 0 && prev[0].raidName !== raidData.name;
-
-      // 초기화 조건
-      if (isSingle || hasSingle || hasOtherRaid) {
-        return Array.from({ length: stage }, (_, i) => {
-          const stageInfo = getStageData(difficulty, i + 1);
-          return {
-            raidName: raidData.name,
-            difficulty,
-            stage: i + 1,
-            gold: stageInfo?.gold || 0,
-            chestCost: stageInfo?.chestCost || 0,
-            selectedChestCost: chestCostChecked,
-          };
-        });
-      }
-
-      // 같은 단계가 이미 다른 난이도로 선택된 경우 제거
-      const filtered = prev.filter(
-        (s) => !(s.raidName === raidData.name && s.stage === stage)
-      );
-
-      // 이전 + 현재 단계 추가
-      for (let i = 1; i <= stage; i++) {
-        if (
-          !filtered.some((s) => s.stage === i && s.raidName === raidData.name)
-        ) {
-          const stageInfo = getStageData(difficulty, i);
-
-          filtered.push({
-            raidName: raidData.name,
-            difficulty,
-            stage: i,
-            gold: stageInfo?.gold || 0,
-            chestCost: stageInfo?.chestCost || 0,
-            selectedChestCost: chestCostChecked,
-          });
+        // 선택된 관문 다시 누르면 해당 관문 이상 제거
+        if (alreadySelected) {
+          const next = prev.filter(
+            (s) => !(s.raidName === raid.name && s.stage >= stage)
+          );
+          return applySelectionRadii(next);
         }
-      }
-      return filtered.sort((a, b) => a.stage - b.stage); // stage 순서 유지
-    });
-  };
 
-  const handleCloseModal = () => {
-    setSelectedStages([]); // 선택된 단계 초기화
+        const isSingle = difficulty === '싱글';
+        const hasSingle = prev.length > 0 && prev[0].difficulty === '싱글';
+        const hasOtherRaid = prev.length > 0 && prev[0].raidName !== raid.name;
 
+        // 초기화 조건
+        if (isSingle || hasSingle || hasOtherRaid) {
+          const next: SelectedStage[] = Array.from(
+            { length: stage },
+            (_, i) => {
+              const info = getStageData(raid, difficulty, i + 1);
+              return {
+                raidName: raid.name,
+                difficulty,
+                stage: i + 1,
+                gold: info?.gold ?? 0,
+                chestCost: info?.chestCost ?? 0,
+                selectedChestCost: isChestCostChecked,
+              };
+            }
+          );
+          return applySelectionRadii(next);
+        }
+
+        // 같은 단계가 이미 다른 난이도로 선택된 경우 제거 후 이전+현재 단계 채우기
+        const filtered = prev.filter(
+          (s) => !(s.raidName === raid.name && s.stage === stage)
+        );
+        for (let i = 1; i <= stage; i++) {
+          if (
+            !filtered.some((s) => s.stage === i && s.raidName === raid.name)
+          ) {
+            const info = getStageData(raid, difficulty, i);
+            filtered.push({
+              raidName: raid.name,
+              difficulty,
+              stage: i,
+              gold: info?.gold ?? 0,
+              chestCost: info?.chestCost ?? 0,
+              selectedChestCost: isChestCostChecked,
+            });
+          }
+        }
+
+        filtered.sort((a, b) => a.stage - b.stage);
+        return applySelectionRadii(filtered);
+      });
+    },
+    [applySelectionRadii, getStageData, isChestCostChecked]
+  );
+
+  // 더보기 규칙용(체크된 박스들의 연속성 기준 라운딩)
+  const checkedStageSet = useMemo(
+    () =>
+      new Set(
+        selectedStages.filter((s) => s.selectedChestCost).map((s) => s.stage)
+      ),
+    [selectedStages]
+  );
+
+  // 모달 닫기
+  const handleCloseModal = useCallback(() => {
+    setSelectedStages([]);
     Animated.timing(translateY, {
       toValue: 500,
       duration: 250,
@@ -179,67 +266,48 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }).start(() => {
       setIsVisibleFalse();
     });
-  };
+  }, [setIsVisibleFalse, translateY]);
 
-  const handleSubmit = () => {
+  // 저장
+  const handleSubmit = useCallback(() => {
     if (typeof index !== 'number') {
       console.warn('Raid index가 없습니다.');
       return;
     }
-    if (isNaN(Number(additinalGold.replace(/,/g, '')))) {
+    if (isNaN(Number(additionalGold.replace(/,/g, '')))) {
       Alert.alert('입력 오류', '골드를 정확히 입력해주세요.');
       return;
     }
-    const newSelectedRaids = [...(character.SelectedRaids || [])];
 
-    if (selectedStages.length <= 0) {
-      // 선택이 없는 경우 빈 배열로 초기화
-      newSelectedRaids[index] = {
-        name: '', // 이름도 초기화할지 유지할지 선택 가능
-        stages: [],
-      };
-    } else if (index >= 0 && selectedStages.length > 0) {
-      // 선택이 있는 경우 해당 레이드 데이터로 설정
-      newSelectedRaids[index] = {
-        name: selectedStages[0].raidName,
-        stages: selectedStages.map((s) => ({
-          difficulty: s.difficulty,
-          stage: s.stage,
-          gold: s.gold,
-          chestCost: s.chestCost || 0,
-          selectedChestCost: s.selectedChestCost,
-          cleared: false,
-        })),
-        goldChecked: goldChecked,
-        additionalGoldCheked: additionalGoldChecked,
-        additionalGold: additionalGoldChecked ? additinalGold : '',
-        chestCostChecked: chestCostChecked,
-      };
-    } else {
-      //index = -1인 경우
-      newSelectedRaids.push({
-        name: selectedStages[0].raidName,
-        stages: selectedStages.map((s) => ({
-          difficulty: s.difficulty,
-          stage: s.stage,
-          gold: s.gold,
-          chestCost: s.chestCost || 0,
-          selectedChestCost: s.selectedChestCost,
-          cleared: false,
-        })),
-        goldChecked: goldChecked,
-        additionalGoldCheked: additionalGoldChecked,
-        additionalGold: additionalGoldChecked ? additinalGold : '',
-        chestCostChecked: chestCostChecked,
-      });
-    }
+    const nextSelected = [...(character.SelectedRaids || [])];
 
-    updateCharacter(character.id, {
-      SelectedRaids: newSelectedRaids,
+    const toRaidPayload = () => ({
+      name: selectedStages[0].raidName,
+      stages: selectedStages.map((s) => ({
+        difficulty: s.difficulty,
+        stage: s.stage,
+        gold: s.gold,
+        chestCost: s.chestCost || 0,
+        selectedChestCost: s.selectedChestCost,
+        cleared: false,
+      })),
+      goldChecked: isGoldChecked,
+      additionalGoldCheked: isAdditionalGoldChecked,
+      additionalGold: isAdditionalGoldChecked ? additionalGold : '',
+      chestCostChecked: isChestCostChecked,
     });
 
-    setSelectedStages([]);
+    if (selectedStages.length <= 0) {
+      nextSelected[index] = { name: '', stages: [] };
+    } else if (index >= 0) {
+      nextSelected[index] = toRaidPayload();
+    } else {
+      nextSelected.push(toRaidPayload());
+    }
 
+    updateCharacter(character.id, { SelectedRaids: nextSelected });
+
+    setSelectedStages([]);
     Animated.timing(translateY, {
       toValue: 500,
       duration: 250,
@@ -247,9 +315,21 @@ const RaidModal: React.FC<RaidModalProps> = ({
     }).start(() => {
       setIsVisibleFalse();
     });
-  };
+  }, [
+    index,
+    additionalGold,
+    character.id,
+    isAdditionalGoldChecked,
+    isChestCostChecked,
+    isGoldChecked,
+    selectedStages,
+    setIsVisibleFalse,
+    translateY,
+    updateCharacter,
+  ]);
 
-  const handleDelete = () => {
+  // 삭제
+  const handleDelete = useCallback(() => {
     Alert.alert('정말 삭제하시겠어요?', undefined, [
       { text: '취소', style: 'cancel' },
       {
@@ -259,35 +339,19 @@ const RaidModal: React.FC<RaidModalProps> = ({
           if (index !== undefined && index >= 0) {
             const updated = [...(character.SelectedRaids ?? [])];
             updated.splice(index, 1);
-            updateCharacter(character.id, {
-              SelectedRaids: updated,
-            });
+            updateCharacter(character.id, { SelectedRaids: updated });
           }
           handleCloseModal();
         },
       },
     ]);
-  };
-
-  // 인풋 핸들러
-  const handleChange = (inputText: string) => {
-    const result = validateNumberInput(inputText);
-
-    switch (result.status) {
-      case 'valid':
-        setAdditionalGold(result.value.toLocaleString()); // 쉼표 없이 숫자만 저장
-        break;
-      case 'not-a-number':
-        Alert.alert('입력 오류', '숫자만 입력할 수 있습니다.');
-        break;
-      case 'exceeds-limit':
-        Alert.alert('범위 초과', '±100억 이하로 입력해주세요.');
-        break;
-      case 'empty':
-        setAdditionalGold(inputText); // 사용자가 '-'만 입력 중일 수 있으므로 그대로 유지
-        break;
-    }
-  };
+  }, [
+    character.SelectedRaids,
+    character.id,
+    handleCloseModal,
+    index,
+    updateCharacter,
+  ]);
 
   return isVisible ? (
     <Modal
@@ -327,17 +391,19 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   >
                     {raid.name}
                   </CustomText>
-                  {raid.difficulties.map((difficultyObj, stageIdx) => {
+
+                  {raid.difficulties.map((difficultyObj, diffIdx) => {
                     const totalGold = difficultyObj.stages.reduce(
-                      (total, stage) => total + stage.gold,
+                      (t, st) => t + st.gold,
                       0
                     );
                     const totalBoundGold = difficultyObj.stages.reduce(
-                      (total, stage) => total + (stage.boundGold ?? 0),
+                      (t, st) => t + (st.boundGold ?? 0),
                       0
                     );
+
                     return (
-                      <View key={stageIdx} style={styles.difficultyBlock}>
+                      <View key={diffIdx} style={styles.difficultyBlock}>
                         <View style={styles.difficultyHeader}>
                           <CustomText
                             style={[
@@ -357,6 +423,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                           >
                             {difficultyObj.difficulty}
                           </CustomText>
+
                           <CustomText
                             style={[
                               styles.totalGoldText,
@@ -377,59 +444,68 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             { backgroundColor: colors.grayLight },
                           ]}
                         >
-                          {difficultyObj.stages.map((stage) => (
-                            <TouchableOpacity
-                              key={stage.stage}
-                              style={[
-                                styles.stageBox,
-                                isSelected(
-                                  raid.name,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                ) && { backgroundColor: colors.primary },
-                              ]}
-                              onPress={() => {
-                                handleSelectStages(
-                                  raid,
-                                  difficultyObj.difficulty,
-                                  stage.stage
-                                );
-                              }}
-                            >
-                              <CustomText
+                          {difficultyObj.stages.map((st) => {
+                            const matched = findSelectedStage(
+                              raid.name,
+                              difficultyObj.difficulty,
+                              st.stage
+                            );
+                            const isSelected = !!matched;
+
+                            return (
+                              <Pressable
+                                key={st.stage}
                                 style={[
-                                  styles.stageLabelText,
-                                  {
-                                    color: isSelected(
-                                      raid.name,
-                                      difficultyObj.difficulty,
-                                      stage.stage
-                                    )
-                                      ? colors.white
-                                      : colors.grayDark,
+                                  styles.stageBox,
+                                  isSelected && {
+                                    backgroundColor: colors.primary,
+                                  },
+                                  isSelected && {
+                                    borderTopLeftRadius:
+                                      matched?.borderLeftRadius ?? 0,
+                                    borderBottomLeftRadius:
+                                      matched?.borderLeftRadius ?? 0,
+                                    borderTopRightRadius:
+                                      matched?.borderRightRadius ?? 0,
+                                    borderBottomRightRadius:
+                                      matched?.borderRightRadius ?? 0,
                                   },
                                 ]}
+                                onPress={() =>
+                                  handleSelectStages(
+                                    raid,
+                                    difficultyObj.difficulty,
+                                    st.stage
+                                  )
+                                }
                               >
-                                {stage.stage}관문
-                              </CustomText>
-                              <CustomText
-                                style={[
-                                  styles.stageGold,
-                                  {
-                                    color: isSelected(
-                                      raid.name,
-                                      difficultyObj.difficulty,
-                                      stage.stage
-                                    )
-                                      ? colors.white
-                                      : colors.grayDark,
-                                  },
-                                ]}
-                              >
-                                {stage.gold}
-                              </CustomText>
-                            </TouchableOpacity>
-                          ))}
+                                <CustomText
+                                  style={[
+                                    styles.stageLabelText,
+                                    {
+                                      color: isSelected
+                                        ? colors.white
+                                        : colors.grayDark,
+                                    },
+                                  ]}
+                                >
+                                  {st.stage}관문
+                                </CustomText>
+                                <CustomText
+                                  style={[
+                                    styles.stageGold,
+                                    {
+                                      color: isSelected
+                                        ? colors.white
+                                        : colors.grayDark,
+                                    },
+                                  ]}
+                                >
+                                  {st.gold}
+                                </CustomText>
+                              </Pressable>
+                            );
+                          })}
                         </View>
                       </View>
                     );
@@ -438,7 +514,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               ))}
             </ScrollView>
 
-            {/* ✅ 하단 입력 + 버튼 고정 블럭 */}
+            {/* 하단 입력 + 버튼 고정 */}
             <View
               style={{
                 padding: 24,
@@ -448,161 +524,169 @@ const RaidModal: React.FC<RaidModalProps> = ({
               }}
             >
               {/* 체크박스 라인 1 */}
-              <TouchableOpacity onPress={() => setGoldChecked(!goldChecked)}>
+              <TouchableOpacity onPress={() => setIsGoldChecked((v) => !v)}>
                 <View style={styles.checkBlock}>
                   <CustomText
-                    style={[
-                      styles.checkBlockText,
-                      {
-                        color: colors.black,
-                      },
-                    ]}
+                    style={[styles.checkBlockText, { color: colors.black }]}
                   >
                     클리어 골드 획득
                   </CustomText>
                   <MaterialIcons
-                    name={goldChecked ? 'check-box' : 'check-box-outline-blank'}
+                    name={
+                      isGoldChecked ? 'check-box' : 'check-box-outline-blank'
+                    }
                     size={24}
                     color={
-                      goldChecked ? colors.secondary : colors.grayDark + 80
+                      isGoldChecked
+                        ? colors.secondary
+                        : ((colors.grayDark + 80) as any)
                     }
                   />
                 </View>
               </TouchableOpacity>
+
               {/* 체크박스 라인 2 */}
               <TouchableOpacity
                 onPress={() => {
-                  const nextChecked = !chestCostChecked;
-                  setChestCostChecked(nextChecked);
+                  const next = !isChestCostChecked;
+                  setIsChestCostChecked(next);
                   setSelectedStages((prev) =>
-                    prev.map((s) => ({
-                      ...s,
-                      selectedChestCost: nextChecked,
-                    }))
+                    prev.map((s) => ({ ...s, selectedChestCost: next }))
                   );
                 }}
               >
                 <View style={styles.checkBlock}>
                   <CustomText
-                    style={[
-                      styles.checkBlockText,
-                      {
-                        color: colors.black,
-                      },
-                    ]}
+                    style={[styles.checkBlockText, { color: colors.black }]}
                   >
                     더보기 체크
                   </CustomText>
                   <MaterialIcons
                     name={
-                      chestCostChecked ? 'check-box' : 'check-box-outline-blank'
-                    }
-                    size={24}
-                    color={
-                      chestCostChecked ? colors.secondary : colors.grayDark + 80
-                    }
-                  />
-                </View>
-              </TouchableOpacity>
-              {/*더보기 뷰*/}
-              {chestCostChecked && selectedStages.length > 0 && (
-                <View
-                  style={[
-                    styles.stageContainer,
-                    {
-                      backgroundColor: colors.grayLight,
-                      marginBottom: 12,
-                    },
-                  ]}
-                >
-                  {selectedStages.map((stage, stageIndex) => (
-                    <TouchableOpacity
-                      key={stage.stage}
-                      style={[
-                        styles.stageBox,
-                        stage.selectedChestCost && {
-                          backgroundColor: colors.secondary,
-                        },
-                      ]}
-                      onPress={() =>
-                        setSelectedStages((prev) =>
-                          prev.map((s, sIdx) =>
-                            sIdx === stageIndex
-                              ? {
-                                  ...s,
-                                  selectedChestCost: !s.selectedChestCost,
-                                }
-                              : s
-                          )
-                        )
-                      }
-                    >
-                      <CustomText
-                        style={[
-                          styles.stageLabelText,
-                          {
-                            color: stage.selectedChestCost
-                              ? colors.white
-                              : colors.grayDark,
-                          },
-                        ]}
-                      >
-                        {stage.stage}관문
-                      </CustomText>
-                      <CustomText
-                        style={[
-                          styles.stageGold,
-                          {
-                            color: stage.selectedChestCost
-                              ? colors.white
-                              : colors.grayDark,
-                          },
-                        ]}
-                      >
-                        {`-${stage.chestCost || 0}`}
-                      </CustomText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-              {/* 체크박스 라인 3 */}
-              <TouchableOpacity
-                onPress={() => setAdditionalGoldChecked(!additionalGoldChecked)}
-              >
-                <View style={styles.checkBlock}>
-                  <CustomText
-                    style={[
-                      styles.checkBlockText,
-                      {
-                        color: colors.black,
-                      },
-                    ]}
-                  >
-                    버스 및 추가 골드 획득
-                  </CustomText>
-                  <MaterialIcons
-                    name={
-                      additionalGoldChecked
+                      isChestCostChecked
                         ? 'check-box'
                         : 'check-box-outline-blank'
                     }
                     size={24}
                     color={
-                      additionalGoldChecked
+                      isChestCostChecked
                         ? colors.secondary
-                        : colors.grayDark + 80
+                        : ((colors.grayDark + 80) as any)
                     }
                   />
                 </View>
               </TouchableOpacity>
+
+              {/* 더보기 뷰 - 난이도 무시, 체크된 관문 연속성 기준 라운딩 */}
+              {isChestCostChecked && selectedStages.length > 0 && (
+                <View
+                  style={[
+                    styles.stageContainer,
+                    { backgroundColor: colors.grayLight, marginBottom: 12 },
+                  ]}
+                >
+                  {selectedStages
+                    .slice()
+                    .sort((a, b) => a.stage - b.stage)
+                    .map((st) => {
+                      const active = !!st.selectedChestCost;
+                      const leftR =
+                        active && !checkedStageSet.has(st.stage - 1)
+                          ? STAGE_RADIUS
+                          : 0;
+                      const rightR =
+                        active && !checkedStageSet.has(st.stage + 1)
+                          ? STAGE_RADIUS
+                          : 0;
+
+                      return (
+                        <Pressable
+                          key={st.stage}
+                          style={[
+                            styles.stageBox,
+                            active && { backgroundColor: colors.secondary },
+                            {
+                              borderTopLeftRadius: leftR,
+                              borderBottomLeftRadius: leftR,
+                              borderTopRightRadius: rightR,
+                              borderBottomRightRadius: rightR,
+                            },
+                          ]}
+                          onPress={() =>
+                            setSelectedStages((prev) =>
+                              prev.map((s) =>
+                                s.stage === st.stage
+                                  ? {
+                                      ...s,
+                                      selectedChestCost: !s.selectedChestCost,
+                                    }
+                                  : s
+                              )
+                            )
+                          }
+                        >
+                          <CustomText
+                            style={[
+                              styles.stageLabelText,
+                              {
+                                color: active ? colors.white : colors.grayDark,
+                              },
+                            ]}
+                          >
+                            {st.stage}관문
+                          </CustomText>
+                          <CustomText
+                            style={[
+                              styles.stageGold,
+                              {
+                                color: active ? colors.white : colors.grayDark,
+                              },
+                            ]}
+                          >
+                            {`-${st.chestCost || 0}`}
+                          </CustomText>
+                        </Pressable>
+                      );
+                    })}
+                </View>
+              )}
+
+              {/* 체크박스 라인 3 */}
+              <TouchableOpacity
+                onPress={() => setIsAdditionalGoldChecked((v) => !v)}
+              >
+                <View style={styles.checkBlock}>
+                  <CustomText
+                    style={[styles.checkBlockText, { color: colors.black }]}
+                  >
+                    버스 및 추가 골드 획득
+                  </CustomText>
+                  <MaterialIcons
+                    name={
+                      isAdditionalGoldChecked
+                        ? 'check-box'
+                        : 'check-box-outline-blank'
+                    }
+                    size={24}
+                    color={
+                      isAdditionalGoldChecked
+                        ? colors.secondary
+                        : ((colors.grayDark + 80) as any)
+                    }
+                  />
+                </View>
+              </TouchableOpacity>
+
               {/* 추가 골드 입력 */}
-              {additionalGoldChecked && (
+              {isAdditionalGoldChecked && (
                 <CustomTextInput
                   placeholder="추가 골드"
                   style={[
                     styles.input,
-                    { backgroundColor: colors.grayLight },
-                    { color: colors.grayDark },
+                    {
+                      backgroundColor: colors.grayLight,
+                      color: colors.grayDark,
+                    },
                   ]}
                   keyboardType={
                     Platform.OS === 'ios'
@@ -610,19 +694,16 @@ const RaidModal: React.FC<RaidModalProps> = ({
                       : 'default'
                   }
                   placeholderTextColor={colors.grayDark}
-                  value={additinalGold}
-                  onChangeText={handleChange}
+                  value={additionalGold}
+                  onChangeText={formatNumberInput}
                 />
               )}
-              {index < 0 || (
+
+              {/* 삭제 */}
+              {!(index < 0) && (
                 <View style={styles.checkBlock}>
                   <CustomText
-                    style={[
-                      styles.checkBlockText,
-                      {
-                        color: colors.danger,
-                      },
-                    ]}
+                    style={[styles.checkBlockText, { color: colors.danger }]}
                   >
                     삭제
                   </CustomText>
@@ -631,19 +712,17 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   </TouchableOpacity>
                 </View>
               )}
+
               {/* 하단 버튼 */}
               <View style={styles.fixedButtonWrapper}>
                 <TouchableOpacity
                   onPress={handleCloseModal}
-                  style={[
-                    styles.cancelButton,
-                    { backgroundColor: colors.cardBackground },
-                  ]}
+                  style={styles.cancelButton}
                 >
                   <CustomText
                     style={[
                       styles.cancelButtonText,
-                      { color: colors.grayDark },
+                      { color: colors.secondary },
                     ]}
                   >
                     닫기
@@ -652,13 +731,13 @@ const RaidModal: React.FC<RaidModalProps> = ({
 
                 <TouchableOpacity
                   onPress={handleSubmit}
-                  style={[
-                    styles.confirmButton,
-                    { backgroundColor: colors.primary },
-                  ]}
+                  style={styles.confirmButton}
                 >
                   <CustomText
-                    style={[styles.confirmButtonText, { color: colors.white }]}
+                    style={[
+                      styles.confirmButtonText,
+                      { color: colors.secondary },
+                    ]}
                   >
                     확인
                   </CustomText>
@@ -688,7 +767,7 @@ const styles = StyleSheet.create({
   raidBlock: {
     marginHorizontal: 16,
     marginBottom: 24,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -699,10 +778,9 @@ const styles = StyleSheet.create({
   raidName: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 8,
   },
   difficultyBlock: {
-    marginBottom: 12,
+    marginTop: 12,
   },
   difficultyHeader: {
     flexDirection: 'row',
@@ -716,7 +794,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   totalGoldText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '500',
   },
   stageContainer: {
@@ -724,22 +802,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 12,
   },
   stageBox: {
     flex: 1,
-    padding: 4,
+    padding: 6,
     alignItems: 'center',
-    borderRadius: 10,
   },
   stageLabelText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '600',
     marginBottom: 4,
   },
   stageGold: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '600',
   },
   checkBlock: {
     paddingHorizontal: 4,
