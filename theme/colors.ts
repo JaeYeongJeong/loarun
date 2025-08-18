@@ -37,7 +37,7 @@ const lightColors: ColorTheme = {
 };
 
 const darkColors: ColorTheme = {
-  background: '#121212',
+  background: '#161616',
   cardBackground: '#1e1e1e',
   modalBackground: '#2a2a2a',
   alertBackground: '#1e1e1e',

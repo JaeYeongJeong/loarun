@@ -1,14 +1,18 @@
 import SettingModal from '@/app/SettingModal';
 import React, { useRef, useState } from 'react';
-import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Pressable,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { normalize } from '@/utils/nomalize';
 import CustomText from './CustomText';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const textWeight = Math.sqrt(SCREEN_WIDTH / 400); // 화면 너비에 따라 텍스트 크기 조정
 function OverviewBar() {
   const [modalVisible, setModalVisible] = React.useState(false);
   const { characters } = useCharacter();
@@ -16,6 +20,7 @@ function OverviewBar() {
   const settingButtonRef = useRef<View>(null);
   const [settingButtonX, setSettingButtonX] = useState(0);
   const [settingButtonY, setSettingButtonY] = useState(0);
+  const [toggleLeftBlock, setToggleLeftBlock] = useState(true);
 
   const {
     totalGold,
@@ -96,35 +101,94 @@ function OverviewBar() {
     }
   };
 
+  const LoarunBlock = () => {
+    return (
+      <View style={styles.leftLoarunBlock}>
+        <CustomText style={[styles.label, { color: colors.black }]}>
+          이번 주
+        </CustomText>
+        <CustomText style={[styles.label, { color: colors.black }]}>
+          나의 로아런
+        </CustomText>
+        <CustomText
+          style={[
+            styles.goldText,
+            {
+              color: totalGold >= 0 ? colors.primary : colors.warning,
+            },
+          ]}
+        >
+          {totalGold.toLocaleString()}
+        </CustomText>
+      </View>
+    );
+  };
+
+  const OverviewBlock = () => {
+    return (
+      <View style={styles.leftOverviewBlock}>
+        <View style={styles.overviewItem}>
+          <CustomText
+            style={[
+              styles.overviewTitleText,
+              {
+                color: colors.black,
+              },
+            ]}
+          >
+            주간 레이드
+          </CustomText>
+          <CustomText
+            style={[
+              styles.overviewValueText,
+              {
+                color: colors.primary,
+              },
+            ]}
+          >
+            {totalClearedRaidsGold.toLocaleString() || '0'}{' '}
+            <CustomText
+              style={{
+                color: colors.black,
+              }}
+            >
+              /{totalRaidsGold.toLocaleString() || '0'}
+            </CustomText>
+          </CustomText>
+        </View>
+
+        {/*  중앙 가로 구분선 */}
+        <View
+          style={[styles.separator, { backgroundColor: colors.black + '2A' }]}
+        />
+        <View style={styles.overviewItem}>
+          <CustomText
+            style={[styles.overviewTitleText, { color: colors.black }]}
+          >
+            기타 활동
+          </CustomText>
+          <CustomText
+            style={[styles.overviewValueText, { color: colors.primary }]}
+          >
+            {totalWeeklyActivityGold.toLocaleString() || '0'}
+          </CustomText>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* 왼쪽 블럭 */}
-      <View
+      <TouchableOpacity
         style={[
           styles.blockContainer,
           { backgroundColor: colors.cardBackground },
         ]}
+        onPress={() => setToggleLeftBlock((prev) => !prev)}
       >
-        <View style={styles.leftBlock}>
-          <CustomText style={[styles.label, { color: colors.black }]}>
-            이번 주
-          </CustomText>
-          <CustomText style={[styles.label, { color: colors.black }]}>
-            나의 로아런
-          </CustomText>
-          <CustomText
-            style={[
-              styles.goldText,
-              {
-                color: totalGold >= 0 ? colors.primary : colors.warning,
-              },
-            ]}
-          >
-            {totalGold.toLocaleString()}
-          </CustomText>
-        </View>
-      </View>
-
+        {toggleLeftBlock ? <LoarunBlock /> : <OverviewBlock />}
+      </TouchableOpacity>
       {/* 오른쪽 블럭 */}
       <View
         style={[
@@ -143,51 +207,28 @@ function OverviewBar() {
               <Feather name="settings" size={24} color={colors.iconColor} />
             </Pressable>
           </View>
-
           {/* 중앙 정렬 정보 텍스트 */}
           <View style={styles.infoWrapper}>
-            <View style={styles.infoItem}>
-              <CustomText
-                style={[
-                  styles.titleText,
-                  {
-                    color: colors.black,
-                  },
-                ]}
-              >
-                주간 레이드
-              </CustomText>
-              <CustomText
-                style={[
-                  styles.valueText,
-                  {
-                    color:
-                      totalClearedRaidsGold === totalRaidsGold
-                        ? colors.primary
-                        : colors.black,
-                  },
-                ]}
-              >
-                {totalClearedRaidsGold.toLocaleString() || '0'}{' '}
-                <CustomText
-                  style={{
-                    color: colors.black + '80',
-                    fontWeight: '400',
-                  }}
-                >
-                  /{totalRaidsGold.toLocaleString() || '0'}
-                </CustomText>
-              </CustomText>
-            </View>
-
-            <View style={styles.infoItem}>
-              <CustomText style={[styles.titleText, { color: colors.black }]}>
-                추가 활동
-              </CustomText>
-              <CustomText style={[styles.valueText, { color: colors.black }]}>
-                {totalWeeklyActivityGold.toLocaleString() || '0'}
-              </CustomText>
-            </View>
+            <CustomText
+              style={[
+                styles.infoText,
+                {
+                  color: colors.black,
+                },
+              ]}
+            >
+              응원합니다
+            </CustomText>
+            <CustomText
+              style={[
+                styles.infoText,
+                {
+                  color: colors.black,
+                },
+              ]}
+            >
+              The First!
+            </CustomText>
           </View>
         </View>
       </View>
@@ -220,14 +261,22 @@ const styles = StyleSheet.create({
     elevation: 3,
     aspectRatio: 1,
   },
-  leftBlock: {
+  leftLoarunBlock: {
     flex: 1,
     justifyContent: 'center',
     padding: '7%',
   },
+  leftOverviewBlock: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    paddingHorizontal: '7%',
+  },
   rightBlock: {
     flex: 1,
-    position: 'relative',
+    justifyContent: 'center',
+    padding: '7%',
   },
   settingWrapper: {
     position: 'absolute',
@@ -239,37 +288,44 @@ const styles = StyleSheet.create({
   infoWrapper: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-between', // 세로축 간격 균등하게 분배
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingHorizontal: '7%',
-    paddingVertical: '10%', // 텍스트 위아래 여백도 부여
   },
-  infoItem: {
+  infoText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  overviewItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-evenly',
   },
-  titleText: {
-    fontSize: 14 * textWeight,
+  overviewTitleText: {
+    fontSize: 14,
     fontWeight: '600',
-    textAlign: 'center',
+    textAlign: 'left',
   },
-  valueText: {
-    marginTop: normalize(2),
-    fontSize: 14 * textWeight,
-    fontWeight: '600',
-    textAlign: 'center',
+  overviewValueText: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'right',
   },
   label: {
-    fontSize: 18 * textWeight,
+    fontSize: 18,
     fontWeight: '600',
     paddingBottom: '3%',
   },
   goldText: {
-    fontSize: 18 * textWeight,
+    fontSize: 18,
     fontWeight: '600',
     paddingTop: '10%',
     textAlign: 'right',
+  },
+  separator: {
+    alignSelf: 'stretch',
+    height: StyleSheet.hairlineWidth,
+    borderRadius: 999,
   },
 });
 
