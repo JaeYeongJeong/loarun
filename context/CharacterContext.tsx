@@ -31,7 +31,7 @@ type SelectedRaidStage = {
   lastClearedStage?: number;
 };
 
-type SelectedRaid = {
+export type SelectedRaid = {
   name: string;
   stages: SelectedRaidStage[];
   cleared?: boolean;
@@ -93,6 +93,7 @@ type CharacterContextType = {
     inputCharacters?: Character[]
   ) => Promise<void>;
   isLoaded: boolean;
+  defaultSelectedRaids: (character: Character) => SelectedRaid[] | undefined;
 };
 
 const CharacterContext = createContext<CharacterContextType | undefined>(
@@ -260,15 +261,42 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
     )) as string;
 
     // raids가 아직 안 로드된 경우 대비
-    let defaultSelectedRaids: SelectedRaid[] = [];
+    const newDefaultSelectedRaids = defaultSelectedRaids(newCharacter);
 
+    const next = [
+      ...characters,
+      {
+        ...newCharacter,
+        id,
+        CharacterPortraitImage: portraitImage,
+        LastUpdated: new Date().toISOString(),
+        AddedAt: new Date().toISOString(),
+        SelectedRaids: newDefaultSelectedRaids,
+        MissionCheckList: defaultMissions,
+        AccountMissionCheckList:
+          characters.length === 0
+            ? defaultAccountMissions
+            : characters[0].AccountMissionCheckList,
+      },
+    ];
+
+    await sortCharacter(sortOrder, next);
+  };
+
+  const removeCharacter = async (id: string) => {
+    const updated = characters.filter((c) => c.id !== id);
+    await deletePortraitImage(id);
+    await saveCharacters(updated);
+  };
+
+  const defaultSelectedRaids = (character: Character) => {
     if (typeof getTopRaidsByItemLevel === 'function' && raids.length > 0) {
       const top3 = getTopRaidsByItemLevel(
-        parseFloat(newCharacter.ItemAvgLevel.replace(/,/g, '')),
+        parseFloat(character.ItemAvgLevel.replace(/,/g, '')),
         3
       );
 
-      defaultSelectedRaids = top3.map((raid) => {
+      return top3.map((raid) => {
         const diff = raid.difficulties[0];
         return {
           name: raid.name,
@@ -290,31 +318,6 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         };
       });
     }
-
-    const next = [
-      ...characters,
-      {
-        ...newCharacter,
-        id,
-        CharacterPortraitImage: portraitImage,
-        LastUpdated: new Date().toISOString(),
-        AddedAt: new Date().toISOString(),
-        SelectedRaids: defaultSelectedRaids,
-        MissionCheckList: defaultMissions,
-        AccountMissionCheckList:
-          characters.length === 0
-            ? defaultAccountMissions
-            : characters[0].AccountMissionCheckList,
-      },
-    ];
-
-    await sortCharacter(sortOrder, next);
-  };
-
-  const removeCharacter = async (id: string) => {
-    const updated = characters.filter((c) => c.id !== id);
-    await deletePortraitImage(id);
-    await saveCharacters(updated);
   };
 
   const updateCharacter = async (
@@ -475,6 +478,7 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshCharacter,
         sortCharacter,
         isLoaded,
+        defaultSelectedRaids,
       }}
     >
       {children}

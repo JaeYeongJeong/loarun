@@ -16,9 +16,11 @@ type CharacterActivityOptionsModalProps = {
   toggleModal: () => void;
   positionX: number;
   positionY: number;
+  resetRaid: () => void;
   resetMissions: () => void;
   resetAccountMissions: () => void;
   changeName: () => void;
+  syncMission: () => void;
 };
 
 const CharacterActivityOptionsModal: React.FC<
@@ -28,13 +30,19 @@ const CharacterActivityOptionsModal: React.FC<
   toggleModal,
   positionX,
   positionY,
+  resetRaid,
   resetMissions,
   resetAccountMissions,
   changeName,
+  syncMission,
 }) => {
+  const [resetRaidAlertVisible, setResetRaidAlertVisible] =
+    React.useState(false);
   const [resetMissionAlertVisible, setResetMissionAlertVisible] =
     React.useState(false);
   const [resetAccountMissionAlertVisible, setResetAccountMissionAlertVisible] =
+    React.useState(false);
+  const [syncMissionAlertVisible, setSyncMissionAlertVisible] =
     React.useState(false);
   const { colors } = useTheme();
 
@@ -70,6 +78,20 @@ const CharacterActivityOptionsModal: React.FC<
                 <TouchableOpacity
                   onPress={() => {
                     toggleModal();
+                    setResetRaidAlertVisible(true);
+                  }}
+                >
+                  <View style={styles.optionContainer}>
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      레이드 기본값
+                    </CustomText>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleModal();
                     setResetMissionAlertVisible(true);
                   }}
                 >
@@ -77,7 +99,7 @@ const CharacterActivityOptionsModal: React.FC<
                     <CustomText
                       style={[styles.modalText, { color: colors.black }]}
                     >
-                      일일/주간 미션 초기화
+                      일일/주간 미션 기본값
                     </CustomText>
                   </View>
                 </TouchableOpacity>
@@ -91,7 +113,21 @@ const CharacterActivityOptionsModal: React.FC<
                     <CustomText
                       style={[styles.modalText, { color: colors.black }]}
                     >
-                      원정대 미션 초기화
+                      원정대 미션 기본값
+                    </CustomText>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleModal();
+                    setSyncMissionAlertVisible(true);
+                  }}
+                >
+                  <View style={styles.optionContainer}>
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      일일/주간 미션 동기화
                     </CustomText>
                   </View>
                 </TouchableOpacity>
@@ -103,16 +139,30 @@ const CharacterActivityOptionsModal: React.FC<
       <CustomAlert
         isVisible={resetMissionAlertVisible}
         setIsVisibleFalse={() => setResetMissionAlertVisible(false)}
-        titleText="미션 초기화"
-        messageText="일일/주간 미션을 기본값으로 초기화합니다."
+        titleText="미션 기본값"
+        messageText="일일/주간 미션을 기본값으로 되돌립니다."
         onSubmit={resetMissions}
       />
       <CustomAlert
         isVisible={resetAccountMissionAlertVisible}
         setIsVisibleFalse={() => setResetAccountMissionAlertVisible(false)}
-        titleText="원정대 미션 초기화"
-        messageText="원정대 미션을 기본값으로 초기화합니다."
+        titleText="원정대 미션 기본값"
+        messageText="원정대 미션을 기본값으로 되돌립니다."
         onSubmit={resetAccountMissions}
+      />
+      <CustomAlert
+        isVisible={syncMissionAlertVisible}
+        setIsVisibleFalse={() => setSyncMissionAlertVisible(false)}
+        titleText="일일/주간 미션 동기화"
+        messageText="현재 캐릭터에 설정된 일일/주간 미션을 모든 캐릭터에 적용합니다."
+        onSubmit={syncMission}
+      />
+      <CustomAlert
+        isVisible={resetRaidAlertVisible}
+        setIsVisibleFalse={() => setResetRaidAlertVisible(false)}
+        titleText="레이드 기본값"
+        messageText="현재 레벨 기준으로 권장 레이드가 적용됩니다."
+        onSubmit={resetRaid}
       />
     </>
   );

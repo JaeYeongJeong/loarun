@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import MissionModal from './SubmitMissionModal';
-import { useCharacter } from '@/context/CharacterContext';
+import { SelectedRaid, useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
@@ -45,6 +45,7 @@ const CharacterActivity: React.FC = () => {
     updateAllCharacters,
     removeCharacter,
     refreshCharacter,
+    defaultSelectedRaids,
   } = useCharacter();
   const character = characters.find((c) => c.id === id);
   const [bookmarked, setBookmarked] = useState<boolean>(false);
@@ -993,6 +994,18 @@ const CharacterActivity: React.FC = () => {
         toggleModal={toggleOptionsModal}
         positionX={optionsButtonX}
         positionY={optionsButtonY}
+        resetRaid={() => {
+          const updatedSelectedRaid = defaultSelectedRaids(character);
+          updateCharacter(character.id, {
+            SelectedRaids: updatedSelectedRaid,
+          });
+        }}
+        syncMission={() => {
+          const updatedMissionCheckList = character.MissionCheckList;
+          updateAllCharacters({
+            MissionCheckList: updatedMissionCheckList,
+          });
+        }}
         resetMissions={() => {
           updateCharacter(character.id, {
             MissionCheckList: defaultMissions,
