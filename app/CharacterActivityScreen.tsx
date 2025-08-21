@@ -655,10 +655,10 @@ const CharacterActivity: React.FC = () => {
                     >
                       <View style={styles.activityItemRow}>
                         <View
-                          style={{
-                            flexDirection: 'row',
-                            gap: item.resetPeriod ? 12 : 0,
-                          }}
+                          style={[
+                            styles.missionTitleBlock,
+                            { gap: item.resetPeriod ? 12 : 0 },
+                          ]}
                         >
                           <CustomText
                             style={[
@@ -675,7 +675,10 @@ const CharacterActivity: React.FC = () => {
                           <CustomText
                             style={[
                               styles.activityNameText,
-                              { color: colors.black },
+                              {
+                                color: colors.black,
+                                flexShrink: 1,
+                              },
                             ]}
                           >
                             {item.name}
@@ -802,10 +805,10 @@ const CharacterActivity: React.FC = () => {
                     >
                       <View style={styles.activityItemRow}>
                         <View
-                          style={{
-                            flexDirection: 'row',
-                            gap: item.resetPeriod ? 12 : 0,
-                          }}
+                          style={[
+                            styles.missionTitleBlock,
+                            { gap: item.resetPeriod ? 12 : 0 },
+                          ]}
                         >
                           <CustomText
                             style={[
@@ -822,7 +825,10 @@ const CharacterActivity: React.FC = () => {
                           <CustomText
                             style={[
                               styles.activityNameText,
-                              { color: colors.black },
+                              {
+                                color: colors.black,
+                                flexShrink: 1,
+                              },
                             ]}
                           >
                             {item.name}
@@ -958,7 +964,7 @@ const CharacterActivity: React.FC = () => {
                       <CustomText
                         style={[
                           styles.activityNameText,
-                          { color: colors.black },
+                          { color: colors.black, flexShrink: 1 },
                         ]}
                       >
                         {activity.name}
@@ -1292,21 +1298,29 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
-  otherActivityItem: {
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+
+  missionTitleBlock: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    flexDirection: 'row',
   },
+
   activityItemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
+  otherActivityItem: {
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+
   activityNameText: {
     fontSize: 14,
     fontWeight: '600',
-    lineHeight: 24,
   },
 
   activityGoldText: {
