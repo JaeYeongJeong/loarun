@@ -654,14 +654,33 @@ const CharacterActivity: React.FC = () => {
                       }}
                     >
                       <View style={styles.activityItemRow}>
-                        <CustomText
-                          style={[
-                            styles.activityNameText,
-                            { color: colors.black },
-                          ]}
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            gap: item.resetPeriod ? 12 : 0,
+                          }}
                         >
-                          {item.name}
-                        </CustomText>
+                          <CustomText
+                            style={[
+                              styles.activityNameText,
+                              { color: colors.secondary },
+                            ]}
+                          >
+                            {item.resetPeriod === 'daily'
+                              ? '일일'
+                              : item.resetPeriod === 'weekly'
+                              ? '주간'
+                              : ''}
+                          </CustomText>
+                          <CustomText
+                            style={[
+                              styles.activityNameText,
+                              { color: colors.black },
+                            ]}
+                          >
+                            {item.name}
+                          </CustomText>
+                        </View>
                         <MaterialIcons
                           name={
                             item.checked
@@ -782,14 +801,33 @@ const CharacterActivity: React.FC = () => {
                       }}
                     >
                       <View style={styles.activityItemRow}>
-                        <CustomText
-                          style={[
-                            styles.activityNameText,
-                            { color: colors.black },
-                          ]}
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            gap: item.resetPeriod ? 12 : 0,
+                          }}
                         >
-                          {item.name}
-                        </CustomText>
+                          <CustomText
+                            style={[
+                              styles.activityNameText,
+                              { color: colors.secondary },
+                            ]}
+                          >
+                            {item.resetPeriod === 'daily'
+                              ? '일일'
+                              : item.resetPeriod === 'weekly'
+                              ? '주간'
+                              : ''}
+                          </CustomText>
+                          <CustomText
+                            style={[
+                              styles.activityNameText,
+                              { color: colors.black },
+                            ]}
+                          >
+                            {item.name}
+                          </CustomText>
+                        </View>
                         <MaterialIcons
                           name={
                             item.checked
