@@ -8,7 +8,10 @@ export type RaidDifficulty =
   | '노말'
   | '하드'
   | '익스트림 노말'
-  | '익스트림 하드';
+  | '익스트림 하드'
+  | '헬'
+  | '더퍼스트'
+  | (string & {}); // 지정된 값 외에도 string 허용;
 
 export type RaidStage = {
   stage: number;

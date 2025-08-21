@@ -1,12 +1,6 @@
 import SettingModal from '@/app/SettingModal';
 import React, { useRef, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Pressable,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, View, Pressable, TouchableOpacity } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
@@ -21,12 +15,19 @@ function OverviewBar() {
   const [settingButtonX, setSettingButtonX] = useState(0);
   const [settingButtonY, setSettingButtonY] = useState(0);
   const [toggleLeftBlock, setToggleLeftBlock] = useState(true);
+  const [toggleRightBlock, setToggleRightBlock] = useState(true);
 
   const {
     totalGold,
     totalRaidsGold,
     totalClearedRaidsGold,
     totalWeeklyActivityGold,
+    dailyMissionCount,
+    clearedDailyMissionCount,
+    weeklyMissionCount,
+    clearedWeeklyMissionCount,
+    accountMissionCount,
+    clearedAccountMissionCount,
   } = characters.reduce(
     (acc, character) => {
       // 📌 클리어한 레이드와 선택한 레이드 총 골드 계산
@@ -74,10 +75,41 @@ function OverviewBar() {
       const raidsGold = selectedRaidTotalGold || 0;
       const weeklyGold = otherActivityTotalGold || 0;
 
+      // 📌 일일, 주간, 원정대 미션 카운트
+      const updatedMissions = character.MissionCheckList || [];
+      const dailyMissions = updatedMissions.filter(
+        (mission) => mission.resetPeriod === 'daily'
+      );
+      const dailyMissionCount = dailyMissions.length;
+      const clearedDailyMissionCount = dailyMissions.filter(
+        (mission) => mission.checked
+      ).length;
+
+      const weeklyMissions = updatedMissions.filter(
+        (mission) => mission.resetPeriod === 'weekly'
+      );
+      const weeklyMissionCount = weeklyMissions.length;
+      const clearedWeeklyMissionCount = weeklyMissions.filter(
+        (mission) => mission.checked
+      ).length;
+
+      const accountMissions = character.AccountMissionCheckList || [];
+      const accountMissionCount = accountMissions.length;
+      const clearedAccountMissionCount = accountMissions.filter(
+        (mission) => mission.checked
+      ).length;
+
       acc.totalGold += clearedGold + weeklyGold;
       acc.totalRaidsGold += raidsGold;
       acc.totalClearedRaidsGold += clearedGold;
       acc.totalWeeklyActivityGold += weeklyGold;
+      acc.dailyMissionCount += dailyMissionCount;
+      acc.clearedDailyMissionCount += clearedDailyMissionCount;
+      acc.weeklyMissionCount += weeklyMissionCount;
+      acc.clearedWeeklyMissionCount += clearedWeeklyMissionCount;
+      // 원정대 미션 카운트는 합산하지 않음
+      acc.accountMissionCount = accountMissionCount;
+      acc.clearedAccountMissionCount = clearedAccountMissionCount;
 
       return acc;
     },
@@ -86,6 +118,12 @@ function OverviewBar() {
       totalRaidsGold: 0,
       totalClearedRaidsGold: 0,
       totalWeeklyActivityGold: 0,
+      dailyMissionCount: 0,
+      clearedDailyMissionCount: 0,
+      weeklyMissionCount: 0,
+      clearedWeeklyMissionCount: 0,
+      accountMissionCount: 0,
+      clearedAccountMissionCount: 0,
     }
   );
 
@@ -124,7 +162,30 @@ function OverviewBar() {
     );
   };
 
-  const OverviewBlock = () => {
+  const LastWeekLoarunBlock = () => {
+    return (
+      <View style={styles.leftLoarunBlock}>
+        <CustomText style={[styles.label, { color: colors.black }]}>
+          지난주
+        </CustomText>
+        <CustomText style={[styles.label, { color: colors.black }]}>
+          나의 로아런
+        </CustomText>
+        <CustomText
+          style={[
+            styles.goldText,
+            {
+              color: totalGold >= 0 ? colors.secondary : colors.warning,
+            },
+          ]}
+        >
+          {totalGold.toLocaleString()}
+        </CustomText>
+      </View>
+    );
+  };
+
+  const OverviewFirstBlock = () => {
     return (
       <View style={styles.leftOverviewBlock}>
         <View style={styles.overviewItem}>
@@ -177,6 +238,97 @@ function OverviewBar() {
     );
   };
 
+  const OverviewSecondBlock = () => {
+    return (
+      <View style={styles.leftOverviewBlock}>
+        <View style={styles.overviewSecondBlockItem}>
+          <CustomText
+            style={[
+              styles.overviewTitleText,
+              {
+                color: colors.black ,
+              },
+            ]}
+          >
+            일일 미션
+          </CustomText>
+          <CustomText
+            style={[
+              styles.overviewValueText,
+              {
+                color: colors.secondary,
+              },
+            ]}
+          >
+            {clearedDailyMissionCount}{' '}
+            <CustomText
+              style={{
+                color: colors.black,
+              }}
+            >
+              / {dailyMissionCount}
+            </CustomText>
+          </CustomText>
+        </View>
+        {/*  중앙 가로 구분선 */}
+        <View
+          style={[styles.separator, { backgroundColor: colors.black + '2A' }]}
+        />
+        <View style={styles.overviewSecondBlockItem}>
+          <CustomText
+            style={[styles.overviewTitleText, { color: colors.black }]}
+          >
+            주간 미션
+          </CustomText>
+          <CustomText
+            style={[
+              styles.overviewValueText,
+              {
+                color: colors.secondary,
+              },
+            ]}
+          >
+            {clearedWeeklyMissionCount}{' '}
+            <CustomText
+              style={{
+                color: colors.black,
+              }}
+            >
+              / {weeklyMissionCount}
+            </CustomText>
+          </CustomText>
+        </View>
+        <View
+          style={[styles.separator, { backgroundColor: colors.black + '2A' }]}
+        />
+        <View style={styles.overviewSecondBlockItem}>
+          <CustomText
+            style={[styles.overviewTitleText, { color: colors.black }]}
+          >
+            원정대 미션
+          </CustomText>
+          <CustomText
+            style={[
+              styles.overviewValueText,
+              {
+                color: colors.secondary,
+              },
+            ]}
+          >
+            {clearedAccountMissionCount}{' '}
+            <CustomText
+              style={{
+                color: colors.black,
+              }}
+            >
+              / {accountMissionCount}
+            </CustomText>
+          </CustomText>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* 왼쪽 블럭 */}
@@ -187,51 +339,28 @@ function OverviewBar() {
         ]}
         onPress={() => setToggleLeftBlock((prev) => !prev)}
       >
-        {toggleLeftBlock ? <LoarunBlock /> : <OverviewBlock />}
+        {toggleLeftBlock ? <OverviewFirstBlock /> : <OverviewSecondBlock />}
       </TouchableOpacity>
       {/* 오른쪽 블럭 */}
-      <View
+      <TouchableOpacity
         style={[
           styles.blockContainer,
           { backgroundColor: colors.cardBackground },
         ]}
+        onPress={() => setToggleRightBlock((prev) => !prev)}
       >
-        <View style={styles.rightBlock}>
-          {/* 상단 고정 설정 아이콘 */}
-          <View style={styles.settingWrapper}>
-            <Pressable
-              ref={settingButtonRef}
-              onPress={toggleModal}
-              style={styles.iconButton}
-            >
-              <Feather name="settings" size={24} color={colors.iconColor} />
-            </Pressable>
-          </View>
-          {/* 중앙 정렬 정보 텍스트 */}
-          <View style={styles.infoWrapper}>
-            <CustomText
-              style={[
-                styles.infoText,
-                {
-                  color: colors.black,
-                },
-              ]}
-            >
-              응원합니다
-            </CustomText>
-            <CustomText
-              style={[
-                styles.infoText,
-                {
-                  color: colors.black,
-                },
-              ]}
-            >
-              The First!
-            </CustomText>
-          </View>
+        {/* 상단 고정 설정 아이콘 */}
+        <View style={styles.settingWrapper}>
+          <Pressable
+            ref={settingButtonRef}
+            onPress={toggleModal}
+            style={styles.iconButton}
+          >
+            <Feather name="settings" size={24} color={colors.iconColor} />
+          </Pressable>
         </View>
-      </View>
+        {toggleRightBlock ? <LoarunBlock /> : <LastWeekLoarunBlock />}
+      </TouchableOpacity>
 
       <SettingModal
         isVisible={modalVisible}
@@ -271,17 +400,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingHorizontal: '7%',
-  },
-  rightBlock: {
-    flex: 1,
-    justifyContent: 'center',
     padding: '7%',
   },
   settingWrapper: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: '5%',
+    right: '5%',
     zIndex: 1,
   },
   iconButton: { padding: normalize(3) },
@@ -300,6 +424,12 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     justifyContent: 'space-evenly',
+  },
+  overviewSecondBlockItem: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   overviewTitleText: {
     fontSize: 14,

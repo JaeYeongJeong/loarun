@@ -25,7 +25,7 @@ const fetchCharacterInfo = async (characterName: string) => {
 };
 
 const fetchRaidData = async () => {
-  const url = `${LOARUN_API_PROXY_URL}/api/raid`;
+  const url = `${LOARUN_API_PROXY_URL}/test/raid`;
 
   const response = await fetch(url);
 
