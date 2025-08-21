@@ -28,6 +28,8 @@ function OverviewBar() {
     clearedWeeklyMissionCount,
     accountMissionCount,
     clearedAccountMissionCount,
+    lastweekClearedRaidTotalGold,
+    lastweekOtherActivityTotalCold,
   } = characters.reduce(
     (acc, character) => {
       // 📌 클리어한 레이드와 선택한 레이드 총 골드 계산
@@ -99,6 +101,37 @@ function OverviewBar() {
         (mission) => mission.checked
       ).length;
 
+      // 📌 지난 주 획득 골드 계산
+      const updatedLastweekSelectedRaid = character.LastweekSelectedRaid || [];
+      const updatedLastweekOtherActivity =
+        character.LastweekOtherActivity || [];
+
+      const lastweekClearedRaidTotalGold = updatedLastweekSelectedRaid.reduce(
+        (total, raid) => {
+          let stageSum = 0;
+          for (const stage of raid.stages) {
+            if (stage.cleared) {
+              stageSum +=
+                (raid.goldChecked ? stage.gold : 0) -
+                (stage.selectedChestCost ? stage.chestCost || 0 : 0);
+            }
+          }
+
+          const additionalGold = Number(
+            raid.additionalGold?.replace(/,/g, '') || 0
+          );
+
+          return total + stageSum + (raid.cleared ? additionalGold : 0);
+        },
+        0
+      );
+
+      const lastweekOtherActivityTotalGold =
+        updatedLastweekOtherActivity.reduce(
+          (total, activity) => total + (activity.gold || 0),
+          0
+        ) || 0;
+
       acc.totalGold += clearedGold + weeklyGold;
       acc.totalRaidsGold += raidsGold;
       acc.totalClearedRaidsGold += clearedGold;
@@ -110,6 +143,8 @@ function OverviewBar() {
       // 원정대 미션 카운트는 합산하지 않음
       acc.accountMissionCount = accountMissionCount;
       acc.clearedAccountMissionCount = clearedAccountMissionCount;
+      acc.lastweekClearedRaidTotalGold += lastweekClearedRaidTotalGold;
+      acc.lastweekOtherActivityTotalCold += lastweekOtherActivityTotalGold;
 
       return acc;
     },
@@ -124,6 +159,8 @@ function OverviewBar() {
       clearedWeeklyMissionCount: 0,
       accountMissionCount: 0,
       clearedAccountMissionCount: 0,
+      lastweekClearedRaidTotalGold: 0,
+      lastweekOtherActivityTotalCold: 0,
     }
   );
 
@@ -179,7 +216,9 @@ function OverviewBar() {
             },
           ]}
         >
-          {totalGold.toLocaleString()}
+          {(
+            lastweekClearedRaidTotalGold + lastweekOtherActivityTotalCold
+          ).toLocaleString()}
         </CustomText>
       </View>
     );
@@ -246,7 +285,7 @@ function OverviewBar() {
             style={[
               styles.overviewTitleText,
               {
-                color: colors.black ,
+                color: colors.black,
               },
             ]}
           >

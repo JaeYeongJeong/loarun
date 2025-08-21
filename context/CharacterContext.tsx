@@ -67,6 +67,8 @@ export type Character = {
   AccountMissionCheckListFolded?: boolean;
   OtherActivityTotalGold?: number;
   ClearedRaidTotalGold?: number;
+  LastweekSelectedRaid?: SelectedRaid[];
+  LastweekOtherActivity?: Activity[];
 };
 
 type CharacterContextType = {
@@ -114,8 +116,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     (async () => {
       try {
-        const stored = await AsyncStorage.getItem('characters');
-        setCharacters(stored ? JSON.parse(stored) : []);
+        const storedCharacter = await AsyncStorage.getItem('characters');
+        setCharacters(storedCharacter ? JSON.parse(storedCharacter) : []);
       } catch (err) {
         console.error('캐릭터 로드 실패:', err);
         setCharacters([]);
@@ -440,6 +442,9 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
         return { ...m, checked: shouldReset ? false : m.checked };
       });
 
+      const updatedLastweekSelectedRaid = c.SelectedRaids;
+      const updatedLastweekOtherActivity = c.OtherActivity;
+
       return {
         ...c,
         SelectedRaids: updatedRaids,
@@ -449,6 +454,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
           OtherActivity: [],
           OtherActivityTotalGold: 0,
           ClearedRaidTotalGold: 0,
+          LastweekSelectedRaid: updatedLastweekSelectedRaid,
+          LastweekOtherActivity: updatedLastweekOtherActivity,
         }),
       };
     });
