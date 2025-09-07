@@ -29,6 +29,7 @@ import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
 import { getPortraitImage } from '@/utils/PortraitImage';
+import CustomAnimatedText from './components/CustomAnimatedText';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -454,12 +455,26 @@ const CharacterActivity: React.FC = () => {
                   주간 레이드
                 </CustomText>
               </View>
-              <CustomText
-                style={[styles.totalGoldText, { color: colors.black }]}
-              >
-                {clearedRaidTotalGold?.toLocaleString() || 0} /{' '}
-                {selectedRaidTotalGold?.toLocaleString() || 0}
-              </CustomText>
+              <View style={{ flexDirection: 'row' }}>
+                <CustomAnimatedText
+                  mountEffect="none"
+                  mountDuration={800}
+                  triggerKey={clearedRaidTotalGold}
+                  effectOnChange="fadeIn"
+                  fromOnChange={0}
+                  durationOnChange={800}
+                  delayOnChange={100}
+                  style={[styles.totalGoldText, { color: colors.black }]}
+                >
+                  {clearedRaidTotalGold?.toLocaleString() || 0}
+                </CustomAnimatedText>
+                <CustomText
+                  style={[styles.totalGoldText, { color: colors.black }]}
+                >
+                  {' '}
+                  / {selectedRaidTotalGold?.toLocaleString() || 0}
+                </CustomText>
+              </View>
             </View>
           </TouchableOpacity>
           {!weeklyRaidFolded && (
