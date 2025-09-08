@@ -3,7 +3,7 @@ import React from 'react';
 import { TextProps, TextStyle, ViewStyle } from 'react-native';
 import CustomText from './CustomText';
 import { FadeEffect } from './FadeEffect'; // (단순화된) runMount / triggerKey / fromOpacity / toOpacity / delay / duration
-import { TranslateYEffect } from './TranslateYEffect'; // (단순화된) runMount / triggerKey / dropFromY / delay / duration
+import { DropEffect } from './DropEffect'; // (단순화된) runMount / triggerKey / dropFromY / delay / duration
 import { FontWeight, FontName } from '@/utils/getFont';
 
 type Props = Omit<TextProps, 'style' | 'fontWeight'> & {
@@ -58,7 +58,7 @@ export default function CustomAnimatedText({
   ...textProps
 }: Props) {
   return (
-    <TranslateYEffect
+    <DropEffect
       style={containerStyle}
       runMount={runMount}
       triggerKey={triggerKey}
@@ -81,6 +81,6 @@ export default function CustomAnimatedText({
           {...textProps}
         />
       </FadeEffect>
-    </TranslateYEffect>
+    </DropEffect>
   );
 }

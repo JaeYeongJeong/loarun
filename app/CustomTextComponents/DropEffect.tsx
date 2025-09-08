@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, ViewProps } from 'react-native';
 
-type TranslateYEffectProps = ViewProps & {
+type DropEffectProps = ViewProps & {
   /** 마운트 시 이동 애니메이션 실행 여부 */
   runMount?: boolean; // default: true
   /** 이 값이 바뀔 때마다(첫 변경은 스킵) 애니메이션 실행 */
@@ -14,7 +14,7 @@ type TranslateYEffectProps = ViewProps & {
   dropDuration?: number; // default: 300
 };
 
-export function TranslateYEffect({
+export function DropEffect({
   children,
   style,
   runMount = true,
@@ -23,7 +23,7 @@ export function TranslateYEffect({
   dropDelay: delay = 0,
   dropDuration: duration = 300,
   ...rest
-}: TranslateYEffectProps) {
+}: DropEffectProps) {
   // runMount=false면 초기 위치는 0으로 고정
   const initialY = runMount && typeof dropFromY === 'number' ? dropFromY : 0;
 
