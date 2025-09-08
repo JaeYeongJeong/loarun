@@ -17,7 +17,7 @@ import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import OtherActivityModal from './OtherActivityModal';
 import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
@@ -29,7 +29,7 @@ import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
 import { getPortraitImage } from '@/utils/PortraitImage';
-import CustomAnimatedText from './components/CustomAnimatedText';
+import CustomAnimatedText from './CustomTextComponents/CustomAnimatedText';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -457,13 +457,13 @@ const CharacterActivity: React.FC = () => {
               </View>
               <View style={{ flexDirection: 'row' }}>
                 <CustomAnimatedText
-                  mountEffect="none"
-                  mountDuration={800}
+                  runMount={false}
+                  fadeFromOpacity={0}
+                  fadeDuration={800}
+                  fadeDelay={0}
+                  dropFromY={8}
+                  dropDuration={900}
                   triggerKey={clearedRaidTotalGold}
-                  effectOnChange="fadeIn"
-                  fromOnChange={0}
-                  durationOnChange={800}
-                  delayOnChange={100}
                   style={[styles.totalGoldText, { color: colors.black }]}
                 >
                   {clearedRaidTotalGold?.toLocaleString() || 0}

@@ -23,7 +23,7 @@ import { useRaid, RaidDifficulty, Raid } from '@/context/RaidContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { validateNumberInput } from '@/utils/validateInput';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import CustomTextInput from './components/CustomTextInput';
 
 type SelectedStage = {

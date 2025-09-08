@@ -15,7 +15,7 @@ import { useAppSetting } from '@/context/AppSettingContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import CustomTextInput from './components/CustomTextInput';
 
 type OtherActivityModalProps = {

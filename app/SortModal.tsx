@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 
 type SortModalProps = {

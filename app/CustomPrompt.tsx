@@ -6,7 +6,7 @@ import {
   Pressable,
   TouchableOpacity,
 } from 'react-native';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import { useTheme } from '@/context/ThemeContext';
 import CustomTextInput from './components/CustomTextInput';
 

@@ -14,7 +14,7 @@ import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { validateNumberInput } from '@/utils/validateInput';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import CustomTextInput from './components/CustomTextInput';
 import { mission } from '@/utils/defaultMissions';
 

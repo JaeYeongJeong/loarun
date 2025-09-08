@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 
 type SettingModalProps = {
   isVisible: boolean;

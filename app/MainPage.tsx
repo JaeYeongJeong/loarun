@@ -15,7 +15,7 @@ import { Entypo, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import MainPageOptionsModal from './MainPageOptionsModal';

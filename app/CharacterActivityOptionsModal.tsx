@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from 'react-native';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import CustomAlert from './CustomAlert';
 
 type CharacterActivityOptionsModalProps = {

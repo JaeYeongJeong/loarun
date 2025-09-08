@@ -3,6 +3,7 @@ import { Dimensions, Text, TextProps, TextStyle } from 'react-native';
 import { getFont, FontWeight, FontName } from '@/utils/getFont';
 import { moderateScale } from 'react-native-size-matters';
 import { Platform } from 'react-native';
+
 type CustomTextProps = Omit<TextProps, 'style' | 'fontWeight'> & {
   fontWeight?: FontWeight;
   font?: FontName;

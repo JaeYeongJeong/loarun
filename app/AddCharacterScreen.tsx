@@ -16,7 +16,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import CustomText from './components/CustomText';
+import CustomText from './CustomTextComponents/CustomText';
 import { validateNicknameInput } from '@/utils/validateInput';
 import CustomAlert from './CustomAlert';
 import { useAppSetting } from '@/context/AppSettingContext';
