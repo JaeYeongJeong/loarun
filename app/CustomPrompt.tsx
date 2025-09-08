@@ -6,9 +6,9 @@ import {
   Pressable,
   TouchableOpacity,
 } from 'react-native';
-import CustomText from './CustomTextComponents/CustomText';
+import CustomText from '../components/customTextComponents/CustomText';
 import { useTheme } from '@/context/ThemeContext';
-import CustomTextInput from './components/CustomTextInput';
+import CustomTextInput from '../components/CustomTextInput';
 
 type CustomPromptProps = {
   isVisible: boolean;

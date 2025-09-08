@@ -11,7 +11,7 @@ import {
 import { useTheme } from '@/context/ThemeContext';
 import { normalize } from '@/utils/nomalize';
 import { Feather } from '@expo/vector-icons';
-import CustomText from '../CustomTextComponents/CustomText';
+import CustomText from '../../components/customTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import { getPortraitImage } from '@/utils/PortraitImage';
 

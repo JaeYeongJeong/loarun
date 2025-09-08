@@ -16,11 +16,11 @@ import { useTheme } from '@/context/ThemeContext';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import CustomText from './CustomTextComponents/CustomText';
+import CustomText from '../components/customTextComponents/CustomText';
 import { validateNicknameInput } from '@/utils/validateInput';
 import CustomAlert from './CustomAlert';
 import { useAppSetting } from '@/context/AppSettingContext';
-import CustomTextInput from './components/CustomTextInput';
+import CustomTextInput from '../components/CustomTextInput';
 
 const AddCharacterScreen: React.FC = () => {
   const [characterName, setCharacterName] = useState('');

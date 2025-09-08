@@ -12,7 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
-import CustomText from './CustomTextComponents/CustomText';
+import CustomText from '../components/customTextComponents/CustomText';
 
 const version = Constants.expoConfig?.version ?? 'unknown';
 

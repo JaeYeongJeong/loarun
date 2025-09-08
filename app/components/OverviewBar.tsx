@@ -5,7 +5,7 @@ import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { normalize } from '@/utils/nomalize';
-import CustomText from '../CustomTextComponents/CustomText';
+import CustomText from '../../components/customTextComponents/CustomText';
 
 function OverviewBar() {
   const [modalVisible, setModalVisible] = React.useState(false);

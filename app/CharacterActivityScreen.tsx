@@ -17,7 +17,7 @@ import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
-import CustomText from './CustomTextComponents/CustomText';
+import CustomText from '../components/customTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import OtherActivityModal from './OtherActivityModal';
 import CharacterActivityOptionsModal from './CharacterActivityOptionsModal';
@@ -29,7 +29,8 @@ import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
 import { getPortraitImage } from '@/utils/PortraitImage';
-import CustomAnimatedText from './CustomTextComponents/CustomAnimatedText';
+import { DropEffect } from '@/components/customTextComponents/DropEffect';
+import { FadeEffect } from '@/components/customTextComponents/FadeEffect';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -456,18 +457,35 @@ const CharacterActivity: React.FC = () => {
                 </CustomText>
               </View>
               <View style={{ flexDirection: 'row' }}>
-                <CustomAnimatedText
-                  runMount={false}
-                  fadeFromOpacity={0}
-                  fadeDuration={800}
-                  fadeDelay={0}
-                  dropFromY={8}
-                  dropDuration={900}
+                <DropEffect
+                  style={{ flexDirection: 'row' }}
                   triggerKey={clearedRaidTotalGold}
-                  style={[styles.totalGoldText, { color: colors.black }]}
+                  dropFromY={4}
+                  duration={800}
+                  delay={0} // baseDelay
+                  staggerStep={80} // 글자 간 간격
                 >
-                  {clearedRaidTotalGold?.toLocaleString() || 0}
-                </CustomAnimatedText>
+                  {String(clearedRaidTotalGold.toLocaleString() || 0)
+                    .split('')
+                    .map((ch, i) => (
+                      <FadeEffect
+                        key={i}
+                        triggerKey={clearedRaidTotalGold}
+                        fromOpacity={0}
+                        duration={1600}
+                        delay={i * 80} // 👈 글자별 지연
+                      >
+                        <CustomText
+                          style={[
+                            styles.totalGoldText,
+                            { color: colors.black },
+                          ]}
+                        >
+                          {ch}
+                        </CustomText>
+                      </FadeEffect>
+                    ))}
+                </DropEffect>
                 <CustomText
                   style={[styles.totalGoldText, { color: colors.black }]}
                 >

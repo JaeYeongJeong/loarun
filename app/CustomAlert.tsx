@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import CustomText from './CustomTextComponents/CustomText';
+import CustomText from '../components/customTextComponents/CustomText';
 import { useTheme } from '@/context/ThemeContext';
 
 type CustomAlertProps = {
