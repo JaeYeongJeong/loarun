@@ -1,12 +1,16 @@
 import React from 'react';
 import { TextInput, TextInputProps, TextStyle, Platform } from 'react-native';
-import { moderateScale } from 'react-native-size-matters';
 import { getFont, FontWeight, FontName } from '@/utils/getFont';
+import { PixelRatio } from 'react-native';
 
 type CustomTextInputProps = Omit<TextInputProps, 'style' | 'fontWeight'> & {
   fontWeight?: FontWeight;
   font?: FontName;
   style?: TextStyle | TextStyle[];
+};
+
+const scaleFont = (size: number) => {
+  return Math.round(PixelRatio.roundToNearestPixel(size));
 };
 
 export default function CustomTextInput({
@@ -23,8 +27,8 @@ export default function CustomTextInput({
       const scale = Platform.OS === 'ios' ? 1 : 0.9;
       return {
         ...s,
-        fontSize: moderateScale(s.fontSize * scale),
-        lineHeight: moderateScale((s.lineHeight || s.fontSize * 1.2) * scale),
+        fontSize: scaleFont(s.fontSize * scale),
+        lineHeight: scaleFont((s.lineHeight || s.fontSize * 1.2) * scale),
       };
     }
     return s;

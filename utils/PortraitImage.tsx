@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -32,22 +32,28 @@ const cropMap = new Map<string, { originX: number; originY: number }>([
   ['환수사', { originX: 0.38, originY: 0.25 }],
 ]);
 
+const getDocumentFile = (fileName: string) => {
+  return new File(Paths.document, fileName);
+};
+
 const cropAndSavePortraitImage = async (
   characterImage: string,
   id: string,
   className: string
 ) => {
   try {
-    const downloadRes = await FileSystem.downloadAsync(
-      characterImage,
-      FileSystem.documentDirectory + `${id}_original.png`
-    );
+    const originalFile = getDocumentFile(`${id}_original.png`);
+
+    await File.downloadFileAsync(characterImage, originalFile, {
+      idempotent: true,
+    });
 
     const imageInfo = await ImageManipulator.manipulateAsync(
-      downloadRes.uri,
+      originalFile.uri,
       [],
       {}
     );
+
     const { width, height } = imageInfo;
 
     if (!width || !height) throw new Error('이미지 크기 확인 실패');
@@ -56,11 +62,12 @@ const cropAndSavePortraitImage = async (
     const cropHeight = 150;
     const defaultCrop = { originX: 0.38, originY: 0.1 };
     const crop = cropMap.get(className) ?? defaultCrop;
+
     const originX = width * crop.originX;
     const originY = height * crop.originY;
 
     const manipulated = await ImageManipulator.manipulateAsync(
-      downloadRes.uri,
+      originalFile.uri,
       [
         {
           crop: {
@@ -78,13 +85,14 @@ const cropAndSavePortraitImage = async (
     );
 
     const fileName = `${id}_portrait.png`;
-    const newUri = FileSystem.documentDirectory + fileName;
-    await FileSystem.moveAsync({ from: manipulated.uri, to: newUri });
+    const portraitFile = getDocumentFile(fileName);
 
-    // 파일명만 저장 (경로 X)
+    const tempFile = new File(manipulated.uri);
+    tempFile.move(portraitFile);
+
     await AsyncStorage.setItem(`portrait_filename_${id}`, fileName);
 
-    return newUri;
+    return portraitFile.uri;
   } catch (error) {
     console.error('이미지 처리 실패:', error);
     return null;
@@ -96,9 +104,9 @@ const getPortraitImage = async (id: string) => {
     const fileName = await AsyncStorage.getItem(`portrait_filename_${id}`);
     if (!fileName) return null;
 
-    const uri = FileSystem.documentDirectory + fileName;
-    const info = await FileSystem.getInfoAsync(uri);
-    return info.exists ? uri : null;
+    const portraitFile = getDocumentFile(fileName);
+
+    return portraitFile.exists ? portraitFile.uri : null;
   } catch (error) {
     console.error('이미지 불러오기 실패:', error);
     return null;
@@ -110,8 +118,12 @@ const deletePortraitImage = async (id: string) => {
     const fileName = await AsyncStorage.getItem(`portrait_filename_${id}`);
     if (!fileName) return;
 
-    const uri = FileSystem.documentDirectory + fileName;
-    await FileSystem.deleteAsync(uri, { idempotent: true });
+    const portraitFile = getDocumentFile(fileName);
+
+    if (portraitFile.exists) {
+      portraitFile.delete();
+    }
+
     await AsyncStorage.removeItem(`portrait_filename_${id}`);
   } catch (error) {
     console.error('이미지 삭제 실패:', error);
