@@ -17,6 +17,7 @@ type SortModalProps = {
   toggleModal: () => void;
   positionX: number;
   positionY: number;
+  openCustomSortModal: () => void;
 };
 
 const SortModal: React.FC<SortModalProps> = ({
@@ -24,6 +25,7 @@ const SortModal: React.FC<SortModalProps> = ({
   toggleModal,
   positionX,
   positionY,
+  openCustomSortModal,
 }) => {
   const { colors } = useTheme();
   const { characterSortOrder, updateCharacterSortOrder } = useAppSetting();
@@ -45,6 +47,11 @@ const SortModal: React.FC<SortModalProps> = ({
   const sortByServer = () => {
     updateCharacterSortOrder('server');
     toggleModal();
+  };
+
+  const sortByCustom = () => {
+    toggleModal();
+    openCustomSortModal();
   };
 
   return (
@@ -95,6 +102,18 @@ const SortModal: React.FC<SortModalProps> = ({
                     레벨 높은 순
                   </CustomText>
                   {characterSortOrder === 'level' && (
+                    <Feather name="check" size={20} color={colors.iconColor} />
+                  )}
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={sortByCustom}>
+                <View style={styles.optionContainer}>
+                  <CustomText
+                    style={[styles.modalText, { color: colors.black }]}
+                  >
+                    커스텀 정렬
+                  </CustomText>
+                  {characterSortOrder === 'custom' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
                 </View>

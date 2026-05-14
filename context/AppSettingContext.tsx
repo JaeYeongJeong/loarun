@@ -8,10 +8,13 @@ type AppSettingContextType = {
   isInfoVisible: boolean;
   toggleInfoVisibility: () => void;
   characterSortOrder: SortOrder; // 정렬 기준
-  updateCharacterSortOrder: (sortOrder: SortOrder) => void;
+  updateCharacterSortOrder: (
+    sortOrder: SortOrder,
+    shouldSort?: boolean
+  ) => Promise<void>;
 };
 
-export type SortOrder = 'addedAt' | 'level' | 'server';
+export type SortOrder = 'addedAt' | 'level' | 'server' | 'custom';
 
 const AppSettingContext = createContext<AppSettingContextType | undefined>(
   undefined
@@ -78,11 +81,16 @@ export const AppSettingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const updateCharacterSortOrder = async (sortOrder: SortOrder) => {
+  const updateCharacterSortOrder = async (
+    sortOrder: SortOrder,
+    shouldSort = true
+  ) => {
     try {
       await AsyncStorage.setItem('characterSortOrder', sortOrder);
       setCharacterSortOrder(sortOrder); // ✅ 이 줄이 핵심!
-      sortCharacter(sortOrder);
+      if (shouldSort) {
+        await sortCharacter(sortOrder);
+      }
     } catch (err) {
       console.error('캐릭터 정렬 기준 저장 실패:', err);
     }
