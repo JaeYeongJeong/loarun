@@ -1007,6 +1007,80 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!otherActivityFolded && (
             <View>
+              {Array.isArray(character.OtherActivity) &&
+              character.OtherActivity.length > 0 ? (
+                character.OtherActivity.map((activity, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 10,
+                      marginTop: index === 0 ? 16 : 0,
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.activityItem,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        setOtherActivityIndex(index);
+                        toggleOtherActivityModal();
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${activity.name} 활동 수정`}
+                    >
+                      <View style={styles.activityItemRow}>
+                        <CustomText
+                          style={[
+                            styles.activityNameText,
+                            { color: colors.black, flexShrink: 1 },
+                          ]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {activity.name}
+                        </CustomText>
+                        <CustomText
+                          style={[
+                            styles.activityGoldText,
+                            activity.gold >= 0
+                              ? { color: colors.black }
+                              : { color: colors.warning },
+                          ]}
+                        >
+                          {activity.gold.toLocaleString()}
+                        </CustomText>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        paddingLeft: 8,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setOtherActivityIndex(index);
+                        toggleOtherActivityModal();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${activity.name} 활동 수정`}
+                    >
+                      <Feather
+                        name="edit"
+                        size={20}
+                        color={colors.iconColor + 80}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 기타 활동이 없어요.
+                </CustomText>
+              )}
               <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
                   style={[
@@ -1014,6 +1088,8 @@ const CharacterActivity: React.FC = () => {
                     { backgroundColor: colors.grayLight },
                   ]}
                   onPress={toggleOtherActivityModal}
+                  accessibilityRole="button"
+                  accessibilityLabel="기타 활동 추가"
                 >
                   <CustomText
                     style={[styles.editButtonText, { color: colors.black }]}
@@ -1022,45 +1098,6 @@ const CharacterActivity: React.FC = () => {
                   </CustomText>
                 </TouchableOpacity>
               </View>
-              {Array.isArray(character.OtherActivity) &&
-                character.OtherActivity.map((activity, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.otherActivityItem,
-                      {
-                        backgroundColor: colors.grayLight,
-                        marginTop: index === 0 ? 16 : 0,
-                        marginBottom: 10,
-                      },
-                    ]}
-                    onPress={() => {
-                      setOtherActivityIndex(index);
-                      toggleOtherActivityModal();
-                    }}
-                  >
-                    <View style={styles.activityItemRow}>
-                      <CustomText
-                        style={[
-                          styles.activityNameText,
-                          { color: colors.black, flexShrink: 1 },
-                        ]}
-                      >
-                        {activity.name}
-                      </CustomText>
-                      <CustomText
-                        style={[
-                          styles.activityGoldText,
-                          activity.gold >= 0
-                            ? { color: colors.black }
-                            : { color: colors.warning },
-                        ]}
-                      >
-                        {activity.gold.toLocaleString()}
-                      </CustomText>
-                    </View>
-                  </TouchableOpacity>
-                ))}
             </View>
           )}
           {/* 추가 버튼 */}
@@ -1409,10 +1446,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  otherActivityItem: {
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  emptyActivityText: {
+    fontSize: 13,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 10,
   },
 
   activityNameText: {

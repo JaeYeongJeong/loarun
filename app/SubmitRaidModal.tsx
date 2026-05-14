@@ -31,6 +31,7 @@ type SelectedStage = {
   difficulty: RaidDifficulty;
   stage: number;
   gold: number;
+  boundGold?: number;
   chestCost?: number;
   selectedChestCost?: boolean;
   borderLeftRadius?: number;
@@ -72,6 +73,89 @@ const RaidModal: React.FC<RaidModalProps> = ({
     () => getAvailableRaidsByItemLevel(character.ItemAvgLevel),
     [getAvailableRaidsByItemLevel, character.ItemAvgLevel]
   );
+
+  const GoldBreakdown = ({
+    gold,
+    boundGold = 0,
+    selected = false,
+    compact = false,
+  }: {
+    gold: number;
+    boundGold?: number;
+    selected?: boolean;
+    compact?: boolean;
+  }) => {
+    const unboundGold = Math.max(gold - boundGold, 0);
+    const textColor = selected ? colors.white : colors.grayDark;
+    const labelColor = selected ? colors.white : colors.black;
+
+    if (unboundGold <= 0 && boundGold <= 0) return null;
+
+    return (
+      <View
+        style={[
+          compact ? styles.stageGoldBreakdown : styles.totalGoldBreakdown,
+        ]}
+      >
+        {unboundGold > 0 && (
+          <View
+            style={[
+              styles.goldChip,
+              compact ? styles.stageGoldChip : {},
+              { borderColor: selected ? colors.white + '66' : colors.primary },
+            ]}
+          >
+            <CustomText
+              style={[
+                styles.goldChipLabel,
+                compact ? styles.stageGoldChipText : {},
+                { color: labelColor },
+              ]}
+            >
+              비귀속
+            </CustomText>
+            <CustomText
+              style={[
+                styles.goldChipValue,
+                compact ? styles.stageGoldChipText : {},
+                { color: textColor },
+              ]}
+            >
+              {unboundGold.toLocaleString()}
+            </CustomText>
+          </View>
+        )}
+        {boundGold > 0 && (
+          <View
+            style={[
+              styles.goldChip,
+              compact ? styles.stageGoldChip : {},
+              { borderColor: selected ? colors.white + '66' : colors.gold },
+            ]}
+          >
+            <CustomText
+              style={[
+                styles.goldChipLabel,
+                compact ? styles.stageGoldChipText : {},
+                { color: labelColor },
+              ]}
+            >
+              귀속
+            </CustomText>
+            <CustomText
+              style={[
+                styles.goldChipValue,
+                compact ? styles.stageGoldChipText : {},
+                { color: textColor },
+              ]}
+            >
+              {boundGold.toLocaleString()}
+            </CustomText>
+          </View>
+        )}
+      </View>
+    );
+  };
 
   // 숫자 인풋 포맷터
   const formatNumberInput = useCallback((inputText: string) => {
@@ -137,6 +221,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         difficulty: st.difficulty,
         stage: st.stage,
         gold: st.gold,
+        boundGold: st.boundGold,
         chestCost: st.chestCost,
         selectedChestCost: st.selectedChestCost,
       })) ?? [];
@@ -212,6 +297,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 difficulty,
                 stage: i + 1,
                 gold: info?.gold ?? 0,
+                boundGold: info?.boundGold ?? 0,
                 chestCost: info?.chestCost ?? 0,
                 selectedChestCost: isChestCostChecked,
               };
@@ -234,6 +320,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
               difficulty,
               stage: i,
               gold: info?.gold ?? 0,
+              boundGold: info?.boundGold ?? 0,
               chestCost: info?.chestCost ?? 0,
               selectedChestCost: isChestCostChecked,
             });
@@ -287,6 +374,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
         difficulty: s.difficulty,
         stage: s.stage,
         gold: s.gold,
+        boundGold: s.boundGold || 0,
         chestCost: s.chestCost || 0,
         selectedChestCost: s.selectedChestCost,
         cleared: false,
@@ -424,18 +512,10 @@ const RaidModal: React.FC<RaidModalProps> = ({
                             {difficultyObj.difficulty}
                           </CustomText>
 
-                          <CustomText
-                            style={[
-                              styles.totalGoldText,
-                              { color: colors.grayDark },
-                            ]}
-                          >
-                            {totalBoundGold > 0
-                              ? `${
-                                  totalGold - totalBoundGold
-                                } / ${totalBoundGold}(귀속)`
-                              : totalGold}
-                          </CustomText>
+                          <GoldBreakdown
+                            gold={totalGold}
+                            boundGold={totalBoundGold}
+                          />
                         </View>
 
                         <View
@@ -491,18 +571,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 >
                                   {st.stage}관문
                                 </CustomText>
-                                <CustomText
-                                  style={[
-                                    styles.stageGold,
-                                    {
-                                      color: isSelected
-                                        ? colors.white
-                                        : colors.grayDark,
-                                    },
-                                  ]}
-                                >
-                                  {st.gold}
-                                </CustomText>
+                                <GoldBreakdown
+                                  gold={st.gold}
+                                  boundGold={st.boundGold}
+                                  selected={isSelected}
+                                  compact
+                                />
                               </Pressable>
                             );
                           })}
@@ -793,9 +867,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  totalGoldText: {
-    fontSize: 12,
-    fontWeight: '500',
+  totalGoldBreakdown: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: 6,
+    flexShrink: 1,
+  },
+  goldChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  goldChipLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  goldChipValue: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   stageContainer: {
     flexDirection: 'row',
@@ -808,6 +902,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 6,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
   },
   stageLabelText: {
     fontSize: 10,
@@ -817,6 +913,20 @@ const styles = StyleSheet.create({
   stageGold: {
     fontSize: 10,
     fontWeight: '600',
+  },
+  stageGoldBreakdown: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  stageGoldChip: {
+    borderWidth: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    gap: 2,
+  },
+  stageGoldChipText: {
+    fontSize: 9,
+    lineHeight: 11,
   },
   checkBlock: {
     paddingHorizontal: 4,

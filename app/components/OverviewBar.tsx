@@ -16,7 +16,6 @@ function OverviewBar() {
   const [settingButtonY, setSettingButtonY] = useState(0);
   const [toggleLeftBlock, setToggleLeftBlock] = useState(true);
   const [toggleRightBlock, setToggleRightBlock] = useState(true);
-  const toggleHintColor = colors.grayDark;
 
   const {
     totalGold,
@@ -387,9 +386,6 @@ function OverviewBar() {
       >
         {toggleLeftBlock ? <OverviewFirstBlock /> : <OverviewSecondBlock />}
         <View style={styles.cardHintWrapper} pointerEvents="none">
-          <CustomText style={[styles.cardHintText, { color: toggleHintColor }]}>
-            탭해서 전환
-          </CustomText>
           <View style={styles.indicatorRow}>
             {[true, false].map((activeState) => (
               <View
@@ -437,9 +433,6 @@ function OverviewBar() {
         </View>
         {toggleRightBlock ? <LoarunBlock /> : <LastWeekLoarunBlock />}
         <View style={styles.cardHintWrapper} pointerEvents="none">
-          <CustomText style={[styles.cardHintText, { color: toggleHintColor }]}>
-            탭해서 전환
-          </CustomText>
           <View style={styles.indicatorRow}>
             {[true, false].map((activeState) => (
               <View
@@ -494,10 +487,6 @@ const styles = StyleSheet.create({
     bottom: normalize(8),
     alignItems: 'center',
     gap: normalize(4),
-  },
-  cardHintText: {
-    fontSize: 10,
-    fontWeight: '500',
   },
   indicatorRow: {
     flexDirection: 'row',
