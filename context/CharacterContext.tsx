@@ -408,6 +408,8 @@ export const CharacterProvider: React.FC<{ children: React.ReactNode }> = ({
             parseFloat(a.ItemAvgLevel.replace(/,/g, ''))
         )
       );
+    } else if (order === 'custom') {
+      sortedList = [...target];
     }
 
     await saveCharacters(sortedList);

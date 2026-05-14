@@ -19,6 +19,7 @@ import CustomText from '../components/customTextComponents/CustomText';
 import { useAppSetting } from '@/context/AppSettingContext';
 import BookmarkFilled from '@/assets/icons/BookmarkFilled';
 import MainPageOptionsModal from './MainPageOptionsModal';
+import CustomSortModal from './CustomSortModal';
 
 // ✅ 화면 높이를 가져와서 2/8 비율 설정
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -28,6 +29,8 @@ const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
 const MainPage: React.FC = () => {
   const [sortModalVisible, setSortModalVisible] = React.useState(false);
   const [optionModalVisible, setOptionModalVisible] = React.useState(false);
+  const [customSortModalVisible, setCustomSortModalVisible] =
+    React.useState(false);
   const { colors } = useTheme();
   const { characters } = useCharacter();
   const { isInfoVisible, toggleInfoVisibility } = useAppSetting();
@@ -51,6 +54,10 @@ const MainPage: React.FC = () => {
     } else {
       setSortModalVisible((prev) => !prev);
     }
+  };
+
+  const toggleCustomSortModal = () => {
+    setCustomSortModalVisible((prev) => !prev);
   };
 
   const toggleOptionsModal = () => {
@@ -154,6 +161,13 @@ const MainPage: React.FC = () => {
         toggleModal={toggleSortModal}
         positionX={sortButtonX}
         positionY={sortButtonY}
+        openCustomSortModal={toggleCustomSortModal}
+      />
+
+      {/* ✅ 커스텀 정렬 모달 */}
+      <CustomSortModal
+        isVisible={customSortModalVisible}
+        toggleModal={toggleCustomSortModal}
       />
 
       {/* ✅ 옵션 모달 */}

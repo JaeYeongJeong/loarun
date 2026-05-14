@@ -20,9 +20,10 @@ const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
 type CharacterBarProps = {
   id: string;
+  disabled?: boolean;
 };
 
-const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
+const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => {
   const router = useRouter();
   const { characters } = useCharacter();
   const character = characters.find((c) => c.id === id);
@@ -91,6 +92,7 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id }) => {
 
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={handlerCharacterActivity}
       style={[styles.container, { backgroundColor: colors.cardBackground }]}
     >
