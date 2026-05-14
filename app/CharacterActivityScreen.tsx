@@ -118,9 +118,9 @@ const CharacterActivity: React.FC = () => {
   const [otherActivityFolded, setOtherActivityFolded] =
     useState<boolean>(false);
 
-  if (!character) return null; // ✅ 없는 캐릭터 방지
-
   useEffect(() => {
+    if (!character) return;
+
     setWeeklyRaidFolded(character.WeeklyRaidFolded ?? false);
     setOtherActivityFolded(character.OtherActivityFolded ?? false);
     setMissionCheckedListFolded(character.MissionCheckListFolded ?? false);
@@ -153,10 +153,15 @@ const CharacterActivity: React.FC = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [character]);
 
   // 📌 캐릭터 이미지 로드
   useEffect(() => {
+    if (!character) {
+      setPortraitUri(null);
+      return;
+    }
+
     const loadImage = async () => {
       const portraitUri = await getPortraitImage(character.id);
       if (portraitUri) {
@@ -166,7 +171,9 @@ const CharacterActivity: React.FC = () => {
       }
     };
     loadImage();
-  }, [character.LastUpdated, character.CharacterPortraitImage]);
+  }, [character?.id, character?.LastUpdated, character?.CharacterPortraitImage]);
+
+  if (!character) return null; // ✅ 없는 캐릭터 방지
 
   // 📌 클리어한 레이드와 선택한 레이드 총 골드 계산
   const updatedRaids = [...(character.SelectedRaids || [])];
@@ -256,7 +263,7 @@ const CharacterActivity: React.FC = () => {
       const data = await fetchCharacterInfo(character.CharacterName);
 
       if (data) {
-        refreshCharacter(character.id, {
+        await refreshCharacter(character.id, {
           CharacterImage: data.CharacterImage,
           CharacterClassName: data.CharacterClassName,
           ItemAvgLevel: data.ItemAvgLevel,
