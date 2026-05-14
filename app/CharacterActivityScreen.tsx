@@ -344,7 +344,12 @@ const CharacterActivity: React.FC = () => {
     >
       {/* 상단: 액션바 */}
       <View style={styles.actionBar}>
-        <TouchableOpacity onPress={router.back}>
+        <TouchableOpacity
+          onPress={router.back}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="button"
+          accessibilityLabel="이전 화면으로 이동"
+        >
           <Feather name="chevron-left" size={24} color={colors.iconColor} />
         </TouchableOpacity>
         <View style={styles.actionWrapper}>
@@ -354,6 +359,10 @@ const CharacterActivity: React.FC = () => {
               setBookmarked(next);
               updateCharacter(character.id, { IsBookmarked: next });
             }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={bookmarked ? '북마크 해제' : '북마크 추가'}
+            accessibilityState={{ selected: bookmarked }}
           >
             {bookmarked ? (
               <BookmarkFilled width={24} height={24} color={colors.iconColor} />
@@ -361,10 +370,21 @@ const CharacterActivity: React.FC = () => {
               <Feather name="bookmark" size={24} color={colors.iconColor} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleDeleteCharacter}>
+          <TouchableOpacity
+            onPress={handleDeleteCharacter}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={`${isInfoVisible ?? true ? character.CharacterName : '익명'} 캐릭터 삭제`}
+          >
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
+          <TouchableOpacity
+            onPress={toggleOptionsModal}
+            ref={optionsButtonRef}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="캐릭터 활동 옵션 열기"
+          >
             <Feather
               name="more-horizontal"
               size={24}
@@ -693,6 +713,9 @@ const CharacterActivity: React.FC = () => {
                       onPress={() => {
                         handleChecklistToggle(index);
                       }}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel={`${item.name} ${item.checked ? '완료됨' : '미완료'}`}
+                      accessibilityState={{ checked: item.checked }}
                     >
                       <View style={styles.activityItemRow}>
                         <View
@@ -720,7 +743,10 @@ const CharacterActivity: React.FC = () => {
                                 color: colors.black,
                                 flexShrink: 1,
                               },
+                              item.checked ? styles.completedActivityText : {},
                             ]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
                           >
                             {item.name}
                           </CustomText>
@@ -750,6 +776,9 @@ const CharacterActivity: React.FC = () => {
                         setMissionScope('character');
                         toggleActivityModal();
                       }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${item.name} 미션 수정`}
                     >
                       <Feather
                         name="edit"
@@ -843,6 +872,9 @@ const CharacterActivity: React.FC = () => {
                       onPress={() => {
                         handleAccountChecklistToggle(index);
                       }}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel={`${item.name} ${item.checked ? '완료됨' : '미완료'}`}
+                      accessibilityState={{ checked: item.checked }}
                     >
                       <View style={styles.activityItemRow}>
                         <View
@@ -870,7 +902,10 @@ const CharacterActivity: React.FC = () => {
                                 color: colors.black,
                                 flexShrink: 1,
                               },
+                              item.checked ? styles.completedActivityText : {},
                             ]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
                           >
                             {item.name}
                           </CustomText>
@@ -900,6 +935,9 @@ const CharacterActivity: React.FC = () => {
                         setMissionScope('account');
                         toggleActivityModal();
                       }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${item.name} 원정대 미션 수정`}
                     >
                       <Feather
                         name="edit"
@@ -1304,27 +1342,31 @@ const styles = StyleSheet.create({
 
   editButton: {
     paddingHorizontal: 16,
-    paddingVertical: 5,
+    paddingVertical: 8,
     borderRadius: 20,
+    minHeight: 36,
+    justifyContent: 'center',
   },
 
   editButtonText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
 
   raidButton: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
   },
 
   difficultyText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
   raidButtonText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
 
@@ -1348,8 +1390,10 @@ const styles = StyleSheet.create({
   activityItem: {
     flex: 1,
     borderRadius: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
+    minHeight: 44,
+    justifyContent: 'center',
   },
 
   missionTitleBlock: {
@@ -1379,6 +1423,10 @@ const styles = StyleSheet.create({
   activityGoldText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  completedActivityText: {
+    textDecorationLine: 'line-through',
+    opacity: 0.65,
   },
 });
 

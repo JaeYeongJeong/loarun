@@ -31,10 +31,10 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => 
   const { colors } = useTheme(); // 테마 색상 가져오기
   const { isInfoVisible } = useAppSetting();
 
-  if (!character) return; // 캐릭터가 없으면 아무것도 하지 않음
-
   // 📌 캐릭터 이미지 로드
   useEffect(() => {
+    if (!character) return;
+
     const loadImage = async () => {
       const portraitUri = await getPortraitImage(character.id);
       if (portraitUri) {
@@ -44,7 +44,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => 
       }
     };
     loadImage();
-  }, [character.LastUpdated, character.CharacterPortraitImage]);
+  }, [character?.id, character?.LastUpdated, character?.CharacterPortraitImage]);
+
+  if (!character) return null; // 캐릭터가 없으면 아무것도 하지 않음
 
   const handlerCharacterActivity = () => {
     router.push({
@@ -95,6 +97,9 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => 
       disabled={disabled}
       onPress={handlerCharacterActivity}
       style={[styles.container, { backgroundColor: colors.cardBackground }]}
+      accessibilityRole="button"
+      accessibilityLabel={`${isInfoVisible ?? true ? character.CharacterName : '익명'} 캐릭터 활동 화면으로 이동`}
+      accessibilityState={{ disabled }}
     >
       {/* 왼쪽: 이미지 + 텍스트 */}
       <View style={styles.innerContainer}>
@@ -129,7 +134,11 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => 
               alignItems: 'center',
             }}
           >
-            <CustomText style={[styles.nameText, { color: colors.black }]}>
+            <CustomText
+              style={[styles.nameText, { color: colors.black }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {isInfoVisible ?? true ? character.CharacterName : '익명'}
             </CustomText>
             {character.IsBookmarked && (
@@ -140,7 +149,11 @@ const CharacterBar: React.FC<CharacterBarProps> = ({ id, disabled = false }) => 
               />
             )}
           </View>
-          <CustomText style={[styles.infoText, { color: colors.grayDark }]}>
+          <CustomText
+            style={[styles.infoText, { color: colors.grayDark }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {isInfoVisible ?? true ? character.CharacterClassName : '직업'} @{' '}
             {isInfoVisible ?? true ? character.ServerName : '서버'}
           </CustomText>
@@ -197,6 +210,8 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: 'center',
     paddingLeft: normalize(12),
+    flex: 1,
+    minWidth: 0,
   },
   nameText: {
     fontSize: 15,
@@ -214,6 +229,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'center',
     paddingLeft: normalize(12),
+    minWidth: normalize(84),
   },
   goldText: {
     fontSize: 14,

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
@@ -165,7 +166,12 @@ const AddCharacterScreen: React.FC = () => {
           >
             {/* 상단: 액션바 */}
             <View style={styles.actionBar}>
-              <TouchableOpacity onPress={router.back}>
+              <TouchableOpacity
+                onPress={router.back}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="이전 화면으로 이동"
+              >
                 <Feather
                   name="chevron-left"
                   size={24}
@@ -190,6 +196,9 @@ const AddCharacterScreen: React.FC = () => {
                 placeholderTextColor={colors.grayDark}
                 value={characterName}
                 maxLength={30}
+                editable={!isLoading}
+                returnKeyType="search"
+                onSubmitEditing={handlerSearchCharacter}
                 onChangeText={(text) => setCharacterName(text)}
               />
 
@@ -207,13 +216,19 @@ const AddCharacterScreen: React.FC = () => {
                   handlerSearchCharacter();
                 }}
                 disabled={isLoading} // 로딩 중 비활성화
+                accessibilityRole="button"
+                accessibilityLabel={isLoading ? '캐릭터 검색 중' : '캐릭터 검색'}
+                accessibilityState={{ disabled: isLoading, busy: isLoading }}
               >
                 {isLoading ? (
-                  <Feather
-                    name="more-horizontal"
-                    size={16}
-                    color={colors.white}
-                  />
+                  <View style={styles.loadingButtonContent}>
+                    <ActivityIndicator size="small" color={colors.white} />
+                    <CustomText
+                      style={[styles.buttonText, { color: colors.white }]}
+                    >
+                      검색 중...
+                    </CustomText>
+                  </View>
                 ) : (
                   <CustomText
                     style={[styles.buttonText, { color: colors.white }]}
@@ -259,6 +274,8 @@ const AddCharacterScreen: React.FC = () => {
                         { backgroundColor: colors.primary },
                       ]}
                       onPress={handlerAddCharacter}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${characterInfo.CharacterName} 캐릭터 추가`}
                     >
                       <FontAwesome name="check" size={20} color="white" />
                     </Pressable>
@@ -323,6 +340,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 20,
     alignItems: 'center',
+    minWidth: 104,
+    minHeight: 42,
+    justifyContent: 'center',
+  },
+  loadingButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   buttonText: {
     fontWeight: '600',
