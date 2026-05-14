@@ -77,77 +77,39 @@ const RaidModal: React.FC<RaidModalProps> = ({
   const GoldBreakdown = ({
     gold,
     boundGold = 0,
-    selected = false,
-    compact = false,
   }: {
     gold: number;
     boundGold?: number;
-    selected?: boolean;
-    compact?: boolean;
   }) => {
-    const unboundGold = Math.max(gold - boundGold, 0);
-    const textColor = selected ? colors.white : colors.grayDark;
-    const labelColor = selected ? colors.white : colors.black;
+    const normalGold = Math.max(gold - boundGold, 0);
 
-    if (unboundGold <= 0 && boundGold <= 0) return null;
+    if (normalGold <= 0 && boundGold <= 0) return null;
 
     return (
-      <View
-        style={[
-          compact ? styles.stageGoldBreakdown : styles.totalGoldBreakdown,
-        ]}
-      >
-        {unboundGold > 0 && (
-          <View
-            style={[
-              styles.goldChip,
-              compact ? styles.stageGoldChip : {},
-              { borderColor: selected ? colors.white + '66' : colors.primary },
-            ]}
-          >
+      <View style={styles.totalGoldBreakdown}>
+        {normalGold > 0 && (
+          <View style={[styles.goldChip, { borderColor: colors.primary }]}>
             <CustomText
-              style={[
-                styles.goldChipLabel,
-                compact ? styles.stageGoldChipText : {},
-                { color: labelColor },
-              ]}
+              style={[styles.goldChipLabel, { color: colors.black }]}
             >
-              비귀속
+              일반
             </CustomText>
             <CustomText
-              style={[
-                styles.goldChipValue,
-                compact ? styles.stageGoldChipText : {},
-                { color: textColor },
-              ]}
+              style={[styles.goldChipValue, { color: colors.grayDark }]}
             >
-              {unboundGold.toLocaleString()}
+              {normalGold.toLocaleString()}
             </CustomText>
           </View>
         )}
         {boundGold > 0 && (
-          <View
-            style={[
-              styles.goldChip,
-              compact ? styles.stageGoldChip : {},
-              { borderColor: selected ? colors.white + '66' : colors.gold },
-            ]}
-          >
+          <View style={[styles.goldChip, { borderColor: colors.gold }]}>
             <CustomText
-              style={[
-                styles.goldChipLabel,
-                compact ? styles.stageGoldChipText : {},
-                { color: labelColor },
-              ]}
+              style={[styles.goldChipLabel, { color: colors.black }]}
             >
               귀속
             </CustomText>
             <CustomText
-              style={[
-                styles.goldChipValue,
-                compact ? styles.stageGoldChipText : {},
-                { color: textColor },
-              ]}
+              style={[styles.goldChipValue, { color: colors.grayDark }]}
             >
               {boundGold.toLocaleString()}
             </CustomText>
@@ -571,12 +533,20 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 >
                                   {st.stage}관문
                                 </CustomText>
-                                <GoldBreakdown
-                                  gold={st.gold}
-                                  boundGold={st.boundGold}
-                                  selected={isSelected}
-                                  compact
-                                />
+                                {st.gold > 0 && (
+                                  <CustomText
+                                    style={[
+                                      styles.stageGold,
+                                      {
+                                        color: isSelected
+                                          ? colors.white
+                                          : colors.grayDark,
+                                      },
+                                    ]}
+                                  >
+                                    {st.gold.toLocaleString()}
+                                  </CustomText>
+                                )}
                               </Pressable>
                             );
                           })}
@@ -902,8 +872,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 6,
     alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 56,
   },
   stageLabelText: {
     fontSize: 10,
@@ -913,20 +881,6 @@ const styles = StyleSheet.create({
   stageGold: {
     fontSize: 10,
     fontWeight: '600',
-  },
-  stageGoldBreakdown: {
-    alignItems: 'center',
-    gap: 2,
-  },
-  stageGoldChip: {
-    borderWidth: 0,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    gap: 2,
-  },
-  stageGoldChipText: {
-    fontSize: 9,
-    lineHeight: 11,
   },
   checkBlock: {
     paddingHorizontal: 4,
