@@ -57,23 +57,30 @@ const AddCharacterScreen: React.FC = () => {
       return;
     }
 
-    addCharacter(
-      {
-        id: characterInfo.id,
-        CharacterImage: characterInfo.CharacterImage || '',
-        CharacterPortraitImage: characterInfo.CharacterFaceImage || '',
-        CharacterName: characterInfo.CharacterName,
-        CharacterClassName: characterInfo.CharacterClassName,
-        ItemAvgLevel: characterInfo.ItemAvgLevel,
-        ServerName: characterInfo.ServerName,
-      },
-      characterSortOrder
-    );
+    try {
+      await addCharacter(
+        {
+          id: characterInfo.id,
+          CharacterImage: characterInfo.CharacterImage || '',
+          CharacterPortraitImage: characterInfo.CharacterFaceImage || '',
+          CharacterName: characterInfo.CharacterName,
+          CharacterClassName: characterInfo.CharacterClassName,
+          ItemAvgLevel: characterInfo.ItemAvgLevel,
+          ServerName: characterInfo.ServerName,
+        },
+        characterSortOrder
+      );
 
-    setAlertTitle('성공');
-    setAlertMessage(`${characterInfo.CharacterName}이(가) 추가되었습니다.`);
-    setAlertVisible(true);
-    setCharacterInfo(null); // ✅ 추가 후 초기화
+      setAlertTitle('성공');
+      setAlertMessage(`${characterInfo.CharacterName}이(가) 추가되었습니다.`);
+      setCharacterInfo(null); // ✅ 추가 후 초기화
+    } catch (err) {
+      console.error('캐릭터 추가 실패:', err);
+      setAlertTitle('오류');
+      setAlertMessage('캐릭터 추가에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setAlertVisible(true);
+    }
   };
 
   // ✅ 캐릭터 검색 핸들러
@@ -134,10 +141,10 @@ const AddCharacterScreen: React.FC = () => {
         setAlertMessage('검색 중 문제가 발생했습니다.');
         setAlertVisible(true);
       }
+    } finally {
+      setIsLoading(false); // 로딩 종료
+      setCharacterName('');
     }
-
-    setIsLoading(false); // 로딩 종료
-    setCharacterName('');
   };
 
   return (
