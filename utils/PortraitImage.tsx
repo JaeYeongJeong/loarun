@@ -87,6 +87,10 @@ const cropAndSavePortraitImage = async (
     const fileName = `${id}_portrait.png`;
     const portraitFile = getDocumentFile(fileName);
 
+    if (portraitFile.exists) {
+      portraitFile.delete();
+    }
+
     const tempFile = new File(manipulated.uri);
     tempFile.move(portraitFile);
 

@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import MissionModal from './SubmitMissionModal';
 import { SelectedRaid, useCharacter } from '@/context/CharacterContext';
@@ -29,8 +30,6 @@ import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
 import { getPortraitImage } from '@/utils/PortraitImage';
-import { DropEffect } from '@/components/customTextComponents/DropEffect';
-import { FadeEffect } from '@/components/customTextComponents/FadeEffect';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -445,11 +444,22 @@ const CharacterActivity: React.FC = () => {
               onPress={handleRefreshCharacter}
               disabled={!refreshable}
             >
-              <CustomText
-                style={[styles.refreshButtonText, { color: colors.black }]}
-              >
-                {refreshText}
-              </CustomText>
+              {isRefreshing ? (
+                <View style={styles.refreshButtonContent}>
+                  <ActivityIndicator size="small" color={colors.black} />
+                  <CustomText
+                    style={[styles.refreshButtonText, { color: colors.black }]}
+                  >
+                    갱신 중...
+                  </CustomText>
+                </View>
+              ) : (
+                <CustomText
+                  style={[styles.refreshButtonText, { color: colors.black }]}
+                >
+                  {refreshText}
+                </CustomText>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -483,43 +493,12 @@ const CharacterActivity: React.FC = () => {
                   주간 레이드
                 </CustomText>
               </View>
-              <View style={{ flexDirection: 'row' }}>
-                <DropEffect
-                  style={{ flexDirection: 'row' }}
-                  triggerKey={clearedRaidTotalGold}
-                  dropFromY={4}
-                  duration={800}
-                  delay={0} // baseDelay
-                  staggerStep={80} // 글자 간 간격
-                >
-                  {String(clearedRaidTotalGold.toLocaleString() || 0)
-                    .split('')
-                    .map((ch, i) => (
-                      <FadeEffect
-                        key={i}
-                        triggerKey={clearedRaidTotalGold}
-                        fromOpacity={0}
-                        duration={1600}
-                        delay={i * 80} // 👈 글자별 지연
-                      >
-                        <CustomText
-                          style={[
-                            styles.totalGoldText,
-                            { color: colors.black },
-                          ]}
-                        >
-                          {ch}
-                        </CustomText>
-                      </FadeEffect>
-                    ))}
-                </DropEffect>
-                <CustomText
-                  style={[styles.totalGoldText, { color: colors.black }]}
-                >
-                  {' '}
-                  / {selectedRaidTotalGold?.toLocaleString() || 0}
-                </CustomText>
-              </View>
+              <CustomText
+                style={[styles.totalGoldText, { color: colors.black }]}
+              >
+                {clearedRaidTotalGold.toLocaleString() || 0} /{' '}
+                {selectedRaidTotalGold?.toLocaleString() || 0}
+              </CustomText>
             </View>
           </TouchableOpacity>
           {!weeklyRaidFolded && (
@@ -1319,6 +1298,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 5,
     borderRadius: 20,
+    minWidth: 88,
+    minHeight: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  refreshButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 
   refreshButtonText: {

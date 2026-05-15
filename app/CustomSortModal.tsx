@@ -45,6 +45,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
   const { updateCharacterSortOrder } = useAppSetting();
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
   const dragY = useRef(new Animated.Value(0)).current;
   const dragStartIndex = useRef(0);
 
@@ -52,6 +53,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
     if (isVisible) {
       setOrderedIds(characters.map((character) => character.id));
       setDraggingId(null);
+      setDragOffsetY(0);
       dragY.setValue(0);
     }
   }, [characters, dragY, isVisible]);
@@ -67,32 +69,57 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
     .map((id) => characterMap[id])
     .filter((character): character is Character => Boolean(character));
 
+  const getDragTargetIndex = useCallback(
+    (dy: number) =>
+      clamp(
+        dragStartIndex.current + Math.round(dy / CHARACTER_ROW_HEIGHT),
+        0,
+        orderedIds.length - 1
+      ),
+    [orderedIds.length]
+  );
+
+  const getDisplacedTranslateY = (index: number) => {
+    if (!draggingId) return 0;
+
+    const fromIndex = dragStartIndex.current;
+    const targetIndex = getDragTargetIndex(dragOffsetY);
+
+    if (index === fromIndex || fromIndex === targetIndex) return 0;
+    if (fromIndex < targetIndex && index > fromIndex && index <= targetIndex) {
+      return -CHARACTER_ROW_HEIGHT;
+    }
+    if (fromIndex > targetIndex && index >= targetIndex && index < fromIndex) {
+      return CHARACTER_ROW_HEIGHT;
+    }
+
+    return 0;
+  };
+
   const finishDrag = useCallback((_: unknown, gestureState: { dy: number }) => {
     if (!draggingId) return;
 
     const fromIndex = dragStartIndex.current;
-    const targetIndex = clamp(
-      fromIndex + Math.round(gestureState.dy / CHARACTER_ROW_HEIGHT),
-      0,
-      orderedIds.length - 1
-    );
+    const targetIndex = getDragTargetIndex(gestureState.dy);
 
     if (fromIndex !== targetIndex) {
       setOrderedIds((prev) => moveItem(prev, fromIndex, targetIndex));
     }
 
     setDraggingId(null);
+    setDragOffsetY(0);
     dragY.setValue(0);
-  }, [dragY, draggingId, orderedIds.length]);
+  }, [dragY, draggingId, getDragTargetIndex]);
 
   const panResponder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => false,
         onMoveShouldSetPanResponder: () => draggingId !== null,
-        onPanResponderMove: Animated.event([null, { dy: dragY }], {
-          useNativeDriver: false,
-        }),
+        onPanResponderMove: (_, gestureState) => {
+          dragY.setValue(gestureState.dy);
+          setDragOffsetY(gestureState.dy);
+        },
         onPanResponderRelease: finishDrag,
         onPanResponderTerminate: finishDrag,
       }),
@@ -102,6 +129,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
   const startDrag = (id: string, index: number) => {
     dragStartIndex.current = index;
     setDraggingId(id);
+    setDragOffsetY(0);
     dragY.setValue(0);
   };
 
@@ -113,6 +141,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
 
   const handleCancel = () => {
     setDraggingId(null);
+    setDragOffsetY(0);
     dragY.setValue(0);
     toggleModal();
   };
@@ -156,6 +185,9 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
                   {...panResponder.panHandlers}
                   style={[
                     isDragging && styles.draggingContainer,
+                    !isDragging && {
+                      transform: [{ translateY: getDisplacedTranslateY(index) }],
+                    },
                     isDragging && {
                       transform: [{ translateY: dragY }],
                     },
