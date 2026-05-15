@@ -504,6 +504,14 @@ const CharacterActivity: React.FC = () => {
           {!weeklyRaidFolded && (
             <View>
               <Spacer height={12} />
+              {(!Array.isArray(character.SelectedRaids) ||
+                character.SelectedRaids.length === 0) && (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 레이드가 없어요.
+                </CustomText>
+              )}
               {character.SelectedRaids?.map((raid, index) => (
                 <View key={index} style={{ marginBottom: 4 }}>
                   <View style={styles.raidTitleRow}>
@@ -833,6 +841,14 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!accountMissionCheckedListFolded && (
             <View>
+              {(!Array.isArray(character.AccountMissionCheckList) ||
+                character.AccountMissionCheckList.length === 0) && (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 원정대 미션이 없어요.
+                </CustomText>
+              )}
               {Array.isArray(character.AccountMissionCheckList) &&
                 character.AccountMissionCheckList.map((item, index) => (
                   <View
