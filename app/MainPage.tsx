@@ -11,7 +11,7 @@ import OverviewBar from '@/app/components/OverviewBar';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Entypo, Feather } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { normalize } from '@/utils/nomalize';
 import SortModal from './SortModal';
@@ -189,13 +189,38 @@ const MainPage: React.FC = () => {
         ListFooterComponent={
           <TouchableOpacity
             onPress={() => router.push('/AddCharacterScreen')}
+            activeOpacity={0.82}
             accessibilityRole="button"
             accessibilityLabel="캐릭터 추가 화면으로 이동"
           >
             <View
-              style={[styles.addContainer, { borderColor: colors.grayLight }]}
+              style={[
+                styles.addContainer,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.grayLight,
+                },
+              ]}
             >
-              <Entypo name="plus" size={24} color={colors.secondary} />
+              <View
+                style={[
+                  styles.addIconCircle,
+                  { backgroundColor: colors.secondary + '16' },
+                ]}
+              >
+                <Feather name="plus" size={20} color={colors.secondary} />
+              </View>
+              <View style={styles.addTextWrapper}>
+                <CustomText style={[styles.addTitle, { color: colors.black }]}>
+                  캐릭터 추가
+                </CustomText>
+                <CustomText
+                  style={[styles.addDescription, { color: colors.grayDark }]}
+                >
+                  새 캐릭터를 등록하고 숙제를 관리하세요
+                </CustomText>
+              </View>
+              <Feather name="chevron-right" size={20} color={colors.grayDark} />
             </View>
           </TouchableOpacity>
         }
@@ -262,14 +287,41 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   addContainer: {
-    height: CHARACTER_BAR_HEIGHT,
+    minHeight: CHARACTER_BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     borderRadius: CHARACTER_BAR_BORDER_RADIUS,
     marginBottom: normalize(6),
     marginHorizontal: normalize(12),
-    borderWidth: normalize(3),
+    paddingHorizontal: normalize(16),
+    paddingVertical: normalize(12),
+    borderWidth: StyleSheet.hairlineWidth,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  addIconCircle: {
+    width: normalize(36),
+    height: normalize(36),
+    borderRadius: normalize(18),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: normalize(12),
+  },
+  addTextWrapper: {
+    flex: 1,
+  },
+  addTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: normalize(2),
+  },
+  addDescription: {
+    fontSize: 12,
+    fontWeight: '500',
+    lineHeight: 16,
   },
   emptyContainer: {
     alignItems: 'center',
