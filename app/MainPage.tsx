@@ -25,6 +25,7 @@ import CustomSortModal from './CustomSortModal';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const CHARACTER_BAR_BORDER_RADIUS = 20; // 바의 모서리 반경
+const BUTTON_HIT_SLOP = { top: 10, bottom: 10, left: 10, right: 10 };
 
 const MainPage: React.FC = () => {
   const [sortModalVisible, setSortModalVisible] = React.useState(false);
@@ -80,6 +81,13 @@ const MainPage: React.FC = () => {
     ? characters.filter((character) => character.IsBookmarked)
     : characters;
 
+  const emptyTitle = isBookmarkedFilterOn
+    ? '북마크한 캐릭터가 없어요'
+    : '아직 등록된 캐릭터가 없어요';
+  const emptyDescription = isBookmarkedFilterOn
+    ? '필터를 해제하거나 자주 보는 캐릭터에 북마크를 추가해보세요.'
+    : '아래 + 버튼으로 첫 캐릭터를 추가해보세요.';
+
   return (
     <View
       style={[
@@ -94,7 +102,13 @@ const MainPage: React.FC = () => {
       <View style={styles.overviewContainer}>
         <OverviewBar />
         <View style={styles.headerWrapper}>
-          <TouchableOpacity ref={sortButtonRef} onPress={toggleSortModal}>
+          <TouchableOpacity
+            ref={sortButtonRef}
+            onPress={toggleSortModal}
+            hitSlop={BUTTON_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel="캐릭터 정렬 옵션 열기"
+          >
             <View style={styles.sortButton}>
               <CustomText
                 style={[styles.sortButtonText, { color: colors.grayDark }]}
@@ -103,7 +117,14 @@ const MainPage: React.FC = () => {
               </CustomText>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity ref={optionsButtonRef} onPress={toggleOptionsModal}>
+          <TouchableOpacity
+            ref={optionsButtonRef}
+            onPress={toggleOptionsModal}
+            hitSlop={BUTTON_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel="메인 화면 옵션 열기"
+            accessibilityHint="정보 숨김과 북마크 필터 옵션을 변경합니다."
+          >
             <View
               style={{
                 flexDirection: 'row',
@@ -139,8 +160,38 @@ const MainPage: React.FC = () => {
         data={filteredCharacters}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CharacterBar id={item.id} />}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <CustomText style={[styles.emptyTitle, { color: colors.black }]}>
+              {emptyTitle}
+            </CustomText>
+            <CustomText
+              style={[styles.emptyDescription, { color: colors.grayDark }]}
+            >
+              {emptyDescription}
+            </CustomText>
+            {isBookmarkedFilterOn && (
+              <TouchableOpacity
+                style={[styles.emptyAction, { backgroundColor: colors.grayLight }]}
+                onPress={toggleBookmarkFilter}
+                accessibilityRole="button"
+                accessibilityLabel="북마크 필터 해제"
+              >
+                <CustomText
+                  style={[styles.emptyActionText, { color: colors.black }]}
+                >
+                  필터 해제
+                </CustomText>
+              </TouchableOpacity>
+            )}
+          </View>
+        }
         ListFooterComponent={
-          <TouchableOpacity onPress={() => router.push('/AddCharacterScreen')}>
+          <TouchableOpacity
+            onPress={() => router.push('/AddCharacterScreen')}
+            accessibilityRole="button"
+            accessibilityLabel="캐릭터 추가 화면으로 이동"
+          >
             <View
               style={[styles.addContainer, { borderColor: colors.grayLight }]}
             >
@@ -219,6 +270,33 @@ const styles = StyleSheet.create({
     marginBottom: normalize(6),
     marginHorizontal: normalize(12),
     borderWidth: normalize(3),
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: normalize(24),
+    paddingVertical: normalize(36),
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: normalize(8),
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
+  emptyAction: {
+    marginTop: normalize(16),
+    paddingHorizontal: normalize(18),
+    paddingVertical: normalize(8),
+    borderRadius: normalize(18),
+  },
+  emptyActionText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

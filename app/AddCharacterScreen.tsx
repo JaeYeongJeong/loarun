@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  TextInput,
   View,
   Pressable,
   TouchableWithoutFeedback,
@@ -9,6 +8,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
@@ -158,14 +159,19 @@ const AddCharacterScreen: React.FC = () => {
             style={[
               styles.container,
               {
-                backgroundColor: colors.cardBackground,
+                backgroundColor: colors.background,
                 paddingTop: insets.top,
               },
             ]}
           >
             {/* 상단: 액션바 */}
             <View style={styles.actionBar}>
-              <TouchableOpacity onPress={router.back}>
+              <TouchableOpacity
+                onPress={router.back}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="이전 화면으로 이동"
+              >
                 <Feather
                   name="chevron-left"
                   size={24}
@@ -175,96 +181,139 @@ const AddCharacterScreen: React.FC = () => {
             </View>
 
             <View style={styles.contentWrapper}>
-              {/* 왼쪽 정렬된 타이틀 */}
-              <CustomText style={[styles.title, { color: colors.black }]}>
-                캐릭터 추가
-              </CustomText>
-
-              {/* 입력 필드 */}
-              <CustomTextInput
+              <View
                 style={[
-                  styles.input,
-                  { backgroundColor: colors.grayLight, color: colors.black },
+                  styles.formCard,
+                  { backgroundColor: colors.cardBackground },
                 ]}
-                placeholder=" 캐릭터 이름"
-                placeholderTextColor={colors.grayDark}
-                value={characterName}
-                maxLength={30}
-                onChangeText={(text) => setCharacterName(text)}
-              />
-
-              {/* 검색 버튼 */}
-              <Pressable
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: isLoading
-                      ? colors.grayDark
-                      : colors.primary,
-                  },
-                ]}
-                onPress={() => {
-                  handlerSearchCharacter();
-                }}
-                disabled={isLoading} // 로딩 중 비활성화
               >
-                {isLoading ? (
-                  <Feather
-                    name="more-horizontal"
-                    size={16}
-                    color={colors.white}
+                <View style={styles.heroWrapper}>
+                  <Image
+                    source={require('../assets/images/loarunIcon-favicon-192.png')}
+                    style={styles.heroImage}
+                    resizeMode="contain"
                   />
-                ) : (
-                  <CustomText
-                    style={[styles.buttonText, { color: colors.white }]}
-                  >
-                    검색
-                  </CustomText>
-                )}
-              </Pressable>
+                  <View style={styles.heroTextWrapper}>
+                    <CustomText style={[styles.title, { color: colors.black }]}>
+                      캐릭터 추가
+                    </CustomText>
+                    <CustomText
+                      style={[styles.subtitle, { color: colors.grayDark }]}
+                    >
+                      대표 캐릭터 이름을 입력하면 정보를 불러와요.
+                    </CustomText>
+                  </View>
+                </View>
 
-              {/* 캐릭터 정보 표시 */}
-              {characterInfo && (
                 <View
                   style={[
-                    styles.infoContainer,
+                    styles.inputWrapper,
                     { backgroundColor: colors.grayLight },
                   ]}
                 >
-                  <View style={styles.infoRow}>
-                    {/* 왼쪽: 캐릭터 정보 */}
-                    <View style={styles.infoTexts}>
+                  <Feather name="search" size={18} color={colors.grayDark} />
+                  <CustomTextInput
+                    style={[styles.input, { color: colors.black }]}
+                    placeholder="캐릭터 이름"
+                    placeholderTextColor={colors.grayDark}
+                    value={characterName}
+                    maxLength={30}
+                    editable={!isLoading}
+                    returnKeyType="search"
+                    onSubmitEditing={handlerSearchCharacter}
+                    onChangeText={(text) => setCharacterName(text)}
+                  />
+                </View>
+
+                <Pressable
+                  style={[
+                    styles.button,
+                    {
+                      backgroundColor: isLoading
+                        ? colors.grayDark
+                        : colors.primary,
+                    },
+                  ]}
+                  onPress={() => {
+                    handlerSearchCharacter();
+                  }}
+                  disabled={isLoading}
+                  accessibilityRole="button"
+                  accessibilityLabel={isLoading ? '캐릭터 검색 중' : '캐릭터 검색'}
+                  accessibilityState={{ disabled: isLoading, busy: isLoading }}
+                >
+                  {isLoading ? (
+                    <View style={styles.loadingButtonContent}>
+                      <ActivityIndicator size="small" color={colors.white} />
                       <CustomText
-                        style={[styles.nameText, { color: colors.black }]}
+                        style={[styles.buttonText, { color: colors.white }]}
                       >
-                        {characterInfo.CharacterName}
-                      </CustomText>
-                      <CustomText
-                        style={[styles.infoText, { color: colors.grayDark }]}
-                      >
-                        {characterInfo.ItemAvgLevel}
-                      </CustomText>
-                      <CustomText
-                        style={[styles.infoText, { color: colors.grayDark }]}
-                      >
-                        {characterInfo.CharacterClassName} @{' '}
-                        {characterInfo.ServerName}
+                        검색 중...
                       </CustomText>
                     </View>
-
-                    {/* 오른쪽: 체크 아이콘 버튼 */}
-                    <Pressable
-                      style={[
-                        styles.iconButton,
-                        { backgroundColor: colors.primary },
-                      ]}
-                      onPress={handlerAddCharacter}
+                  ) : (
+                    <CustomText
+                      style={[styles.buttonText, { color: colors.white }]}
                     >
-                      <FontAwesome name="check" size={20} color="white" />
-                    </Pressable>
+                      검색하기
+                    </CustomText>
+                  )}
+                </Pressable>
+
+                {characterInfo && (
+                  <View
+                    style={[
+                      styles.infoContainer,
+                      {
+                        backgroundColor: colors.grayLight,
+                        borderColor: colors.primary + '55',
+                      },
+                    ]}
+                  >
+                    <View style={styles.infoRow}>
+                      <View style={styles.infoTexts}>
+                        <CustomText
+                          style={[styles.resultLabel, { color: colors.primary }]}
+                        >
+                          검색 결과
+                        </CustomText>
+                        <CustomText
+                          style={[styles.nameText, { color: colors.black }]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {characterInfo.CharacterName}
+                        </CustomText>
+                        <CustomText
+                          style={[styles.infoText, { color: colors.grayDark }]}
+                        >
+                          Lv.{characterInfo.ItemAvgLevel}
+                        </CustomText>
+                        <CustomText
+                          style={[styles.infoText, { color: colors.grayDark }]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {characterInfo.CharacterClassName} @{' '}
+                          {characterInfo.ServerName}
+                        </CustomText>
+                      </View>
+
+                      <Pressable
+                        style={[
+                          styles.iconButton,
+                          { backgroundColor: colors.primary },
+                        ]}
+                        onPress={handlerAddCharacter}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${characterInfo.CharacterName} 캐릭터 추가`}
+                      >
+                        <FontAwesome name="check" size={18} color="white" />
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-              )}
+                )}
+              </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -284,17 +333,15 @@ const AddCharacterScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
-  // ✅ 상단 액션바
   actionBar: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
     marginTop: 8,
+    zIndex: 1,
   },
   contentWrapper: {
     flex: 1,
@@ -303,54 +350,106 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingBottom: 32,
   },
+  formCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: 28,
+    paddingHorizontal: 22,
+    paddingVertical: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  heroWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 14,
+  },
+  heroImage: {
+    width: 58,
+    height: 58,
+    borderRadius: 18,
+  },
+  heroTextWrapper: {
+    flex: 1,
+  },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  inputWrapper: {
+    width: '100%',
+    minHeight: 48,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     marginBottom: 12,
-    alignSelf: 'flex-start', // 왼쪽 정렬
-    paddingLeft: '13%',
   },
   input: {
-    fontSize: 14,
-    width: '80%',
-    padding: 10,
-    borderRadius: 15,
-    marginBottom: 10,
-    paddingLeft: 16,
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 10,
+    lineHeight: 20,
   },
   button: {
-    paddingVertical: 10,
+    width: '100%',
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: 18,
     alignItems: 'center',
+    minHeight: 46,
+    justifyContent: 'center',
+  },
+  loadingButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   buttonText: {
-    fontWeight: '600',
-    fontSize: 16,
+    fontWeight: '700',
+    fontSize: 15,
   },
   infoContainer: {
-    marginVertical: 10,
-    padding: 16,
-    borderRadius: 20,
-    width: '80%',
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 18,
+    width: '100%',
+    borderWidth: 1,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 12,
   },
   infoTexts: {
     flex: 1,
     justifyContent: 'center',
+    minWidth: 0,
+  },
+  resultLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    marginBottom: 4,
   },
   nameText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     paddingBottom: 2,
   },
-
   infoText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
   addButton: {
@@ -361,9 +460,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconButton: {
-    padding: 6,
-    borderRadius: 50,
-    marginLeft: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },

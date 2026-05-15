@@ -377,8 +377,32 @@ function OverviewBar() {
           { backgroundColor: colors.cardBackground },
         ]}
         onPress={() => setToggleLeftBlock((prev) => !prev)}
+        accessibilityRole="button"
+        accessibilityLabel={
+          toggleLeftBlock ? '요약 카드, 주간 골드 현황' : '요약 카드, 미션 현황'
+        }
+        accessibilityHint="탭하면 다른 요약 정보로 전환됩니다."
+        accessibilityState={{ selected: !toggleLeftBlock }}
       >
         {toggleLeftBlock ? <OverviewFirstBlock /> : <OverviewSecondBlock />}
+        <View style={styles.cardHintWrapper} pointerEvents="none">
+          <View style={styles.indicatorRow}>
+            {[true, false].map((activeState) => (
+              <View
+                key={String(activeState)}
+                style={[
+                  styles.indicatorDot,
+                  {
+                    backgroundColor:
+                      toggleLeftBlock === activeState
+                        ? colors.secondary
+                        : colors.grayDark + '55',
+                  },
+                ]}
+              />
+            ))}
+          </View>
+        </View>
       </TouchableOpacity>
       {/* 오른쪽 블럭 */}
       <TouchableOpacity
@@ -387,6 +411,12 @@ function OverviewBar() {
           { backgroundColor: colors.cardBackground },
         ]}
         onPress={() => setToggleRightBlock((prev) => !prev)}
+        accessibilityRole="button"
+        accessibilityLabel={
+          toggleRightBlock ? '로아런 카드, 이번 주 골드' : '로아런 카드, 지난주 골드'
+        }
+        accessibilityHint="탭하면 이번 주와 지난주 로아런 금액이 전환됩니다."
+        accessibilityState={{ selected: !toggleRightBlock }}
       >
         {/* 상단 고정 설정 아이콘 */}
         <View style={styles.settingWrapper}>
@@ -394,11 +424,32 @@ function OverviewBar() {
             ref={settingButtonRef}
             onPress={toggleModal}
             style={styles.iconButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="설정 열기"
           >
             <Feather name="settings" size={24} color={colors.iconColor} />
           </Pressable>
         </View>
         {toggleRightBlock ? <LoarunBlock /> : <LastWeekLoarunBlock />}
+        <View style={styles.cardHintWrapper} pointerEvents="none">
+          <View style={styles.indicatorRow}>
+            {[true, false].map((activeState) => (
+              <View
+                key={String(activeState)}
+                style={[
+                  styles.indicatorDot,
+                  {
+                    backgroundColor:
+                      toggleRightBlock === activeState
+                        ? colors.secondary
+                        : colors.grayDark + '55',
+                  },
+                ]}
+              />
+            ))}
+          </View>
+        </View>
       </TouchableOpacity>
 
       <SettingModal
@@ -428,6 +479,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     aspectRatio: 1,
+  },
+  cardHintWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: normalize(8),
+    alignItems: 'center',
+    gap: normalize(4),
+  },
+  indicatorRow: {
+    flexDirection: 'row',
+    gap: normalize(4),
+  },
+  indicatorDot: {
+    width: normalize(5),
+    height: normalize(5),
+    borderRadius: normalize(3),
   },
   leftLoarunBlock: {
     flex: 1,
