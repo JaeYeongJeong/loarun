@@ -61,6 +61,7 @@ const CharacterActivityOptionsModal: React.FC<
                   styles.modalContainer,
                   {
                     backgroundColor: colors.modalBackground,
+                    borderColor: colors.grayDark + '55',
                     marginTop: positionY,
                     marginRight: 12,
                   },
@@ -172,13 +173,19 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     alignItems: 'flex-end',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(0, 0, 0, 0.18)',
   },
   modalContainer: {
     padding: 16,
     gap: 12,
     minWidth: 200,
-    borderRadius: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 16,
+    elevation: 12,
   },
   modalText: {
     fontSize: 16,

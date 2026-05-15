@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import MissionModal from './SubmitMissionModal';
 import { SelectedRaid, useCharacter } from '@/context/CharacterContext';
@@ -29,8 +30,6 @@ import CustomPrompt from './CustomPrompt';
 import CustomAlert from './CustomAlert';
 import { validateNicknameInput } from '@/utils/validateInput';
 import { getPortraitImage } from '@/utils/PortraitImage';
-import { DropEffect } from '@/components/customTextComponents/DropEffect';
-import { FadeEffect } from '@/components/customTextComponents/FadeEffect';
 
 const CharacterActivity: React.FC = () => {
   // 📌 기본 훅 및 네비게이션
@@ -344,7 +343,12 @@ const CharacterActivity: React.FC = () => {
     >
       {/* 상단: 액션바 */}
       <View style={styles.actionBar}>
-        <TouchableOpacity onPress={router.back}>
+        <TouchableOpacity
+          onPress={router.back}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="button"
+          accessibilityLabel="이전 화면으로 이동"
+        >
           <Feather name="chevron-left" size={24} color={colors.iconColor} />
         </TouchableOpacity>
         <View style={styles.actionWrapper}>
@@ -354,6 +358,10 @@ const CharacterActivity: React.FC = () => {
               setBookmarked(next);
               updateCharacter(character.id, { IsBookmarked: next });
             }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={bookmarked ? '북마크 해제' : '북마크 추가'}
+            accessibilityState={{ selected: bookmarked }}
           >
             {bookmarked ? (
               <BookmarkFilled width={24} height={24} color={colors.iconColor} />
@@ -361,10 +369,21 @@ const CharacterActivity: React.FC = () => {
               <Feather name="bookmark" size={24} color={colors.iconColor} />
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleDeleteCharacter}>
+          <TouchableOpacity
+            onPress={handleDeleteCharacter}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={`${isInfoVisible ?? true ? character.CharacterName : '익명'} 캐릭터 삭제`}
+          >
             <Feather name="trash-2" size={24} color={colors.iconColor} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={toggleOptionsModal} ref={optionsButtonRef}>
+          <TouchableOpacity
+            onPress={toggleOptionsModal}
+            ref={optionsButtonRef}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="캐릭터 활동 옵션 열기"
+          >
             <Feather
               name="more-horizontal"
               size={24}
@@ -425,11 +444,22 @@ const CharacterActivity: React.FC = () => {
               onPress={handleRefreshCharacter}
               disabled={!refreshable}
             >
-              <CustomText
-                style={[styles.refreshButtonText, { color: colors.black }]}
-              >
-                {refreshText}
-              </CustomText>
+              {isRefreshing ? (
+                <View style={styles.refreshButtonContent}>
+                  <ActivityIndicator size="small" color={colors.black} />
+                  <CustomText
+                    style={[styles.refreshButtonText, { color: colors.black }]}
+                  >
+                    갱신 중...
+                  </CustomText>
+                </View>
+              ) : (
+                <CustomText
+                  style={[styles.refreshButtonText, { color: colors.black }]}
+                >
+                  {refreshText}
+                </CustomText>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -463,48 +493,25 @@ const CharacterActivity: React.FC = () => {
                   주간 레이드
                 </CustomText>
               </View>
-              <View style={{ flexDirection: 'row' }}>
-                <DropEffect
-                  style={{ flexDirection: 'row' }}
-                  triggerKey={clearedRaidTotalGold}
-                  dropFromY={4}
-                  duration={800}
-                  delay={0} // baseDelay
-                  staggerStep={80} // 글자 간 간격
-                >
-                  {String(clearedRaidTotalGold.toLocaleString() || 0)
-                    .split('')
-                    .map((ch, i) => (
-                      <FadeEffect
-                        key={i}
-                        triggerKey={clearedRaidTotalGold}
-                        fromOpacity={0}
-                        duration={1600}
-                        delay={i * 80} // 👈 글자별 지연
-                      >
-                        <CustomText
-                          style={[
-                            styles.totalGoldText,
-                            { color: colors.black },
-                          ]}
-                        >
-                          {ch}
-                        </CustomText>
-                      </FadeEffect>
-                    ))}
-                </DropEffect>
-                <CustomText
-                  style={[styles.totalGoldText, { color: colors.black }]}
-                >
-                  {' '}
-                  / {selectedRaidTotalGold?.toLocaleString() || 0}
-                </CustomText>
-              </View>
+              <CustomText
+                style={[styles.totalGoldText, { color: colors.black }]}
+              >
+                {clearedRaidTotalGold.toLocaleString() || 0} /{' '}
+                {selectedRaidTotalGold?.toLocaleString() || 0}
+              </CustomText>
             </View>
           </TouchableOpacity>
           {!weeklyRaidFolded && (
             <View>
               <Spacer height={12} />
+              {(!Array.isArray(character.SelectedRaids) ||
+                character.SelectedRaids.length === 0) && (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 레이드가 없어요.
+                </CustomText>
+              )}
               {character.SelectedRaids?.map((raid, index) => (
                 <View key={index} style={{ marginBottom: 4 }}>
                   <View style={styles.raidTitleRow}>
@@ -693,6 +700,9 @@ const CharacterActivity: React.FC = () => {
                       onPress={() => {
                         handleChecklistToggle(index);
                       }}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel={`${item.name} ${item.checked ? '완료됨' : '미완료'}`}
+                      accessibilityState={{ checked: item.checked }}
                     >
                       <View style={styles.activityItemRow}>
                         <View
@@ -720,7 +730,10 @@ const CharacterActivity: React.FC = () => {
                                 color: colors.black,
                                 flexShrink: 1,
                               },
+                              item.checked ? styles.completedActivityText : {},
                             ]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
                           >
                             {item.name}
                           </CustomText>
@@ -750,6 +763,9 @@ const CharacterActivity: React.FC = () => {
                         setMissionScope('character');
                         toggleActivityModal();
                       }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${item.name} 미션 수정`}
                     >
                       <Feather
                         name="edit"
@@ -825,6 +841,14 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!accountMissionCheckedListFolded && (
             <View>
+              {(!Array.isArray(character.AccountMissionCheckList) ||
+                character.AccountMissionCheckList.length === 0) && (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 원정대 미션이 없어요.
+                </CustomText>
+              )}
               {Array.isArray(character.AccountMissionCheckList) &&
                 character.AccountMissionCheckList.map((item, index) => (
                   <View
@@ -843,6 +867,9 @@ const CharacterActivity: React.FC = () => {
                       onPress={() => {
                         handleAccountChecklistToggle(index);
                       }}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel={`${item.name} ${item.checked ? '완료됨' : '미완료'}`}
+                      accessibilityState={{ checked: item.checked }}
                     >
                       <View style={styles.activityItemRow}>
                         <View
@@ -870,7 +897,10 @@ const CharacterActivity: React.FC = () => {
                                 color: colors.black,
                                 flexShrink: 1,
                               },
+                              item.checked ? styles.completedActivityText : {},
                             ]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
                           >
                             {item.name}
                           </CustomText>
@@ -900,6 +930,9 @@ const CharacterActivity: React.FC = () => {
                         setMissionScope('account');
                         toggleActivityModal();
                       }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${item.name} 원정대 미션 수정`}
                     >
                       <Feather
                         name="edit"
@@ -969,6 +1002,80 @@ const CharacterActivity: React.FC = () => {
           </TouchableOpacity>
           {!otherActivityFolded && (
             <View>
+              {Array.isArray(character.OtherActivity) &&
+              character.OtherActivity.length > 0 ? (
+                character.OtherActivity.map((activity, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: 'row',
+                      marginBottom: 10,
+                      marginTop: index === 0 ? 16 : 0,
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.activityItem,
+                        { backgroundColor: colors.grayLight },
+                      ]}
+                      onPress={() => {
+                        setOtherActivityIndex(index);
+                        toggleOtherActivityModal();
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${activity.name} 활동 수정`}
+                    >
+                      <View style={styles.activityItemRow}>
+                        <CustomText
+                          style={[
+                            styles.activityNameText,
+                            { color: colors.black, flexShrink: 1 },
+                          ]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {activity.name}
+                        </CustomText>
+                        <CustomText
+                          style={[
+                            styles.activityGoldText,
+                            activity.gold >= 0
+                              ? { color: colors.black }
+                              : { color: colors.warning },
+                          ]}
+                        >
+                          {activity.gold.toLocaleString()}
+                        </CustomText>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        paddingLeft: 8,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setOtherActivityIndex(index);
+                        toggleOtherActivityModal();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${activity.name} 활동 수정`}
+                    >
+                      <Feather
+                        name="edit"
+                        size={20}
+                        color={colors.iconColor + 80}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <CustomText
+                  style={[styles.emptyActivityText, { color: colors.grayDark }]}
+                >
+                  추가된 기타 활동이 없어요.
+                </CustomText>
+              )}
               <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
                 <TouchableOpacity
                   style={[
@@ -976,6 +1083,8 @@ const CharacterActivity: React.FC = () => {
                     { backgroundColor: colors.grayLight },
                   ]}
                   onPress={toggleOtherActivityModal}
+                  accessibilityRole="button"
+                  accessibilityLabel="기타 활동 추가"
                 >
                   <CustomText
                     style={[styles.editButtonText, { color: colors.black }]}
@@ -984,45 +1093,6 @@ const CharacterActivity: React.FC = () => {
                   </CustomText>
                 </TouchableOpacity>
               </View>
-              {Array.isArray(character.OtherActivity) &&
-                character.OtherActivity.map((activity, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.otherActivityItem,
-                      {
-                        backgroundColor: colors.grayLight,
-                        marginTop: index === 0 ? 16 : 0,
-                        marginBottom: 10,
-                      },
-                    ]}
-                    onPress={() => {
-                      setOtherActivityIndex(index);
-                      toggleOtherActivityModal();
-                    }}
-                  >
-                    <View style={styles.activityItemRow}>
-                      <CustomText
-                        style={[
-                          styles.activityNameText,
-                          { color: colors.black, flexShrink: 1 },
-                        ]}
-                      >
-                        {activity.name}
-                      </CustomText>
-                      <CustomText
-                        style={[
-                          styles.activityGoldText,
-                          activity.gold >= 0
-                            ? { color: colors.black }
-                            : { color: colors.warning },
-                        ]}
-                      >
-                        {activity.gold.toLocaleString()}
-                      </CustomText>
-                    </View>
-                  </TouchableOpacity>
-                ))}
             </View>
           )}
           {/* 추가 버튼 */}
@@ -1241,9 +1311,19 @@ const styles = StyleSheet.create({
   },
 
   refreshButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 3,
+    borderRadius: 16,
+    minWidth: 82,
+    minHeight: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  refreshButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 
   refreshButtonText: {
@@ -1303,28 +1383,32 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 5,
-    borderRadius: 20,
+    borderRadius: 16,
+    minHeight: 30,
+    justifyContent: 'center',
   },
 
   editButtonText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
 
   raidButton: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
   },
 
   difficultyText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
   raidButtonText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
   },
 
@@ -1348,8 +1432,10 @@ const styles = StyleSheet.create({
   activityItem: {
     flex: 1,
     borderRadius: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
+    minHeight: 44,
+    justifyContent: 'center',
   },
 
   missionTitleBlock: {
@@ -1365,10 +1451,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  otherActivityItem: {
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  emptyActivityText: {
+    fontSize: 13,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 10,
   },
 
   activityNameText: {
@@ -1379,6 +1467,10 @@ const styles = StyleSheet.create({
   activityGoldText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  completedActivityText: {
+    textDecorationLine: 'line-through',
+    opacity: 0.65,
   },
 });
 

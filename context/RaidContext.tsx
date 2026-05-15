@@ -110,28 +110,28 @@ export const RaidProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const perRaidBest = raids
       .map((raid) => {
-        // 해당 레이드에서 선택 가능한 (노말/하드)만, 아이템 레벨 이하
-        const choices = raid.difficulties
-          .filter(
-            (diff) =>
-              eligible(diff.difficulty) && diff.requiredItemLevel <= itemLevel
-          )
-          // 가장 높은 난이도(= 보통 requiredItemLevel이 더 높은 것)를 고르기 위해 정렬
-          .sort((a, b) => b.requiredItemLevel - a.requiredItemLevel);
+        const bestDifficulty = raid.difficulties
+          // 캐릭터 레벨을 초과하는 단계 제외
+          .filter((diff) => diff.requiredItemLevel <= itemLevel)
+          // 각 레이드에서 가장 높은 단계 1개 선택
+          .sort((a, b) => b.requiredItemLevel - a.requiredItemLevel)[0];
 
-        const best = choices[0];
-        if (!best) return null;
+        if (!bestDifficulty) return null;
 
-        return { name: raid.name, difficulty: best };
+        return {
+          name: raid.name,
+          difficulties: [bestDifficulty],
+        };
       })
-      .filter((x): x is { name: string; difficulty: Difficulty } => x !== null);
+      .filter((raid): raid is Raid => raid !== null)
+      // 전체 레이드 중 상위 레이드 정렬
+      .sort(
+        (a, b) =>
+          b.difficulties[0].requiredItemLevel -
+          a.difficulties[0].requiredItemLevel
+      );
 
-    const top = perRaidBest.slice(0, limit).map((r) => ({
-      name: r.name,
-      difficulties: [r.difficulty],
-    }));
-
-    return top;
+    return perRaidBest.slice(0, limit);
   };
 
   return (

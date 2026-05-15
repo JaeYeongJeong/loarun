@@ -103,7 +103,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.62)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -111,7 +111,12 @@ const styles = StyleSheet.create({
     width: '80%',
     maxWidth: 400,
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.24,
+    shadowRadius: 16,
+    elevation: 14,
   },
   titleText: {
     fontSize: 18,

@@ -64,6 +64,7 @@ const SortModal: React.FC<SortModalProps> = ({
                 styles.modalContainer,
                 {
                   backgroundColor: colors.modalBackground,
+                  borderColor: colors.grayDark + '55',
                   marginTop: positionY,
                   marginLeft: 12,
                 },
@@ -106,13 +107,29 @@ const SortModal: React.FC<SortModalProps> = ({
                   )}
                 </View>
               </TouchableOpacity>
+              <View
+                style={[
+                  styles.separator,
+                  { backgroundColor: colors.grayDark + '33' },
+                ]}
+              />
               <TouchableOpacity onPress={sortByCustom}>
                 <View style={styles.optionContainer}>
-                  <CustomText
-                    style={[styles.modalText, { color: colors.black }]}
-                  >
-                    커스텀 정렬
-                  </CustomText>
+                  <View style={styles.customOptionTextWrapper}>
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      커스텀 정렬
+                    </CustomText>
+                    <CustomText
+                      style={[
+                        styles.customOptionDescription,
+                        { color: colors.grayDark },
+                      ]}
+                    >
+                      직접 순서 변경
+                    </CustomText>
+                  </View>
                   {characterSortOrder === 'custom' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
@@ -130,13 +147,19 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     alignItems: 'flex-start',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(0, 0, 0, 0.18)',
   },
   modalContainer: {
     padding: 16,
-    gap: 12,
+    gap: 10,
     minWidth: 200,
-    borderRadius: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 16,
+    elevation: 12,
   },
   modalText: {
     fontSize: 16,
@@ -147,6 +170,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 32,
+    minHeight: 24,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
+    marginVertical: 2,
+  },
+  customOptionTextWrapper: {
+    gap: 2,
+  },
+  customOptionDescription: {
+    fontSize: 11,
+    fontWeight: '500',
   },
 });
 
