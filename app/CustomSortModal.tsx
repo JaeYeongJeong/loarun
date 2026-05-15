@@ -209,14 +209,18 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
   const panResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => false,
+        onStartShouldSetPanResponder: () => draggingId !== null,
+        onStartShouldSetPanResponderCapture: () => draggingId !== null,
         onMoveShouldSetPanResponder: () => draggingId !== null,
+        onMoveShouldSetPanResponderCapture: () => draggingId !== null,
         onPanResponderMove: (_, gestureState) => {
           updateDragPosition(gestureState.dy);
           scheduleAutoScroll(gestureState);
         },
         onPanResponderRelease: finishDrag,
+        onPanResponderTerminationRequest: () => false,
         onPanResponderTerminate: finishDrag,
+        onShouldBlockNativeResponder: () => true,
       }),
     [draggingId, finishDrag, scheduleAutoScroll, updateDragPosition]
   );
@@ -281,6 +285,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
             style={styles.listContainer}
             contentContainerStyle={styles.listContentContainer}
             scrollEnabled={!draggingId}
+            disableScrollViewPanResponder={Boolean(draggingId)}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={(_, height) => {
               contentHeight.current = height;
