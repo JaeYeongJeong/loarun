@@ -152,7 +152,10 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
         <View
           style={[
             styles.modalContainer,
-            { backgroundColor: colors.modalBackground },
+            {
+              backgroundColor: colors.modalBackground,
+              borderColor: colors.grayDark + '55',
+            },
           ]}
         >
           <View style={styles.headerContainer}>
@@ -241,13 +244,19 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
     paddingHorizontal: normalize(12),
   },
   modalContainer: {
     maxHeight: '86%',
     borderRadius: 20,
+    borderWidth: 1,
     paddingVertical: normalize(18),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 18,
+    elevation: 14,
   },
   headerContainer: {
     flexDirection: 'row',

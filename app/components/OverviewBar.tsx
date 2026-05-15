@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, View, Pressable, TouchableOpacity } from 'react-native';
 import { useCharacter } from '@/context/CharacterContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { normalize } from '@/utils/nomalize';
 import CustomText from '../../components/customTextComponents/CustomText';
 
@@ -423,12 +423,29 @@ function OverviewBar() {
           <Pressable
             ref={settingButtonRef}
             onPress={toggleModal}
-            style={styles.iconButton}
+            style={({ pressed }) => [
+              styles.iconButton,
+              {
+                backgroundColor: colors.secondary + '18',
+                borderColor: colors.secondary + '55',
+              },
+              pressed && styles.iconButtonPressed,
+            ]}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             accessibilityRole="button"
             accessibilityLabel="설정 열기"
           >
-            <Feather name="settings" size={24} color={colors.iconColor} />
+            <View
+              style={[
+                styles.iconButtonGlow,
+                { backgroundColor: colors.secondary + '24' },
+              ]}
+            />
+            <MaterialCommunityIcons
+              name="cog-outline"
+              size={22}
+              color={colors.secondary}
+            />
           </Pressable>
         </View>
         {toggleRightBlock ? <LoarunBlock /> : <LastWeekLoarunBlock />}
@@ -515,7 +532,32 @@ const styles = StyleSheet.create({
     right: '5%',
     zIndex: 1,
   },
-  iconButton: { padding: normalize(3) },
+  iconButton: {
+    width: normalize(34),
+    height: normalize(34),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: normalize(17),
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  iconButtonPressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.96 }],
+  },
+  iconButtonGlow: {
+    position: 'absolute',
+    width: normalize(22),
+    height: normalize(22),
+    borderRadius: normalize(11),
+    top: normalize(4),
+    right: normalize(4),
+  },
   infoWrapper: {
     flex: 1,
     flexDirection: 'column',
