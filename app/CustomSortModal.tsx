@@ -9,6 +9,7 @@ import {
   Dimensions,
   Modal,
   PanResponder,
+  type PanResponderGestureState,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -20,6 +21,8 @@ import CharacterBar from './components/CharacterBar';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const CHARACTER_BAR_HEIGHT = SCREEN_HEIGHT * 0.09;
 const CHARACTER_ROW_HEIGHT = CHARACTER_BAR_HEIGHT + normalize(6);
+const AUTO_SCROLL_EDGE_SIZE = normalize(72);
+const AUTO_SCROLL_MAX_STEP = normalize(18);
 
 type CustomSortModalProps = {
   isVisible: boolean;
@@ -47,7 +50,15 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const dragY = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
   const dragStartIndex = useRef(0);
+  const dragStartScrollY = useRef(0);
+  const scrollY = useRef(0);
+  const listTopY = useRef(0);
+  const listHeight = useRef(0);
+  const contentHeight = useRef(0);
+  const lastGesture = useRef<{ dy: number; moveY: number } | null>(null);
+  const autoScrollFrame = useRef<number | null>(null);
 
   useEffect(() => {
     if (isVisible) {
@@ -55,6 +66,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
       setDraggingId(null);
       setDragOffsetY(0);
       dragY.setValue(0);
+      lastGesture.current = null;
     }
   }, [characters, dragY, isVisible]);
 
@@ -69,14 +81,20 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
     .map((id) => characterMap[id])
     .filter((character): character is Character => Boolean(character));
 
+  const getDragDistance = useCallback(
+    (dy: number) => dy + scrollY.current - dragStartScrollY.current,
+    []
+  );
+
   const getDragTargetIndex = useCallback(
     (dy: number) =>
       clamp(
-        dragStartIndex.current + Math.round(dy / CHARACTER_ROW_HEIGHT),
+        dragStartIndex.current +
+          Math.round(getDragDistance(dy) / CHARACTER_ROW_HEIGHT),
         0,
         orderedIds.length - 1
       ),
-    [orderedIds.length]
+    [getDragDistance, orderedIds.length]
   );
 
   const getDisplacedTranslateY = (index: number) => {
@@ -96,8 +114,83 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
     return 0;
   };
 
+  const stopAutoScroll = useCallback(() => {
+    if (autoScrollFrame.current !== null) {
+      cancelAnimationFrame(autoScrollFrame.current);
+      autoScrollFrame.current = null;
+    }
+  }, []);
+
+  const updateDragPosition = useCallback(
+    (dy: number) => {
+      setDragOffsetY(dy);
+      dragY.setValue(getDragDistance(dy));
+    },
+    [dragY, getDragDistance]
+  );
+
+  const runAutoScroll = useCallback(() => {
+    const gesture = lastGesture.current;
+    if (!gesture || listHeight.current <= 0) {
+      autoScrollFrame.current = null;
+      return;
+    }
+
+    const relativeY = gesture.moveY - listTopY.current;
+    let direction = 0;
+    let distanceFromEdge = 0;
+
+    if (relativeY < AUTO_SCROLL_EDGE_SIZE) {
+      direction = -1;
+      distanceFromEdge = AUTO_SCROLL_EDGE_SIZE - relativeY;
+    } else if (relativeY > listHeight.current - AUTO_SCROLL_EDGE_SIZE) {
+      direction = 1;
+      distanceFromEdge = relativeY - (listHeight.current - AUTO_SCROLL_EDGE_SIZE);
+    }
+
+    const maxScrollY = Math.max(0, contentHeight.current - listHeight.current);
+    const canScrollUp = direction < 0 && scrollY.current > 0;
+    const canScrollDown = direction > 0 && scrollY.current < maxScrollY;
+
+    if (direction !== 0 && (canScrollUp || canScrollDown)) {
+      const speedRatio = clamp(distanceFromEdge / AUTO_SCROLL_EDGE_SIZE, 0, 1);
+      const nextScrollY = clamp(
+        scrollY.current + direction * AUTO_SCROLL_MAX_STEP * speedRatio,
+        0,
+        maxScrollY
+      );
+
+      if (nextScrollY !== scrollY.current) {
+        scrollY.current = nextScrollY;
+        scrollViewRef.current?.scrollTo({ y: nextScrollY, animated: false });
+        updateDragPosition(gesture.dy);
+      }
+
+      autoScrollFrame.current = requestAnimationFrame(runAutoScroll);
+    } else {
+      autoScrollFrame.current = null;
+    }
+  }, [updateDragPosition]);
+
+  const scheduleAutoScroll = useCallback(
+    (gestureState: PanResponderGestureState) => {
+      lastGesture.current = {
+        dy: gestureState.dy,
+        moveY: gestureState.moveY,
+      };
+
+      if (autoScrollFrame.current === null) {
+        autoScrollFrame.current = requestAnimationFrame(runAutoScroll);
+      }
+    },
+    [runAutoScroll]
+  );
+
   const finishDrag = useCallback((_: unknown, gestureState: { dy: number }) => {
     if (!draggingId) return;
+
+    stopAutoScroll();
+    lastGesture.current = null;
 
     const fromIndex = dragStartIndex.current;
     const targetIndex = getDragTargetIndex(gestureState.dy);
@@ -109,7 +202,9 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
     setDraggingId(null);
     setDragOffsetY(0);
     dragY.setValue(0);
-  }, [dragY, draggingId, getDragTargetIndex]);
+  }, [dragY, draggingId, getDragTargetIndex, stopAutoScroll]);
+
+  useEffect(() => stopAutoScroll, [stopAutoScroll]);
 
   const panResponder = useMemo(
     () =>
@@ -117,17 +212,22 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
         onStartShouldSetPanResponder: () => false,
         onMoveShouldSetPanResponder: () => draggingId !== null,
         onPanResponderMove: (_, gestureState) => {
-          dragY.setValue(gestureState.dy);
-          setDragOffsetY(gestureState.dy);
+          updateDragPosition(gestureState.dy);
+          scheduleAutoScroll(gestureState);
         },
         onPanResponderRelease: finishDrag,
         onPanResponderTerminate: finishDrag,
       }),
-    [dragY, draggingId, finishDrag]
+    [draggingId, finishDrag, scheduleAutoScroll, updateDragPosition]
   );
 
   const startDrag = (id: string, index: number) => {
+    scrollViewRef.current?.measureInWindow((_, y, __, height) => {
+      listTopY.current = y;
+      listHeight.current = height;
+    });
     dragStartIndex.current = index;
+    dragStartScrollY.current = scrollY.current;
     setDraggingId(id);
     setDragOffsetY(0);
     dragY.setValue(0);
@@ -140,6 +240,8 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
   };
 
   const handleCancel = () => {
+    stopAutoScroll();
+    lastGesture.current = null;
     setDraggingId(null);
     setDragOffsetY(0);
     dragY.setValue(0);
@@ -175,10 +277,21 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
           </View>
 
           <ScrollView
+            ref={scrollViewRef}
             style={styles.listContainer}
             contentContainerStyle={styles.listContentContainer}
             scrollEnabled={!draggingId}
             showsVerticalScrollIndicator={false}
+            onContentSizeChange={(_, height) => {
+              contentHeight.current = height;
+            }}
+            onLayout={(event) => {
+              listHeight.current = event.nativeEvent.layout.height;
+            }}
+            onScroll={(event) => {
+              scrollY.current = event.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
           >
             {orderedIds.map((id, index) => {
               const isDragging = draggingId === id;
