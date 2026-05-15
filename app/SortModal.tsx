@@ -106,13 +106,29 @@ const SortModal: React.FC<SortModalProps> = ({
                   )}
                 </View>
               </TouchableOpacity>
+              <View
+                style={[
+                  styles.separator,
+                  { backgroundColor: colors.grayDark + '33' },
+                ]}
+              />
               <TouchableOpacity onPress={sortByCustom}>
                 <View style={styles.optionContainer}>
-                  <CustomText
-                    style={[styles.modalText, { color: colors.black }]}
-                  >
-                    커스텀 정렬
-                  </CustomText>
+                  <View style={styles.customOptionTextWrapper}>
+                    <CustomText
+                      style={[styles.modalText, { color: colors.black }]}
+                    >
+                      커스텀 정렬
+                    </CustomText>
+                    <CustomText
+                      style={[
+                        styles.customOptionDescription,
+                        { color: colors.grayDark },
+                      ]}
+                    >
+                      직접 순서 변경
+                    </CustomText>
+                  </View>
                   {characterSortOrder === 'custom' && (
                     <Feather name="check" size={20} color={colors.iconColor} />
                   )}
@@ -134,7 +150,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     padding: 16,
-    gap: 12,
+    gap: 10,
     minWidth: 200,
     borderRadius: 10,
   },
@@ -147,6 +163,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 32,
+    minHeight: 24,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
+    marginVertical: 2,
+  },
+  customOptionTextWrapper: {
+    gap: 2,
+  },
+  customOptionDescription: {
+    fontSize: 11,
+    fontWeight: '500',
   },
 });
 

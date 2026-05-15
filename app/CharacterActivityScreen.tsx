@@ -1295,11 +1295,11 @@ const styles = StyleSheet.create({
   },
 
   refreshButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    borderRadius: 20,
-    minWidth: 88,
-    minHeight: 32,
+    paddingHorizontal: 14,
+    paddingVertical: 3,
+    borderRadius: 16,
+    minWidth: 82,
+    minHeight: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1367,15 +1367,15 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    minHeight: 36,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 16,
+    minHeight: 30,
     justifyContent: 'center',
   },
 
   editButtonText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
   },
 
