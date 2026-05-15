@@ -36,14 +36,29 @@ const getDocumentFile = (fileName: string) => {
   return new File(Paths.document, fileName);
 };
 
+const safeDeleteFile = (file: File) => {
+  try {
+    if (file.exists) {
+      file.delete();
+    }
+  } catch (error) {
+    console.warn('이미지 파일 삭제 실패:', error);
+  }
+};
+
+const createImageFileSuffix = () => {
+  return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+};
+
 const cropAndSavePortraitImage = async (
   characterImage: string,
   id: string,
   className: string
 ) => {
-  try {
-    const originalFile = getDocumentFile(`${id}_original.png`);
+  const suffix = createImageFileSuffix();
+  const originalFile = getDocumentFile(`${id}_original_${suffix}.png`);
 
+  try {
     await File.downloadFileAsync(characterImage, originalFile, {
       idempotent: true,
     });
@@ -84,22 +99,31 @@ const cropAndSavePortraitImage = async (
       }
     );
 
-    const fileName = `${id}_portrait.png`;
+    const previousFileName = await AsyncStorage.getItem(
+      `portrait_filename_${id}`
+    );
+    const fileName = `${id}_portrait_${suffix}.png`;
     const portraitFile = getDocumentFile(fileName);
 
-    if (portraitFile.exists) {
-      portraitFile.delete();
-    }
+    // File.move는 대상 파일이 이미 있으면 실패하므로 매번 새 파일명을 사용하고,
+    // 만약 같은 이름의 잔여 파일이 있다면 이동 전 제거한다.
+    safeDeleteFile(portraitFile);
 
     const tempFile = new File(manipulated.uri);
     tempFile.move(portraitFile);
 
     await AsyncStorage.setItem(`portrait_filename_${id}`, fileName);
 
+    if (previousFileName && previousFileName !== fileName) {
+      safeDeleteFile(getDocumentFile(previousFileName));
+    }
+
     return portraitFile.uri;
   } catch (error) {
     console.error('이미지 처리 실패:', error);
     return null;
+  } finally {
+    safeDeleteFile(originalFile);
   }
 };
 
@@ -124,9 +148,7 @@ const deletePortraitImage = async (id: string) => {
 
     const portraitFile = getDocumentFile(fileName);
 
-    if (portraitFile.exists) {
-      portraitFile.delete();
-    }
+    safeDeleteFile(portraitFile);
 
     await AsyncStorage.removeItem(`portrait_filename_${id}`);
   } catch (error) {
