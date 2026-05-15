@@ -560,42 +560,21 @@ const RaidModal: React.FC<RaidModalProps> = ({
 
             {/* 하단 입력 + 버튼 고정 */}
             <View
-              style={[
-                styles.footerPanel,
-                {
-                  backgroundColor: colors.modalBackground,
-                  borderTopColor: colors.grayDark + '22',
-                },
-              ]}
+              style={{
+                padding: 24,
+                backgroundColor: colors.modalBackground,
+                borderTopLeftRadius: 32,
+                borderTopRightRadius: 32,
+              }}
             >
               {/* 체크박스 라인 1 */}
               <TouchableOpacity onPress={() => setIsGoldChecked((v) => !v)}>
-                <View
-                  style={[
-                    styles.checkBlock,
-                    {
-                      backgroundColor: colors.cardBackground,
-                      borderColor: isGoldChecked
-                        ? colors.secondary + '55'
-                        : colors.grayDark + '22',
-                    },
-                  ]}
-                >
-                  <View style={styles.checkTextWrapper}>
-                    <CustomText
-                      style={[styles.checkBlockText, { color: colors.black }]}
-                    >
-                      클리어 골드 획득
-                    </CustomText>
-                    <CustomText
-                      style={[
-                        styles.checkBlockDescription,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      선택한 관문의 클리어 골드를 합산해요
-                    </CustomText>
-                  </View>
+                <View style={styles.checkBlock}>
+                  <CustomText
+                    style={[styles.checkBlockText, { color: colors.black }]}
+                  >
+                    클리어 골드 획득
+                  </CustomText>
                   <MaterialIcons
                     name={
                       isGoldChecked ? 'check-box' : 'check-box-outline-blank'
@@ -620,32 +599,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
                   );
                 }}
               >
-                <View
-                  style={[
-                    styles.checkBlock,
-                    {
-                      backgroundColor: colors.cardBackground,
-                      borderColor: isChestCostChecked
-                        ? colors.secondary + '55'
-                        : colors.grayDark + '22',
-                    },
-                  ]}
-                >
-                  <View style={styles.checkTextWrapper}>
-                    <CustomText
-                      style={[styles.checkBlockText, { color: colors.black }]}
-                    >
-                      더보기 체크
-                    </CustomText>
-                    <CustomText
-                      style={[
-                        styles.checkBlockDescription,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      더보기 비용을 제외할 관문을 선택해요
-                    </CustomText>
-                  </View>
+                <View style={styles.checkBlock}>
+                  <CustomText
+                    style={[styles.checkBlockText, { color: colors.black }]}
+                  >
+                    더보기 체크
+                  </CustomText>
                   <MaterialIcons
                     name={
                       isChestCostChecked
@@ -667,8 +626,7 @@ const RaidModal: React.FC<RaidModalProps> = ({
                 <View
                   style={[
                     styles.stageContainer,
-                    styles.chestStageContainer,
-                    { backgroundColor: colors.grayLight },
+                    { backgroundColor: colors.grayLight, marginBottom: 12 },
                   ]}
                 >
                   {selectedStages
@@ -741,32 +699,12 @@ const RaidModal: React.FC<RaidModalProps> = ({
               <TouchableOpacity
                 onPress={() => setIsAdditionalGoldChecked((v) => !v)}
               >
-                <View
-                  style={[
-                    styles.checkBlock,
-                    {
-                      backgroundColor: colors.cardBackground,
-                      borderColor: isAdditionalGoldChecked
-                        ? colors.secondary + '55'
-                        : colors.grayDark + '22',
-                    },
-                  ]}
-                >
-                  <View style={styles.checkTextWrapper}>
-                    <CustomText
-                      style={[styles.checkBlockText, { color: colors.black }]}
-                    >
-                      버스 및 추가 골드 획득
-                    </CustomText>
-                    <CustomText
-                      style={[
-                        styles.checkBlockDescription,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      버스비나 보너스 수입을 따로 입력해요
-                    </CustomText>
-                  </View>
+                <View style={styles.checkBlock}>
+                  <CustomText
+                    style={[styles.checkBlockText, { color: colors.black }]}
+                  >
+                    버스 및 추가 골드 획득
+                  </CustomText>
                   <MaterialIcons
                     name={
                       isAdditionalGoldChecked
@@ -807,32 +745,14 @@ const RaidModal: React.FC<RaidModalProps> = ({
 
               {/* 삭제 */}
               {!(index < 0) && (
-                <View
-                  style={[
-                    styles.checkBlock,
-                    {
-                      backgroundColor: colors.cardBackground,
-                      borderColor: colors.danger + '33',
-                    },
-                  ]}
-                >
-                  <View style={styles.checkTextWrapper}>
-                    <CustomText
-                      style={[styles.checkBlockText, { color: colors.danger }]}
-                    >
-                      삭제
-                    </CustomText>
-                    <CustomText
-                      style={[
-                        styles.checkBlockDescription,
-                        { color: colors.grayDark },
-                      ]}
-                    >
-                      현재 등록된 레이드를 목록에서 제거해요
-                    </CustomText>
-                  </View>
-                  <TouchableOpacity onPress={handleDelete} hitSlop={10}>
-                    <Feather name="trash-2" size={22} color={colors.danger} />
+                <View style={styles.checkBlock}>
+                  <CustomText
+                    style={[styles.checkBlockText, { color: colors.danger }]}
+                  >
+                    삭제
+                  </CustomText>
+                  <TouchableOpacity onPress={handleDelete}>
+                    <Feather name="trash-2" size={24} color={colors.grayDark} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -879,7 +799,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.62)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   container: {
     flex: 1,
@@ -887,11 +807,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.24,
-    shadowRadius: 16,
-    elevation: 16,
   },
   raidBlock: {
     marginHorizontal: 16,
@@ -967,42 +882,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  footerPanel: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 24,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    borderTopWidth: StyleSheet.hairlineWidth,
-  },
   checkBlock: {
-    minHeight: 58,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
-    marginBottom: 8,
-  },
-  checkTextWrapper: {
-    flex: 1,
-    paddingRight: 12,
+    paddingBottom: 10,
   },
   checkBlockText: {
     fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 3,
-  },
-  checkBlockDescription: {
-    fontSize: 11,
     fontWeight: '500',
-    lineHeight: 15,
-  },
-  chestStageContainer: {
-    marginBottom: 10,
-    padding: 4,
   },
   input: {
     fontSize: 14,
@@ -1016,7 +905,7 @@ const styles = StyleSheet.create({
   fixedButtonWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 4,
+    paddingHorizontal: 16,
     paddingTop: 8,
   },
   cancelButton: {
