@@ -8,7 +8,7 @@ export default {
     orientation: "portrait",
     userInterfaceStyle: "automatic",
 
-    version: "1.0.11",
+    version: "1.1.0",
     newArchEnabled: true,
 
     icon: "./assets/images/loarunIcon-1024-big-removebg.png",
@@ -22,6 +22,10 @@ export default {
     ios: {
       bundleIdentifier: "com.jaey0394.loarun",
       supportsTablet: true,
+
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+      },
     },
 
     android: {
