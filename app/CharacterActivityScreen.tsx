@@ -690,7 +690,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="레이드 순서 변경"
                 >
-                  <Feather name="align-justify" size={16} color={colors.black} />
+                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -855,7 +855,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="일일/주간 미션 정렬"
                 >
-                  <Feather name="align-justify" size={16} color={colors.black} />
+                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1032,7 +1032,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="원정대 미션 정렬"
                 >
-                  <Feather name="align-justify" size={16} color={colors.black} />
+                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1174,7 +1174,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="기타 활동 정렬"
                 >
-                  <Feather name="align-justify" size={16} color={colors.black} />
+                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>

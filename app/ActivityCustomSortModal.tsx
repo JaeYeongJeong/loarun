@@ -9,6 +9,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  type PanResponderGestureState,
 } from 'react-native';
 import CustomText from '../components/customTextComponents/CustomText';
 
@@ -49,10 +50,8 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   const [items, setItems] = useState<SortItem[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
   const dragY = useRef(new Animated.Value(0)).current;
   const dragStartIndex = useRef(0);
-  const dragDyRef = useRef(0);
 
   useEffect(() => {
     if (!isVisible || !sortType) return;
@@ -68,7 +67,6 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     setItems(initial);
     setDraggingId(null);
     setDragOffsetY(0);
-    setScrollEnabled(true);
     dragY.setValue(0);
   }, [isVisible, sortType, raidItems, missionItems, accountMissionItems, otherActivityItems, dragY]);
 
@@ -78,13 +76,13 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     return Math.min(Math.max(dragStartIndex.current + Math.round(dragOffsetY / ROW_HEIGHT), 0), items.length - 1);
   }, [dragOffsetY, draggingIndex, items.length]);
 
-  const finishDrag = (dy: number) => {
+  const getDragTargetIndex = (dy: number) =>
+    Math.min(Math.max(dragStartIndex.current + Math.round(dy / ROW_HEIGHT), 0), items.length - 1);
+
+  const finishDrag = (_: unknown, gestureState: PanResponderGestureState) => {
     if (draggingIndex < 0) return;
 
-    const nextIndex = Math.min(
-      Math.max(dragStartIndex.current + Math.round(dy / ROW_HEIGHT), 0),
-      items.length - 1
-    );
+    const nextIndex = getDragTargetIndex(gestureState.dy);
 
     if (draggingIndex !== nextIndex) {
       setItems((prev) => moveItem(prev, draggingIndex, nextIndex));
@@ -92,8 +90,6 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
 
     setDraggingId(null);
     setDragOffsetY(0);
-    dragDyRef.current = 0;
-    setScrollEnabled(true);
     dragY.setValue(0);
   };
 
@@ -104,15 +100,16 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
         onStartShouldSetPanResponderCapture: () => draggingId !== null,
         onMoveShouldSetPanResponder: () => draggingId !== null,
         onMoveShouldSetPanResponderCapture: () => draggingId !== null,
-        onPanResponderMove: (_, g) => {
-          dragDyRef.current = g.dy;
-          setDragOffsetY(g.dy);
-          dragY.setValue(g.dy);
+        onPanResponderMove: (_, gestureState) => {
+          setDragOffsetY(gestureState.dy);
+          dragY.setValue(gestureState.dy);
         },
-        onPanResponderRelease: (_, g) => finishDrag(g.dy),
-        onPanResponderTerminate: (_, g) => finishDrag(g.dy),
+        onPanResponderRelease: finishDrag,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderTerminate: finishDrag,
+        onShouldBlockNativeResponder: () => true,
       }),
-    [draggingId, dragY, draggingIndex, targetIndex]
+    [draggingId, dragY, draggingIndex, items.length]
   );
 
   if (!sortType) return null;
@@ -122,8 +119,8 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '55' }]}>
           <CustomText style={[styles.title, { color: colors.black }]}>순서 변경</CustomText>
-          <ScrollView style={{ maxHeight: 420 }} scrollEnabled={scrollEnabled}>
-            <View {...panResponder.panHandlers}>
+          <ScrollView style={{ maxHeight: 420 }} scrollEnabled={!draggingId} disableScrollViewPanResponder={Boolean(draggingId)}>
+            <View>
               {items.map((item, index) => {
                 const isDragging = item.id === draggingId;
                 const displaced =
@@ -138,6 +135,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                 return (
                   <Animated.View
                     key={item.id}
+                    {...panResponder.panHandlers}
                     style={[
                       styles.row,
                       { backgroundColor: colors.grayLight, transform: [{ translateY: isDragging ? dragY : displaced }] },
@@ -146,13 +144,14 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                   >
                     <TouchableOpacity
                       style={styles.rowContent}
+                      activeOpacity={0.9}
                       onLongPress={() => {
                         dragStartIndex.current = index;
                         setDraggingId(item.id);
-                        dragDyRef.current = 0;
-                        setScrollEnabled(false);
+                        setDragOffsetY(0);
+                        dragY.setValue(0);
                       }}
-                      delayLongPress={120}
+                      delayLongPress={250}
                     >
                       <Feather name="menu" size={18} color={colors.grayDark} />
                       {item.subtitle ? (
@@ -199,9 +198,9 @@ const styles = StyleSheet.create({
   row: { height: ROW_HEIGHT, borderRadius: 10, marginBottom: 8, justifyContent: 'center', paddingHorizontal: 12 },
   rowContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dragging: { elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
-  subtitle: { fontSize: 13 },
-  itemText: { flex: 1, fontSize: 15 },
-  goldText: { fontSize: 14, fontWeight: '500' },
+  subtitle: { fontSize: 13, fontWeight: '700' },
+  itemText: { flex: 1, fontSize: 15, fontWeight: '700' },
+  goldText: { fontSize: 14, fontWeight: '700' },
   footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 6 },
   button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
 });
