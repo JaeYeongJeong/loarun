@@ -1,5 +1,4 @@
 import { useTheme } from '@/context/ThemeContext';
-import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -25,7 +24,7 @@ type ActivityCustomSortModalProps = {
   onConfirm: (type: SortActivityType, orderedIndices: number[]) => void;
 };
 
-type SortItem = { id: string; originalIndex: number; title: string; subtitle?: string; gold?: number };
+type SortItem = { id: string; originalIndex: number; title: string; subtitle?: string };
 
 const ROW_HEIGHT = 56;
 const moveItem = <T,>(list: T[], fromIndex: number, toIndex: number) => {
@@ -58,7 +57,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
         ? missionItems.map((item, i) => ({ id: `mission-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
         : sortType === 'accountMission'
           ? accountMissionItems.map((item, i) => ({ id: `account-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
-          : otherActivityItems.map((item, i) => ({ id: `other-${i}`, originalIndex: i, title: item.name, gold: item.gold }));
+          : otherActivityItems.map((item, i) => ({ id: `other-${i}`, originalIndex: i, title: item.name }));
 
     setItems(initial);
     setDraggingId(null);
@@ -115,7 +114,8 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '55' }]}>
           <CustomText style={[styles.title, { color: colors.black }]}>순서 변경</CustomText>
-          <ScrollView style={{ maxHeight: 420 }} scrollEnabled={!draggingId} disableScrollViewPanResponder={Boolean(draggingId)}>
+          <CustomText style={[styles.helpText, { color: colors.grayDark }]}>항목을 길게 눌러 드래그해 순서를 변경하세요.</CustomText>
+          <ScrollView style={styles.list} contentContainerStyle={styles.listContent} scrollEnabled={!draggingId} disableScrollViewPanResponder={Boolean(draggingId)}>
             <View>
               {items.map((item, index) => {
                 const isDragging = item.id === draggingId;
@@ -155,12 +155,6 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                       <CustomText numberOfLines={1} style={[styles.itemText, { color: colors.black }]}>
                         {item.title}
                       </CustomText>
-                      <Feather name="move" size={16} color={colors.grayDark} />
-                      {typeof item.gold === 'number' ? (
-                        <CustomText style={[styles.goldText, item.gold >= 0 ? { color: colors.black } : { color: colors.warning }]}>
-                          {item.gold.toLocaleString()}
-                        </CustomText>
-                      ) : null}
                     </TouchableOpacity>
                   </Animated.View>
                 );
@@ -188,15 +182,17 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.24)', justifyContent: 'center', padding: 16 },
-  container: { borderRadius: 14, borderWidth: 1, padding: 14 },
-  title: { fontSize: 18, fontWeight: '700', marginBottom: 10 },
-  row: { height: ROW_HEIGHT, borderRadius: 10, marginBottom: 8, justifyContent: 'center', paddingHorizontal: 12 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.28)', justifyContent: 'center', padding: 16 },
+  container: { borderRadius: 16, borderWidth: 1, padding: 14 },
+  title: { fontSize: 18, fontWeight: '700' },
+  helpText: { marginTop: 4, marginBottom: 10, fontSize: 13 },
+  list: { maxHeight: 420 },
+  listContent: { paddingBottom: 4 },
+  row: { height: ROW_HEIGHT, borderRadius: 12, marginBottom: 8, justifyContent: 'center', paddingHorizontal: 12 },
   rowContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dragging: { elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
   subtitle: { fontSize: 13, fontWeight: '700' },
   itemText: { flex: 1, fontSize: 15, fontWeight: '700' },
-  goldText: { fontSize: 14, fontWeight: '700' },
   footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 6 },
   button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
 });
