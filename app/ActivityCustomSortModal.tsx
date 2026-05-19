@@ -49,6 +49,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   const [items, setItems] = useState<SortItem[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const dragY = useRef(new Animated.Value(0)).current;
   const dragStartIndex = useRef(0);
 
@@ -66,6 +67,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     setItems(initial);
     setDraggingId(null);
     setDragOffsetY(0);
+    setScrollEnabled(true);
     dragY.setValue(0);
   }, [isVisible, sortType, raidItems, missionItems, accountMissionItems, otherActivityItems, dragY]);
 
@@ -82,6 +84,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     }
     setDraggingId(null);
     setDragOffsetY(0);
+    setScrollEnabled(true);
     dragY.setValue(0);
   };
 
@@ -89,7 +92,9 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => draggingId !== null,
+        onStartShouldSetPanResponderCapture: () => draggingId !== null,
         onMoveShouldSetPanResponder: () => draggingId !== null,
+        onMoveShouldSetPanResponderCapture: () => draggingId !== null,
         onPanResponderMove: (_, g) => {
           setDragOffsetY(g.dy);
           dragY.setValue(g.dy);
@@ -107,7 +112,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '55' }]}>
           <CustomText style={[styles.title, { color: colors.black }]}>순서 변경</CustomText>
-          <ScrollView style={{ maxHeight: 420 }}>
+          <ScrollView style={{ maxHeight: 420 }} scrollEnabled={scrollEnabled}>
             <View {...panResponder.panHandlers}>
               {items.map((item, index) => {
                 const isDragging = item.id === draggingId;
@@ -134,6 +139,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                       onLongPress={() => {
                         dragStartIndex.current = index;
                         setDraggingId(item.id);
+                        setScrollEnabled(false);
                       }}
                       delayLongPress={120}
                     >

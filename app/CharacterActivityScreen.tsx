@@ -665,7 +665,8 @@ const CharacterActivity: React.FC = () => {
                   </View>
                 </View>
               ))}
-              <View style={styles.sectionButtonRow}>
+              <View style={styles.raidSectionButtonRow}>
+                <View style={styles.raidAddButtonCenter}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -682,13 +683,14 @@ const CharacterActivity: React.FC = () => {
                     레이드 추가
                   </CustomText>
                 </TouchableOpacity>
+                </View>
                 <TouchableOpacity
-                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  style={[styles.iconSortButton, { backgroundColor: colors.grayLight }]}
                   onPress={() => setSortTarget('raid')}
+                  accessibilityRole="button"
+                  accessibilityLabel="레이드 순서 변경"
                 >
-                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
-                    순서 변경
-                  </CustomText>
+                  <Feather name="move" size={16} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1484,6 +1486,30 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 11,
     fontWeight: '600',
+  },
+  sectionButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  raidSectionButtonRow: {
+    position: 'relative',
+    minHeight: 32,
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  raidAddButtonCenter: {
+    alignItems: 'center',
+  },
+  iconSortButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   raidButton: {
