@@ -29,7 +29,7 @@ type SortRaidItem = {
   stages: RaidCustomSortModalProps['raidItems'][number]['stages'];
 };
 
-const ROW_HEIGHT = 108;
+const ROW_HEIGHT = 96;
 
 const moveItem = <T,>(list: T[], fromIndex: number, toIndex: number) => {
   const next = [...list];
@@ -150,24 +150,29 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
                     }}
                   >
                     <CustomText style={[styles.raidName, { color: colors.black }]}>{item.name}</CustomText>
-                    <View style={styles.stageRow}>
+                    <View style={[styles.stageRow, { backgroundColor: colors.grayLight }]}>
                       {item.stages.map((stage, stageIndex) => (
                         <View
                           key={`${item.id}-${stageIndex}`}
                           style={[
                             styles.stageItem,
-                            { backgroundColor: stage.cleared ? colors.primary : colors.cardBackground },
+                            stage.cleared ? { backgroundColor: colors.primary } : {},
+                            stageIndex === 0 ? styles.firstStage : null,
+                            stage.lastClearedStage === stageIndex ? styles.lastStage : null,
                           ]}
                         >
                           <CustomText
                             style={[
                               styles.difficultyText,
-                              { color: stage.cleared ? colors.white : colors.black },
+                              stage.cleared ? { color: colors.white } : { color: colors.black },
+                              !stage.cleared && stage.difficulty === '노말' ? { color: colors.info } : null,
+                              !stage.cleared && stage.difficulty === '하드' ? { color: colors.danger } : null,
+                              !stage.cleared && (stage.difficulty === '익스트림 노말' || stage.difficulty === '익스트림 하드') ? { color: colors.extreme } : null,
                             ]}
                           >
                             {stage.difficulty}
                           </CustomText>
-                          <CustomText style={[styles.stageText, { color: stage.cleared ? colors.white : colors.black }]}>
+                          <CustomText style={[styles.stageText, stage.cleared ? { color: colors.white } : { color: colors.black }]}>
                             {stage.stage} 관문
                           </CustomText>
                         </View>
@@ -206,10 +211,12 @@ const styles = StyleSheet.create({
   helpText: { marginTop: 4, marginBottom: 10, fontSize: 13 },
   list: { maxHeight: 460 },
   listContent: { paddingBottom: 4 },
-  row: { borderRadius: 12, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 10 },
-  raidName: { fontSize: 16, fontWeight: '700', marginBottom: 8 },
-  stageRow: { flexDirection: 'row', gap: 6 },
-  stageItem: { flex: 1, borderRadius: 10, paddingVertical: 7, alignItems: 'center' },
+  row: { borderRadius: 12, marginBottom: 8, paddingHorizontal: 10, paddingVertical: 10 },
+  raidName: { fontSize: 16, fontWeight: '700', marginBottom: 8, paddingHorizontal: 2 },
+  stageRow: { flexDirection: 'row', borderRadius: 12 },
+  stageItem: { flex: 1, paddingVertical: 6, alignItems: 'center' },
+  firstStage: { borderTopLeftRadius: 12, borderBottomLeftRadius: 12 },
+  lastStage: { borderTopRightRadius: 12, borderBottomRightRadius: 12 },
   difficultyText: { fontSize: 12, fontWeight: '700' },
   stageText: { fontSize: 13, fontWeight: '700' },
   dragging: { elevation: 8, shadowColor: '#000', shadowOpacity: 0.22, shadowRadius: 9, shadowOffset: { width: 0, height: 4 } },
