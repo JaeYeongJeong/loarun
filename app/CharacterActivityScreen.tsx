@@ -14,6 +14,7 @@ import MissionModal from './SubmitMissionModal';
 import { SelectedRaid, useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import ActivityCustomSortModal from './ActivityCustomSortModal';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -101,6 +102,36 @@ const CharacterActivity: React.FC = () => {
   const [alertButtonType, setAlertButtonType] = useState<
     'default' | 'oneButton'
   >('default');
+
+  const [sortTarget, setSortTarget] = useState<
+    'raid' | 'mission' | 'accountMission' | 'otherActivity' | null
+  >(null);
+
+  const reorderByIndices = <T,>(list: T[] | undefined, indices: number[]) =>
+    indices.map((i) => list?.[i]).filter((item): item is T => item !== undefined);
+
+  const getSortItems = () => {
+    if (sortTarget === 'raid') return (character.SelectedRaids || []).map((r) => r.name || '레이드');
+    if (sortTarget === 'mission') return (character.MissionCheckList || []).map((m) => m.name || '미션');
+    if (sortTarget === 'accountMission') return (character.AccountMissionCheckList || []).map((m) => m.name || '원정대 미션');
+    if (sortTarget === 'otherActivity') return (character.OtherActivity || []).map((a) => a.name || '활동');
+    return [];
+  };
+
+  const applyCustomSort = (indices: number[]) => {
+    if (sortTarget === 'raid') {
+      updateCharacter(character.id, { SelectedRaids: reorderByIndices(character.SelectedRaids, indices) });
+    }
+    if (sortTarget === 'mission') {
+      updateCharacter(character.id, { MissionCheckList: reorderByIndices(character.MissionCheckList, indices) });
+    }
+    if (sortTarget === 'accountMission') {
+      updateCharacter(character.id, { AccountMissionCheckList: reorderByIndices(character.AccountMissionCheckList, indices) });
+    }
+    if (sortTarget === 'otherActivity') {
+      updateCharacter(character.id, { OtherActivity: reorderByIndices(character.OtherActivity, indices) });
+    }
+  };
 
   // 📌 갱신 상태
   const [refreshable, setRefreshable] = useState<boolean>(true);
@@ -493,6 +524,7 @@ const CharacterActivity: React.FC = () => {
                   주간 레이드
                 </CustomText>
               </View>
+              <TouchableOpacity onPress={() => setSortTarget('raid')}><Feather name="shuffle" size={18} color={colors.iconColor} /></TouchableOpacity>
               <CustomText
                 style={[styles.totalGoldText, { color: colors.black }]}
               >
@@ -1160,6 +1192,14 @@ const CharacterActivity: React.FC = () => {
           }
           return list[missionIndex];
         })()}
+      />
+
+      <ActivityCustomSortModal
+        isVisible={sortTarget !== null}
+        title="커스텀 정렬"
+        items={getSortItems()}
+        onClose={() => setSortTarget(null)}
+        onConfirm={applyCustomSort}
       />
 
       <OtherActivityModal
