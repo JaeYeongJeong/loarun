@@ -690,7 +690,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="레이드 순서 변경"
                 >
-                  <Feather name="move" size={16} color={colors.black} />
+                  <Feather name="align-justify" size={16} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -829,7 +829,8 @@ const CharacterActivity: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-              <View style={styles.sectionButtonRow}>
+              <View style={styles.raidSectionButtonRow}>
+                <View style={styles.raidAddButtonCenter}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -847,13 +848,14 @@ const CharacterActivity: React.FC = () => {
                     미션 추가
                   </CustomText>
                 </TouchableOpacity>
+                </View>
                 <TouchableOpacity
-                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  style={[styles.iconSortButton, { backgroundColor: colors.grayLight }]}
                   onPress={() => setSortTarget('mission')}
+                  accessibilityRole="button"
+                  accessibilityLabel="일일/주간 미션 정렬"
                 >
-                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
-                    순서 변경
-                  </CustomText>
+                  <Feather name="align-justify" size={16} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1004,7 +1006,8 @@ const CharacterActivity: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-              <View style={styles.sectionButtonRow}>
+              <View style={styles.raidSectionButtonRow}>
+                <View style={styles.raidAddButtonCenter}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -1022,13 +1025,14 @@ const CharacterActivity: React.FC = () => {
                     미션 추가
                   </CustomText>
                 </TouchableOpacity>
+                </View>
                 <TouchableOpacity
-                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  style={[styles.iconSortButton, { backgroundColor: colors.grayLight }]}
                   onPress={() => setSortTarget('accountMission')}
+                  accessibilityRole="button"
+                  accessibilityLabel="원정대 미션 정렬"
                 >
-                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
-                    순서 변경
-                  </CustomText>
+                  <Feather name="align-justify" size={16} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1146,7 +1150,8 @@ const CharacterActivity: React.FC = () => {
                   추가된 기타 활동이 없어요.
                 </CustomText>
               )}
-              <View style={styles.sectionButtonRow}>
+              <View style={styles.raidSectionButtonRow}>
+                <View style={styles.raidAddButtonCenter}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -1162,15 +1167,14 @@ const CharacterActivity: React.FC = () => {
                     활동 추가
                   </CustomText>
                 </TouchableOpacity>
+                </View>
                 <TouchableOpacity
-                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  style={[styles.iconSortButton, { backgroundColor: colors.grayLight }]}
                   onPress={() => setSortTarget('otherActivity')}
                   accessibilityRole="button"
-                  accessibilityLabel="기타 활동 순서 변경"
+                  accessibilityLabel="기타 활동 정렬"
                 >
-                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
-                    순서 변경
-                  </CustomText>
+                  <Feather name="align-justify" size={16} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>

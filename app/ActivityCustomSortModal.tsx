@@ -52,6 +52,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const dragY = useRef(new Animated.Value(0)).current;
   const dragStartIndex = useRef(0);
+  const dragDyRef = useRef(0);
 
   useEffect(() => {
     if (!isVisible || !sortType) return;
@@ -77,13 +78,21 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
     return Math.min(Math.max(dragStartIndex.current + Math.round(dragOffsetY / ROW_HEIGHT), 0), items.length - 1);
   }, [dragOffsetY, draggingIndex, items.length]);
 
-  const finishDrag = () => {
-    if (draggingIndex < 0 || targetIndex < 0) return;
-    if (draggingIndex !== targetIndex) {
-      setItems((prev) => moveItem(prev, draggingIndex, targetIndex));
+  const finishDrag = (dy: number) => {
+    if (draggingIndex < 0) return;
+
+    const nextIndex = Math.min(
+      Math.max(dragStartIndex.current + Math.round(dy / ROW_HEIGHT), 0),
+      items.length - 1
+    );
+
+    if (draggingIndex !== nextIndex) {
+      setItems((prev) => moveItem(prev, draggingIndex, nextIndex));
     }
+
     setDraggingId(null);
     setDragOffsetY(0);
+    dragDyRef.current = 0;
     setScrollEnabled(true);
     dragY.setValue(0);
   };
@@ -96,11 +105,12 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
         onMoveShouldSetPanResponder: () => draggingId !== null,
         onMoveShouldSetPanResponderCapture: () => draggingId !== null,
         onPanResponderMove: (_, g) => {
+          dragDyRef.current = g.dy;
           setDragOffsetY(g.dy);
           dragY.setValue(g.dy);
         },
-        onPanResponderRelease: finishDrag,
-        onPanResponderTerminate: finishDrag,
+        onPanResponderRelease: (_, g) => finishDrag(g.dy),
+        onPanResponderTerminate: (_, g) => finishDrag(g.dy),
       }),
     [draggingId, dragY, draggingIndex, targetIndex]
   );
@@ -139,6 +149,7 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                       onLongPress={() => {
                         dragStartIndex.current = index;
                         setDraggingId(item.id);
+                        dragDyRef.current = 0;
                         setScrollEnabled(false);
                       }}
                       delayLongPress={120}
