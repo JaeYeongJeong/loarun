@@ -1,67 +1,168 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
+import { Feather } from '@expo/vector-icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  Modal,
+  PanResponder,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import CustomText from '../components/customTextComponents/CustomText';
+
+type SortActivityType = 'raid' | 'mission' | 'accountMission' | 'otherActivity';
 
 type ActivityCustomSortModalProps = {
   isVisible: boolean;
-  title: string;
-  items: string[];
+  sortType: SortActivityType | null;
+  raidItems: { name: string }[];
+  missionItems: { name: string; resetPeriod?: string; checked?: boolean }[];
+  accountMissionItems: { name: string; resetPeriod?: string; checked?: boolean }[];
+  otherActivityItems: { name: string; gold: number }[];
   onClose: () => void;
-  onConfirm: (orderedIndices: number[]) => void;
+  onConfirm: (type: SortActivityType, orderedIndices: number[]) => void;
 };
 
-type IndexedItem = { label: string; originalIndex: number };
+type SortItem = { id: string; originalIndex: number; title: string; subtitle?: string; gold?: number };
 
-const moveItem = (list: IndexedItem[], from: number, to: number) => {
+const ROW_HEIGHT = 56;
+const moveItem = <T,>(list: T[], fromIndex: number, toIndex: number) => {
   const next = [...list];
-  const [removed] = next.splice(from, 1);
-  next.splice(to, 0, removed);
+  const [removed] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, removed);
   return next;
 };
 
 const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   isVisible,
-  title,
-  items,
+  sortType,
+  raidItems,
+  missionItems,
+  accountMissionItems,
+  otherActivityItems,
   onClose,
   onConfirm,
 }) => {
   const { colors } = useTheme();
-  const [orderedItems, setOrderedItems] = useState<IndexedItem[]>([]);
+  const [items, setItems] = useState<SortItem[]>([]);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const dragY = useRef(new Animated.Value(0)).current;
+  const dragStartIndex = useRef(0);
 
   useEffect(() => {
-    if (!isVisible) return;
-    setOrderedItems(items.map((label, originalIndex) => ({ label, originalIndex })));
-  }, [isVisible, items]);
+    if (!isVisible || !sortType) return;
+    const initial =
+      sortType === 'raid'
+        ? raidItems.map((item, i) => ({ id: `raid-${i}`, originalIndex: i, title: item.name || `레이드 ${i + 1}` }))
+        : sortType === 'mission'
+          ? missionItems.map((item, i) => ({ id: `mission-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
+          : sortType === 'accountMission'
+            ? accountMissionItems.map((item, i) => ({ id: `account-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
+            : otherActivityItems.map((item, i) => ({ id: `other-${i}`, originalIndex: i, title: item.name, gold: item.gold }));
+
+    setItems(initial);
+    setDraggingId(null);
+    setDragOffsetY(0);
+    dragY.setValue(0);
+  }, [isVisible, sortType, raidItems, missionItems, accountMissionItems, otherActivityItems, dragY]);
+
+  const draggingIndex = useMemo(() => items.findIndex((item) => item.id === draggingId), [items, draggingId]);
+  const targetIndex = useMemo(() => {
+    if (draggingIndex < 0) return -1;
+    return Math.min(Math.max(dragStartIndex.current + Math.round(dragOffsetY / ROW_HEIGHT), 0), items.length - 1);
+  }, [dragOffsetY, draggingIndex, items.length]);
+
+  const finishDrag = () => {
+    if (draggingIndex < 0 || targetIndex < 0) return;
+    if (draggingIndex !== targetIndex) {
+      setItems((prev) => moveItem(prev, draggingIndex, targetIndex));
+    }
+    setDraggingId(null);
+    setDragOffsetY(0);
+    dragY.setValue(0);
+  };
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => draggingId !== null,
+        onMoveShouldSetPanResponder: () => draggingId !== null,
+        onPanResponderMove: (_, g) => {
+          setDragOffsetY(g.dy);
+          dragY.setValue(g.dy);
+        },
+        onPanResponderRelease: finishDrag,
+        onPanResponderTerminate: finishDrag,
+      }),
+    [draggingId, dragY, draggingIndex, targetIndex]
+  );
+
+  if (!sortType) return null;
 
   return (
     <Modal animationType="fade" transparent visible={isVisible}>
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '55' }]}>
-          <CustomText style={[styles.title, { color: colors.black }]}>{title}</CustomText>
-          {orderedItems.map((item, index) => (
-            <View key={`${item.label}-${item.originalIndex}`} style={[styles.row, { backgroundColor: colors.grayLight }]}>
-              <CustomText style={[styles.label, { color: colors.black }]} numberOfLines={1}>{item.label}</CustomText>
-              <View style={styles.buttons}>
-                <TouchableOpacity disabled={index === 0} onPress={() => setOrderedItems((prev) => moveItem(prev, index, index - 1))}>
-                  <Feather name="chevron-up" size={20} color={index === 0 ? colors.grayDark : colors.black} />
-                </TouchableOpacity>
-                <TouchableOpacity disabled={index === orderedItems.length - 1} onPress={() => setOrderedItems((prev) => moveItem(prev, index, index + 1))}>
-                  <Feather name="chevron-down" size={20} color={index === orderedItems.length - 1 ? colors.grayDark : colors.black} />
-                </TouchableOpacity>
-              </View>
+          <CustomText style={[styles.title, { color: colors.black }]}>순서 변경</CustomText>
+          <ScrollView style={{ maxHeight: 420 }}>
+            <View {...panResponder.panHandlers}>
+              {items.map((item, index) => {
+                const isDragging = item.id === draggingId;
+                const displaced =
+                  draggingId && draggingIndex !== -1 && targetIndex !== -1 && index !== draggingIndex
+                    ? draggingIndex < targetIndex && index > draggingIndex && index <= targetIndex
+                      ? -ROW_HEIGHT
+                      : draggingIndex > targetIndex && index >= targetIndex && index < draggingIndex
+                        ? ROW_HEIGHT
+                        : 0
+                    : 0;
+
+                return (
+                  <Animated.View
+                    key={item.id}
+                    style={[
+                      styles.row,
+                      { backgroundColor: colors.grayLight, transform: [{ translateY: isDragging ? dragY : displaced }] },
+                      isDragging ? styles.dragging : null,
+                    ]}
+                  >
+                    <TouchableOpacity
+                      style={styles.rowContent}
+                      onLongPress={() => {
+                        dragStartIndex.current = index;
+                        setDraggingId(item.id);
+                      }}
+                      delayLongPress={120}
+                    >
+                      <Feather name="menu" size={18} color={colors.grayDark} />
+                      {item.subtitle ? (
+                        <CustomText style={[styles.subtitle, { color: colors.secondary }]}>{item.subtitle}</CustomText>
+                      ) : null}
+                      <CustomText numberOfLines={1} style={[styles.itemText, { color: colors.black }]}>
+                        {item.title}
+                      </CustomText>
+                      {typeof item.gold === 'number' ? (
+                        <CustomText style={[styles.goldText, item.gold >= 0 ? { color: colors.black } : { color: colors.warning }]}>
+                          {item.gold.toLocaleString()}
+                        </CustomText>
+                      ) : null}
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })}
             </View>
-          ))}
+          </ScrollView>
           <View style={styles.footer}>
-            <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.grayLight }]} onPress={onClose}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: colors.grayLight }]} onPress={onClose}>
               <CustomText style={{ color: colors.black }}>취소</CustomText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.primary }]}
+              style={[styles.button, { backgroundColor: colors.primary }]}
               onPress={() => {
-                onConfirm(orderedItems.map((item) => item.originalIndex));
+                onConfirm(sortType, items.map((item) => item.originalIndex));
                 onClose();
               }}
             >
@@ -75,14 +176,17 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', padding: 20 },
-  container: { borderRadius: 14, borderWidth: 1, padding: 16, maxHeight: '80%' },
-  title: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
-  row: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8, flexDirection: 'row', alignItems: 'center' },
-  label: { flex: 1, fontSize: 15 },
-  buttons: { flexDirection: 'row', gap: 10 },
-  footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 8 },
-  actionButton: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.24)', justifyContent: 'center', padding: 16 },
+  container: { borderRadius: 14, borderWidth: 1, padding: 14 },
+  title: { fontSize: 18, fontWeight: '700', marginBottom: 10 },
+  row: { height: ROW_HEIGHT, borderRadius: 10, marginBottom: 8, justifyContent: 'center', paddingHorizontal: 12 },
+  rowContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dragging: { elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  subtitle: { fontSize: 13 },
+  itemText: { flex: 1, fontSize: 15 },
+  goldText: { fontSize: 14, fontWeight: '500' },
+  footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 6 },
+  button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
 });
 
 export default ActivityCustomSortModal;

@@ -103,34 +103,47 @@ const CharacterActivity: React.FC = () => {
     'default' | 'oneButton'
   >('default');
 
+
   const [sortTarget, setSortTarget] = useState<
     'raid' | 'mission' | 'accountMission' | 'otherActivity' | null
   >(null);
 
   const reorderByIndices = <T,>(list: T[] | undefined, indices: number[]) =>
-    indices.map((i) => list?.[i]).filter((item): item is T => item !== undefined);
+    indices
+      .map((index) => list?.[index])
+      .filter((item): item is T => item !== undefined);
 
-  const getSortItems = () => {
-    if (sortTarget === 'raid') return (character.SelectedRaids || []).map((r) => r.name || '레이드');
-    if (sortTarget === 'mission') return (character.MissionCheckList || []).map((m) => m.name || '미션');
-    if (sortTarget === 'accountMission') return (character.AccountMissionCheckList || []).map((m) => m.name || '원정대 미션');
-    if (sortTarget === 'otherActivity') return (character.OtherActivity || []).map((a) => a.name || '활동');
-    return [];
-  };
+  const handleCustomSort = (
+    type: 'raid' | 'mission' | 'accountMission' | 'otherActivity',
+    indices: number[]
+  ) => {
+    if (type === 'raid') {
+      updateCharacter(character.id, {
+        SelectedRaids: reorderByIndices(character.SelectedRaids, indices),
+      });
+      return;
+    }
 
-  const applyCustomSort = (indices: number[]) => {
-    if (sortTarget === 'raid') {
-      updateCharacter(character.id, { SelectedRaids: reorderByIndices(character.SelectedRaids, indices) });
+    if (type === 'mission') {
+      updateCharacter(character.id, {
+        MissionCheckList: reorderByIndices(character.MissionCheckList, indices),
+      });
+      return;
     }
-    if (sortTarget === 'mission') {
-      updateCharacter(character.id, { MissionCheckList: reorderByIndices(character.MissionCheckList, indices) });
+
+    if (type === 'accountMission') {
+      updateAllCharacters({
+        AccountMissionCheckList: reorderByIndices(
+          character.AccountMissionCheckList,
+          indices
+        ),
+      });
+      return;
     }
-    if (sortTarget === 'accountMission') {
-      updateCharacter(character.id, { AccountMissionCheckList: reorderByIndices(character.AccountMissionCheckList, indices) });
-    }
-    if (sortTarget === 'otherActivity') {
-      updateCharacter(character.id, { OtherActivity: reorderByIndices(character.OtherActivity, indices) });
-    }
+
+    updateCharacter(character.id, {
+      OtherActivity: reorderByIndices(character.OtherActivity, indices),
+    });
   };
 
   // 📌 갱신 상태
@@ -524,7 +537,6 @@ const CharacterActivity: React.FC = () => {
                   주간 레이드
                 </CustomText>
               </View>
-              <TouchableOpacity onPress={() => setSortTarget('raid')}><Feather name="shuffle" size={18} color={colors.iconColor} /></TouchableOpacity>
               <CustomText
                 style={[styles.totalGoldText, { color: colors.black }]}
               >
@@ -653,7 +665,7 @@ const CharacterActivity: React.FC = () => {
                   </View>
                 </View>
               ))}
-              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+              <View style={styles.sectionButtonRow}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -668,6 +680,14 @@ const CharacterActivity: React.FC = () => {
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
                     레이드 추가
+                  </CustomText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  onPress={() => setSortTarget('raid')}
+                >
+                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
+                    순서 변경
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -807,7 +827,7 @@ const CharacterActivity: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+              <View style={styles.sectionButtonRow}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -823,6 +843,14 @@ const CharacterActivity: React.FC = () => {
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
                     미션 추가
+                  </CustomText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  onPress={() => setSortTarget('mission')}
+                >
+                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
+                    순서 변경
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -974,7 +1002,7 @@ const CharacterActivity: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+              <View style={styles.sectionButtonRow}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -990,6 +1018,14 @@ const CharacterActivity: React.FC = () => {
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
                     미션 추가
+                  </CustomText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  onPress={() => setSortTarget('accountMission')}
+                >
+                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
+                    순서 변경
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -1108,7 +1144,7 @@ const CharacterActivity: React.FC = () => {
                   추가된 기타 활동이 없어요.
                 </CustomText>
               )}
-              <View style={[styles.raidTitleRow, { justifyContent: 'center' }]}>
+              <View style={styles.sectionButtonRow}>
                 <TouchableOpacity
                   style={[
                     styles.editButton,
@@ -1122,6 +1158,16 @@ const CharacterActivity: React.FC = () => {
                     style={[styles.editButtonText, { color: colors.black }]}
                   >
                     활동 추가
+                  </CustomText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.editButton, { backgroundColor: colors.grayLight }]}
+                  onPress={() => setSortTarget('otherActivity')}
+                  accessibilityRole="button"
+                  accessibilityLabel="기타 활동 순서 변경"
+                >
+                  <CustomText style={[styles.editButtonText, { color: colors.black }]}>
+                    순서 변경
                   </CustomText>
                 </TouchableOpacity>
               </View>
@@ -1196,10 +1242,15 @@ const CharacterActivity: React.FC = () => {
 
       <ActivityCustomSortModal
         isVisible={sortTarget !== null}
-        title="커스텀 정렬"
-        items={getSortItems()}
+        sortType={sortTarget}
+        raidItems={(character.SelectedRaids || []).map((raid) => ({
+          name: raid.name || '레이드',
+        }))}
+        missionItems={character.MissionCheckList || []}
+        accountMissionItems={character.AccountMissionCheckList || []}
+        otherActivityItems={character.OtherActivity || []}
         onClose={() => setSortTarget(null)}
-        onConfirm={applyCustomSort}
+        onConfirm={handleCustomSort}
       />
 
       <OtherActivityModal
