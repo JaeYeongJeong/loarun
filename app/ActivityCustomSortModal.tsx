@@ -13,12 +13,11 @@ import {
 } from 'react-native';
 import CustomText from '../components/customTextComponents/CustomText';
 
-type SortActivityType = 'raid' | 'mission' | 'accountMission' | 'otherActivity';
+type SortActivityType = 'mission' | 'accountMission' | 'otherActivity';
 
 type ActivityCustomSortModalProps = {
   isVisible: boolean;
   sortType: SortActivityType | null;
-  raidItems: { name: string }[];
   missionItems: { name: string; resetPeriod?: string; checked?: boolean }[];
   accountMissionItems: { name: string; resetPeriod?: string; checked?: boolean }[];
   otherActivityItems: { name: string; gold: number }[];
@@ -39,7 +38,6 @@ const moveItem = <T,>(list: T[], fromIndex: number, toIndex: number) => {
 const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   isVisible,
   sortType,
-  raidItems,
   missionItems,
   accountMissionItems,
   otherActivityItems,
@@ -56,19 +54,17 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   useEffect(() => {
     if (!isVisible || !sortType) return;
     const initial =
-      sortType === 'raid'
-        ? raidItems.map((item, i) => ({ id: `raid-${i}`, originalIndex: i, title: item.name || `레이드 ${i + 1}` }))
-        : sortType === 'mission'
-          ? missionItems.map((item, i) => ({ id: `mission-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
-          : sortType === 'accountMission'
-            ? accountMissionItems.map((item, i) => ({ id: `account-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
-            : otherActivityItems.map((item, i) => ({ id: `other-${i}`, originalIndex: i, title: item.name, gold: item.gold }));
+      sortType === 'mission'
+        ? missionItems.map((item, i) => ({ id: `mission-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
+        : sortType === 'accountMission'
+          ? accountMissionItems.map((item, i) => ({ id: `account-${i}`, originalIndex: i, title: item.name, subtitle: item.resetPeriod === 'daily' ? '일일' : item.resetPeriod === 'weekly' ? '주간' : '' }))
+          : otherActivityItems.map((item, i) => ({ id: `other-${i}`, originalIndex: i, title: item.name, gold: item.gold }));
 
     setItems(initial);
     setDraggingId(null);
     setDragOffsetY(0);
     dragY.setValue(0);
-  }, [isVisible, sortType, raidItems, missionItems, accountMissionItems, otherActivityItems, dragY]);
+  }, [isVisible, sortType, missionItems, accountMissionItems, otherActivityItems, dragY]);
 
   const draggingIndex = useMemo(() => items.findIndex((item) => item.id === draggingId), [items, draggingId]);
   const targetIndex = useMemo(() => {
@@ -153,13 +149,13 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                       }}
                       delayLongPress={250}
                     >
-                      <Feather name="menu" size={18} color={colors.grayDark} />
                       {item.subtitle ? (
                         <CustomText style={[styles.subtitle, { color: colors.secondary }]}>{item.subtitle}</CustomText>
                       ) : null}
                       <CustomText numberOfLines={1} style={[styles.itemText, { color: colors.black }]}>
                         {item.title}
                       </CustomText>
+                      <Feather name="move" size={16} color={colors.grayDark} />
                       {typeof item.gold === 'number' ? (
                         <CustomText style={[styles.goldText, item.gold >= 0 ? { color: colors.black } : { color: colors.warning }]}>
                           {item.gold.toLocaleString()}

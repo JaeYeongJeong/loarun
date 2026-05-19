@@ -15,6 +15,7 @@ import { SelectedRaid, useCharacter } from '@/context/CharacterContext';
 import RaidModal from './SubmitRaidModal';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import ActivityCustomSortModal from './ActivityCustomSortModal';
+import RaidCustomSortModal from './RaidCustomSortModal';
 import { fetchCharacterInfo } from '@/utils/FetchLostArkAPI';
 import { useTheme } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -105,8 +106,9 @@ const CharacterActivity: React.FC = () => {
 
 
   const [sortTarget, setSortTarget] = useState<
-    'raid' | 'mission' | 'accountMission' | 'otherActivity' | null
+    'mission' | 'accountMission' | 'otherActivity' | null
   >(null);
+  const [raidSortVisible, setRaidSortVisible] = useState(false);
 
   const reorderByIndices = <T,>(list: T[] | undefined, indices: number[]) =>
     indices
@@ -686,11 +688,11 @@ const CharacterActivity: React.FC = () => {
                 </View>
                 <TouchableOpacity
                   style={[styles.iconSortButton, { backgroundColor: colors.grayLight }]}
-                  onPress={() => setSortTarget('raid')}
+                  onPress={() => setRaidSortVisible(true)}
                   accessibilityRole="button"
                   accessibilityLabel="레이드 순서 변경"
                 >
-                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
+                  <MaterialIcons name="unfold-more" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -855,7 +857,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="일일/주간 미션 정렬"
                 >
-                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
+                  <MaterialIcons name="unfold-more" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1032,7 +1034,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="원정대 미션 정렬"
                 >
-                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
+                  <MaterialIcons name="unfold-more" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1174,7 +1176,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="기타 활동 정렬"
                 >
-                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
+                  <MaterialIcons name="unfold-more" size={18} color={colors.black} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1246,12 +1248,15 @@ const CharacterActivity: React.FC = () => {
         })()}
       />
 
+      <RaidCustomSortModal
+        isVisible={raidSortVisible}
+        raidItems={character.SelectedRaids || []}
+        onClose={() => setRaidSortVisible(false)}
+        onConfirm={(indices) => handleCustomSort('raid', indices)}
+      />
       <ActivityCustomSortModal
         isVisible={sortTarget !== null}
         sortType={sortTarget}
-        raidItems={(character.SelectedRaids || []).map((raid) => ({
-          name: raid.name || '레이드',
-        }))}
         missionItems={character.MissionCheckList || []}
         accountMissionItems={character.AccountMissionCheckList || []}
         otherActivityItems={character.OtherActivity || []}
