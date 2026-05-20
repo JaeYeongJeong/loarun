@@ -10,7 +10,11 @@ import {
 } from 'react-native';
 import CustomText from '../components/customTextComponents/CustomText';
 import CustomAlert from './CustomAlert';
-import { mission, defaultMissions } from '@/utils/defaultMissions';
+import {
+  mission,
+  defaultMissions,
+  defaultAccountMissions,
+} from '@/utils/defaultMissions';
 
 type CharacterActivityOptionsModalProps = {
   isVisible: boolean;
@@ -177,7 +181,10 @@ const CharacterActivityOptionsModal: React.FC<
         isVisible={resetAccountMissionAlertVisible}
         setIsVisibleFalse={() => setResetAccountMissionAlertVisible(false)}
         titleText="원정대 미션 기본값"
-        messageText="원정대 미션을 기본값으로 되돌립니다."
+        customMessage={renderMissionMessage(
+          '원정대 미션을 기본값으로 되돌립니다.',
+          defaultAccountMissions,
+        )}
         onSubmit={resetAccountMissions}
       />
       <CustomAlert
