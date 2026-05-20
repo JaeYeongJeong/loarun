@@ -345,7 +345,7 @@ const CustomSortModal: React.FC<CustomSortModalProps> = ({
               <View
                 style={[
                   styles.primaryButton,
-                  { backgroundColor: colors.primary },
+                  { backgroundColor: colors.secondary },
                 ]}
               >
                 <CustomText style={styles.primaryButtonText}>확인</CustomText>

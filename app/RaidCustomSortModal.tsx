@@ -195,7 +195,7 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
               <CustomText style={{ color: colors.black }}>취소</CustomText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: colors.primary }]}
+              style={[styles.button, { backgroundColor: colors.secondary }]}
               onPress={() => {
                 onConfirm(items.map((item) => item.originalIndex));
                 onClose();
