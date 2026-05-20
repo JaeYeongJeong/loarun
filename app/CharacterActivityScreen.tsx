@@ -1191,6 +1191,7 @@ const CharacterActivity: React.FC = () => {
         toggleModal={toggleOptionsModal}
         positionX={optionsButtonX}
         positionY={optionsButtonY}
+        currentMissions={character.MissionCheckList || []}
         resetRaid={() => {
           const updatedSelectedRaid = defaultSelectedRaids(character);
           updateCharacter(character.id, {

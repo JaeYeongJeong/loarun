@@ -17,6 +17,7 @@ type CustomAlertProps = {
   onSubmit?: () => void;
   buttonType?: 'default' | 'oneButton';
   align?: 'auto' | 'center';
+  customMessage?: React.ReactNode;
 };
 
 const CustomAlert: React.FC<CustomAlertProps> = ({
@@ -27,6 +28,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   onSubmit: submitAction,
   buttonType = 'default',
   align = 'auto',
+  customMessage,
 }) => {
   const { colors } = useTheme();
 
@@ -65,7 +67,10 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
           >
             {titleText}
           </CustomText>
-          {messageText && (
+          {customMessage ? (
+            customMessage
+          ) : (
+            messageText && (
             <CustomText
               style={[
                 styles.messageText,
@@ -74,6 +79,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
             >
               {messageText}
             </CustomText>
+            )
           )}
           <View style={styles.buttonWrapper}>
             {buttonType === 'default' ? (

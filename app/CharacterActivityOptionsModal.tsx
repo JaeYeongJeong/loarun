@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import CustomText from '../components/customTextComponents/CustomText';
 import CustomAlert from './CustomAlert';
+import { mission, defaultMissions } from '@/utils/defaultMissions';
 
 type CharacterActivityOptionsModalProps = {
   isVisible: boolean;
@@ -21,6 +22,7 @@ type CharacterActivityOptionsModalProps = {
   resetAccountMissions: () => void;
   changeName: () => void;
   syncMission: () => void;
+  currentMissions: mission[];
 };
 
 const CharacterActivityOptionsModal: React.FC<
@@ -35,6 +37,7 @@ const CharacterActivityOptionsModal: React.FC<
   resetAccountMissions,
   changeName,
   syncMission,
+  currentMissions,
 }) => {
   const [resetRaidAlertVisible, setResetRaidAlertVisible] =
     React.useState(false);
@@ -49,6 +52,29 @@ const CharacterActivityOptionsModal: React.FC<
   const handleCloseModal = () => {
     toggleModal();
   };
+
+  const renderMissionMessage = (intro: string, missions: mission[]) => (
+    <View>
+      <CustomText style={[styles.messageText, { color: colors.black }]}>
+        {intro}
+      </CustomText>
+      <View style={styles.missionList}>
+        {missions.map((item, index) => (
+          <View key={`${item.name}-${index}`} style={styles.missionItemRow}>
+            <View
+              style={[styles.bulletDot, { backgroundColor: colors.grayDark }]}
+            />
+            <CustomText style={[styles.periodText, { color: colors.secondary }]}>
+              {item.resetPeriod === 'weekly' ? '주간' : '일일'}
+            </CustomText>
+            <CustomText style={[styles.messageText, { color: colors.black }]}>
+              {item.name}
+            </CustomText>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <>
@@ -141,7 +167,10 @@ const CharacterActivityOptionsModal: React.FC<
         isVisible={resetMissionAlertVisible}
         setIsVisibleFalse={() => setResetMissionAlertVisible(false)}
         titleText="미션 기본값"
-        messageText="일일/주간 미션을 기본값으로 되돌립니다."
+        customMessage={renderMissionMessage(
+          '일일/주간 미션을 기본값으로 되돌립니다.',
+          defaultMissions,
+        )}
         onSubmit={resetMissions}
       />
       <CustomAlert
@@ -155,7 +184,10 @@ const CharacterActivityOptionsModal: React.FC<
         isVisible={syncMissionAlertVisible}
         setIsVisibleFalse={() => setSyncMissionAlertVisible(false)}
         titleText="일일/주간 미션 동기화"
-        messageText="현재 캐릭터에 설정된 일일/주간 미션을 모든 캐릭터에 적용합니다."
+        customMessage={renderMissionMessage(
+          '현재 캐릭터에 설정된 일일/주간 미션을 모든 캐릭터에 적용합니다.',
+          currentMissions,
+        )}
         onSubmit={syncMission}
       />
       <CustomAlert
@@ -196,6 +228,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 32,
+  },
+  messageText: {
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 20,
+  },
+  missionList: {
+    marginTop: 8,
+    gap: 4,
+  },
+  missionItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  bulletDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 999,
+    marginTop: 1,
+  },
+  periodText: {
+    fontSize: 14,
+    fontWeight: '700',
+    minWidth: 24,
   },
 });
 
