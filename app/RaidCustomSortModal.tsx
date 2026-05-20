@@ -168,7 +168,12 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
                               stage.cleared ? { color: colors.white } : { color: colors.black },
                               !stage.cleared && stage.difficulty === '노말' ? { color: colors.info } : null,
                               !stage.cleared && stage.difficulty === '하드' ? { color: colors.danger } : null,
-                              !stage.cleared && (stage.difficulty === '익스트림 노말' || stage.difficulty === '익스트림 하드')  ? { color: colors.extreme } : null,
+                              !stage.cleared &&
+                              (stage.difficulty === '익스트림 노말' ||
+                                stage.difficulty === '익스트림 하드' ||
+                                stage.difficulty === '나이트메어')
+                                ? { color: colors.extreme }
+                                : null,
                             ]}
                           >
                             {stage.difficulty}
@@ -220,7 +225,7 @@ const styles = StyleSheet.create({
   lastStage: { borderTopRightRadius: 12, borderBottomRightRadius: 12 },
   difficultyText: { fontSize: 11, fontWeight: '600' },
   stageText: { fontSize: 11, fontWeight: '600' },
-  dragging: { elevation: 8, shadowColor: '#000', shadowOpacity: 0.22, shadowRadius: 9, shadowOffset: { width: 0, height: 4 } },
+  dragging: { opacity: 0.86, zIndex: 999 },
   footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 8 },
   button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
 });

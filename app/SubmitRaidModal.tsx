@@ -466,7 +466,8 @@ const RaidModal: React.FC<RaidModalProps> = ({
                                 ? { color: colors.danger }
                                 : {},
                               difficultyObj.difficulty === '익스트림 노말' ||
-                              difficultyObj.difficulty === '익스트림 하드'
+                              difficultyObj.difficulty === '익스트림 하드' ||
+                              difficultyObj.difficulty === '나이트메어'
                                 ? { color: colors.extreme }
                                 : {},
                             ]}

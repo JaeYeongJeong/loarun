@@ -626,7 +626,8 @@ const CharacterActivity: React.FC = () => {
                                 ? { color: colors.danger }
                                 : {},
                               stage.difficulty === '익스트림 노말' ||
-                              stage.difficulty === '익스트림 하드'
+                              stage.difficulty === '익스트림 하드' ||
+                              stage.difficulty === '나이트메어'
                                 ? { color: colors.extreme }
                                 : {},
                             ]}
