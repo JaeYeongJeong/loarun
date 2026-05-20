@@ -27,6 +27,8 @@ type ActivityCustomSortModalProps = {
 type SortItem = { id: string; originalIndex: number; title: string; subtitle?: string };
 
 const ROW_HEIGHT = 56;
+const AUTO_SCROLL_EDGE_SIZE = 72;
+const AUTO_SCROLL_MAX_STEP = 18;
 const moveItem = <T,>(list: T[], fromIndex: number, toIndex: number) => {
   const next = [...list];
   const [removed] = next.splice(fromIndex, 1);
@@ -49,6 +51,14 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const dragY = useRef(new Animated.Value(0)).current;
   const dragStartIndex = useRef(0);
+  const dragStartScrollY = useRef(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollY = useRef(0);
+  const listTopY = useRef(0);
+  const listHeight = useRef(0);
+  const contentHeight = useRef(0);
+  const lastGesture = useRef<{ dy: number; moveY: number } | null>(null);
+  const autoScrollFrame = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isVisible || !sortType) return;
@@ -68,11 +78,74 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
   const draggingIndex = useMemo(() => items.findIndex((item) => item.id === draggingId), [items, draggingId]);
   const targetIndex = useMemo(() => {
     if (draggingIndex < 0) return -1;
-    return Math.min(Math.max(dragStartIndex.current + Math.round(dragOffsetY / ROW_HEIGHT), 0), items.length - 1);
+    return Math.min(
+      Math.max(dragStartIndex.current + Math.round((dragOffsetY + scrollY.current - dragStartScrollY.current) / ROW_HEIGHT), 0),
+      items.length - 1
+    );
   }, [dragOffsetY, draggingIndex, items.length]);
 
   const getDragTargetIndex = (dy: number) =>
-    Math.min(Math.max(dragStartIndex.current + Math.round(dy / ROW_HEIGHT), 0), items.length - 1);
+    Math.min(
+      Math.max(dragStartIndex.current + Math.round((dy + scrollY.current - dragStartScrollY.current) / ROW_HEIGHT), 0),
+      items.length - 1
+    );
+
+  const stopAutoScroll = () => {
+    if (autoScrollFrame.current !== null) {
+      cancelAnimationFrame(autoScrollFrame.current);
+      autoScrollFrame.current = null;
+    }
+  };
+
+  const runAutoScroll = () => {
+    const gesture = lastGesture.current;
+    if (!gesture || listHeight.current <= 0) {
+      autoScrollFrame.current = null;
+      return;
+    }
+
+    const relativeY = gesture.moveY - listTopY.current;
+    let direction = 0;
+    let distanceFromEdge = 0;
+
+    if (relativeY < AUTO_SCROLL_EDGE_SIZE) {
+      direction = -1;
+      distanceFromEdge = AUTO_SCROLL_EDGE_SIZE - relativeY;
+    } else if (relativeY > listHeight.current - AUTO_SCROLL_EDGE_SIZE) {
+      direction = 1;
+      distanceFromEdge = relativeY - (listHeight.current - AUTO_SCROLL_EDGE_SIZE);
+    }
+
+    const maxScrollY = Math.max(0, contentHeight.current - listHeight.current);
+    const canScrollUp = direction < 0 && scrollY.current > 0;
+    const canScrollDown = direction > 0 && scrollY.current < maxScrollY;
+
+    if (direction !== 0 && (canScrollUp || canScrollDown)) {
+      const speedRatio = Math.min(Math.max(distanceFromEdge / AUTO_SCROLL_EDGE_SIZE, 0), 1);
+      const nextScrollY = Math.min(
+        Math.max(scrollY.current + direction * AUTO_SCROLL_MAX_STEP * speedRatio, 0),
+        maxScrollY
+      );
+
+      if (nextScrollY !== scrollY.current) {
+        scrollY.current = nextScrollY;
+        scrollViewRef.current?.scrollTo({ y: nextScrollY, animated: false });
+      }
+
+      setDragOffsetY(gesture.dy);
+      dragY.setValue(gesture.dy + scrollY.current - dragStartScrollY.current);
+      autoScrollFrame.current = requestAnimationFrame(runAutoScroll);
+    } else {
+      autoScrollFrame.current = null;
+    }
+  };
+
+  const scheduleAutoScroll = (gestureState: PanResponderGestureState) => {
+    lastGesture.current = { dy: gestureState.dy, moveY: gestureState.moveY };
+    if (autoScrollFrame.current === null) {
+      autoScrollFrame.current = requestAnimationFrame(runAutoScroll);
+    }
+  };
 
   const finishDrag = (_: unknown, gestureState: PanResponderGestureState) => {
     if (draggingIndex < 0) return;
@@ -83,6 +156,8 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
       setItems((prev) => moveItem(prev, draggingIndex, nextIndex));
     }
 
+    stopAutoScroll();
+    lastGesture.current = null;
     setDraggingId(null);
     setDragOffsetY(0);
     dragY.setValue(0);
@@ -97,7 +172,8 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
         onMoveShouldSetPanResponderCapture: () => draggingId !== null,
         onPanResponderMove: (_, gestureState) => {
           setDragOffsetY(gestureState.dy);
-          dragY.setValue(gestureState.dy);
+          dragY.setValue(gestureState.dy + scrollY.current - dragStartScrollY.current);
+          scheduleAutoScroll(gestureState);
         },
         onPanResponderRelease: finishDrag,
         onPanResponderTerminationRequest: () => false,
@@ -115,7 +191,23 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
         <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '55' }]}>
           <CustomText style={[styles.title, { color: colors.black }]}>순서 변경</CustomText>
           <CustomText style={[styles.helpText, { color: colors.grayDark }]}>항목을 길게 눌러 드래그해 순서를 변경하세요.</CustomText>
-          <ScrollView style={styles.list} contentContainerStyle={styles.listContent} scrollEnabled={!draggingId} disableScrollViewPanResponder={Boolean(draggingId)}>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+            scrollEnabled={!draggingId}
+            disableScrollViewPanResponder={Boolean(draggingId)}
+            onContentSizeChange={(_, height) => {
+              contentHeight.current = height;
+            }}
+            onLayout={(event) => {
+              listHeight.current = event.nativeEvent.layout.height;
+            }}
+            onScroll={(event) => {
+              scrollY.current = event.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
+          >
             <View>
               {items.map((item, index) => {
                 const isDragging = item.id === draggingId;
@@ -142,7 +234,12 @@ const ActivityCustomSortModal: React.FC<ActivityCustomSortModalProps> = ({
                       style={styles.rowContent}
                       activeOpacity={0.9}
                       onLongPress={() => {
+                        scrollViewRef.current?.measureInWindow((_, y, __, height) => {
+                          listTopY.current = y;
+                          listHeight.current = height;
+                        });
                         dragStartIndex.current = index;
+                        dragStartScrollY.current = scrollY.current;
                         setDraggingId(item.id);
                         setDragOffsetY(0);
                         dragY.setValue(0);
