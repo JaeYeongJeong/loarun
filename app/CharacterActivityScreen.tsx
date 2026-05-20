@@ -858,7 +858,7 @@ const CharacterActivity: React.FC = () => {
                   accessibilityRole="button"
                   accessibilityLabel="일일/주간 미션 정렬"
                 >
-                  <MaterialIcons name="swap-vert" size={18} color={colors.black} />
+                  <MaterialIcons name="swap-vert" size={18} color={colors.grayDark} />
                 </TouchableOpacity>
               </View>
             </View>

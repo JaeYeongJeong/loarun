@@ -23,6 +23,11 @@ export const defaultMissions: mission[] = [
     checked: false,
     resetPeriod: 'weekly',
   },
+  {
+    name: '낙원 천상',
+    checked: false,
+    resetPeriod: 'weekly',
+  },
 ];
 
 // ✅ 계정 미션 체크리스트 데이터
@@ -31,5 +36,10 @@ export const defaultAccountMissions: mission[] = [
     name: '카오스 게이트 & 필드 보스',
     checked: false,
     resetPeriod: 'daily',
+  },
+  {
+    name: '2막 익스트림',
+    checked: false,
+    resetPeriod: 'weekly',
   },
 ];
