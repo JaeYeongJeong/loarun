@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   rowContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dragging: { elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
   subtitle: { fontSize: 13, fontWeight: '700' },
-  itemText: { flex: 1, fontSize: 15, fontWeight: '700' },
+  itemText: { flex: 1, fontSize: 15, fontWeight: '600' },
   footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 6 },
   button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
 });

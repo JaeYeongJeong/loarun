@@ -105,7 +105,7 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
   return (
     <Modal animationType="fade" transparent visible={isVisible}>
       <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.grayDark + '44' }]}>
+        <View style={[styles.container, { backgroundColor: colors.modalBackground, borderColor: colors.grayDark + '44' }]}>
           <CustomText style={[styles.title, { color: colors.black }]}>레이드 순서 변경</CustomText>
           <CustomText style={[styles.helpText, { color: colors.grayDark }]}>항목을 길게 눌러 드래그해 순서를 변경하세요.</CustomText>
 
@@ -133,7 +133,8 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
                   style={[
                     styles.row,
                     {
-                      backgroundColor: colors.grayLight,
+                      backgroundColor: colors.cardBackground,
+                      borderRadius: 14,
                       transform: [{ translateY: isDragging ? dragY : displaced }],
                     },
                     isDragging ? styles.dragging : null,
@@ -167,7 +168,7 @@ const RaidCustomSortModal: React.FC<RaidCustomSortModalProps> = ({ isVisible, ra
                               stage.cleared ? { color: colors.white } : { color: colors.black },
                               !stage.cleared && stage.difficulty === '노말' ? { color: colors.info } : null,
                               !stage.cleared && stage.difficulty === '하드' ? { color: colors.danger } : null,
-                              !stage.cleared && (stage.difficulty === '익스트림 노말' || stage.difficulty === '익스트림 하드') ? { color: colors.extreme } : null,
+                              !stage.cleared && (stage.difficulty === '익스트림 노말' || stage.difficulty === '익스트림 하드')  ? { color: colors.extreme } : null,
                             ]}
                           >
                             {stage.difficulty}
@@ -212,13 +213,13 @@ const styles = StyleSheet.create({
   list: { maxHeight: 460 },
   listContent: { paddingBottom: 4 },
   row: { borderRadius: 12, marginBottom: 8, paddingHorizontal: 10, paddingVertical: 10 },
-  raidName: { fontSize: 16, fontWeight: '700', marginBottom: 8, paddingHorizontal: 2 },
+  raidName: { fontSize: 14, fontWeight: '600', marginBottom: 8, paddingHorizontal: 2 },
   stageRow: { flexDirection: 'row', borderRadius: 12 },
-  stageItem: { flex: 1, paddingVertical: 6, alignItems: 'center' },
+  stageItem: { flex: 1, paddingVertical: 10, alignItems: 'center' },
   firstStage: { borderTopLeftRadius: 12, borderBottomLeftRadius: 12 },
   lastStage: { borderTopRightRadius: 12, borderBottomRightRadius: 12 },
-  difficultyText: { fontSize: 12, fontWeight: '700' },
-  stageText: { fontSize: 13, fontWeight: '700' },
+  difficultyText: { fontSize: 11, fontWeight: '600' },
+  stageText: { fontSize: 11, fontWeight: '600' },
   dragging: { elevation: 8, shadowColor: '#000', shadowOpacity: 0.22, shadowRadius: 9, shadowOffset: { width: 0, height: 4 } },
   footer: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 8 },
   button: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14 },
