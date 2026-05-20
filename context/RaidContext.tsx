@@ -11,6 +11,7 @@ export type RaidDifficulty =
   | '익스트림 하드'
   | '헬'
   | '더퍼스트'
+  | '나이트메어'
   | (string & {}); // 지정된 값 외에도 string 허용;
 
 export type RaidStage = {
