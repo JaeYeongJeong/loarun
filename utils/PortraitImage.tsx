@@ -30,6 +30,8 @@ const cropMap = new Map<string, { originX: number; originY: number }>([
   ['도화가', { originX: 0.38, originY: 0.25 }],
   ['기상술사', { originX: 0.38, originY: 0.25 }],
   ['환수사', { originX: 0.38, originY: 0.25 }],
+  ['가디언나이트', { originX: 0.38, originY: 0.1 }],
+  ['차원술사', { originX: 0.38, originY: 0.2 }],
 ]);
 
 const getDocumentFile = (fileName: string) => {
@@ -53,7 +55,7 @@ const createImageFileSuffix = () => {
 const cropAndSavePortraitImage = async (
   characterImage: string,
   id: string,
-  className: string
+  className: string,
 ) => {
   const suffix = createImageFileSuffix();
   const originalFile = getDocumentFile(`${id}_original_${suffix}.png`);
@@ -66,7 +68,7 @@ const cropAndSavePortraitImage = async (
     const imageInfo = await ImageManipulator.manipulateAsync(
       originalFile.uri,
       [],
-      {}
+      {},
     );
 
     const { width, height } = imageInfo;
@@ -96,11 +98,11 @@ const cropAndSavePortraitImage = async (
       {
         compress: 1,
         format: ImageManipulator.SaveFormat.PNG,
-      }
+      },
     );
 
     const previousFileName = await AsyncStorage.getItem(
-      `portrait_filename_${id}`
+      `portrait_filename_${id}`,
     );
     const fileName = `${id}_portrait_${suffix}.png`;
     const portraitFile = getDocumentFile(fileName);

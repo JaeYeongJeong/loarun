@@ -37,9 +37,4 @@ export const defaultAccountMissions: mission[] = [
     checked: false,
     resetPeriod: 'daily',
   },
-  {
-    name: '2막 익스트림',
-    checked: false,
-    resetPeriod: 'weekly',
-  },
 ];
