@@ -8,7 +8,7 @@ export default {
     orientation: "portrait",
     userInterfaceStyle: "automatic",
 
-    version: "1.1.1",
+    version: "1.1.2",
     newArchEnabled: true,
 
     icon: "./assets/images/loarunIcon-1024-big-removebg.png",
